@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shariah ML4T Pipeline — Comprehensive Flowchart</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      padding: 24px;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    header h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #60a5fa;
+      letter-spacing: -0.5px;
+    }
+    header p {
+      margin-top: 6px;
+      font-size: 0.9rem;
+      color: #94a3b8;
+    }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 28px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.78rem;
+      color: #cbd5e1;
+    }
+    .dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+    .chart-wrapper {
+      background: #1e2130;
+      border: 1px solid #2d3452;
+      border-radius: 12px;
+      padding: 28px 16px;
+      overflow-x: auto;
+    }
+    .mermaid { display: flex; justify-content: center; }
+    footer {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 0.75rem;
+      color: #475569;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Shariah ML4T Pipeline v2 — Comprehensive Flowchart</h1>
+  <p>Stefan Jansen MFAT 2nd Edition · Walk-Forward CV · LightGBM · Multi-Market (US / MY / HK)</p>
+</header>
+
+<div class="legend">
+  <div class="legend-item"><div class="dot" style="background:#1d4ed8"></div>Setup &amp; Config</div>
+  <div class="legend-item"><div class="dot" style="background:#0f766e"></div>Data Ingestion</div>
+  <div class="legend-item"><div class="dot" style="background:#6d28d9"></div>Feature Engineering</div>
+  <div class="legend-item"><div class="dot" style="background:#b45309"></div>Factor Screening</div>
+  <div class="legend-item"><div class="dot" style="background:#065f46"></div>ML Training (per fold)</div>
+  <div class="legend-item"><div class="dot" style="background:#be185d"></div>Portfolio &amp; Backtest</div>
+  <div class="legend-item"><div class="dot" style="background:#374151"></div>Output &amp; Dashboard</div>
+</div>
+
+<div class="chart-wrapper">
+<div class="mermaid">
+%%{init: {
+  "theme": "dark",
+  "themeVariables": {
+    "primaryColor": "#1e3a5f",
+    "primaryTextColor": "#e2e8f0",
+    "primaryBorderColor": "#3b82f6",
+    "lineColor": "#64748b",
+    "secondaryColor": "#1a2744",
+    "tertiaryColor": "#0f1a33",
+    "background": "#1e2130",
+    "mainBkg": "#1e2130",
+    "nodeBorder": "#334155",
+    "clusterBkg": "#1a2030",
+    "titleColor": "#93c5fd",
+    "edgeLabelBackground": "#1e2130",
+    "fontFamily": "Segoe UI, system-ui, sans-serif"
+  }
+}}%%
+flowchart TD
+
+  %% ─── STAGE 1: SETUP ────────────────────────────────────────────
+  S1(["▶  START"]):::start
+
+  subgraph SETUP["⚙️  STAGE 1 — Setup & Configuration  (Cells 1–3)"]
+    direction TB
+    C1["📦 Cell 1 · Install Dependencies\npyarrow · alphalens-reloaded · lightgbm\nrequests · scikit-learn · pandas · numpy"]:::setup
+    C2["🔧 Cell 2 · Global Configuration\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nTrain: 2010-01-01 → 2024-12-31\nAlphalens window: 2017-2019 (held-out)\nTarget horizon: 21-day forward returns\nN_SPLITS=8 | TRAIN=756d | TEST=63d | EMBARGO=21d\nLiquidity: US $500K · MY $200K · HK $500K ADV\nMax position: 5% | Max market: 40%\nCircuit breaker: −15% drawdown"]:::setup
+    C3["🌍 Cell 3 · Ticker Universes (Shariah-Screened)\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nUS (NYSE/NASDAQ) ≈ 130 tickers\nMalaysia (KLSE)  ≈ 700 tickers\nHong Kong (HKEX) ≈ 130 tickers\nTotal universe   ≈ 1,056 tickers"]:::setup
+  end
+
+  %% ─── STAGE 2: DATA INGESTION ────────────────────────────────────
+  subgraph INGEST["📥  STAGE 2 — Data Ingestion  (Cells 4–5)"]
+    direction TB
+    C4["🔌 Cell 4 · EODHD Downloader Setup\nAPI key, retry logic, rate limiting\nadjusted-close ratio calculation"]:::ingest
+    DELISTD{{"Survivorship-bias\ncorrection?"}}:::decision
+    C5A["📡 Fetch Active Tickers\nDaily adjusted OHLCV\n2010 → 2024"]:::ingest
+    C5B["📡 Fetch Delisted Tickers\nUp to 300 per market\n(avoid selection bias)"]:::ingest
+    C5C["🔄 Adjust OHLC\nMultiply by adj_close / close ratio"]:::ingest
+    RAW[("💾 raw_ohlcv.parquet\n~65 MB · all 1,056 tickers\n2010–2024")]:::file
+  end
+
+  %% ─── STAGE 3: FEATURE ENGINEERING ──────────────────────────────
+  subgraph FEAT["🔬  STAGE 3 — Feature Engineering  (Cell 6)"]
+    direction TB
+    F_RET["Returns\nret_1d · ret_5d · ret_10d\nret_21d · ret_63d · log_ret_1d"]:::feat
+    F_MOM["Momentum\nRSI-14 · ROC-21"]:::feat
+    F_TRD["Trend\nClose vs SMA-50\nClose vs SMA-200"]:::feat
+    F_VOL["Volatility\nvol_10d · vol_21d · vol_63d\nATR% · BB-width · BB-position"]:::feat
+    F_VLM["Volume\nVol-ratio · Vol-momentum"]:::feat
+    LIQ["🔍 Liquidity Filter\nDrop tickers below ADV threshold\n(per-market thresholds)"]:::feat
+    FWD["🎯 Forward Targets\nfwd_ret_5d · fwd_ret_21d\ndirection_21d (binary)"]:::feat
+    FFILE[("💾 features_long_all.parquet\n~259 MB · 153K rows × 24 cols")]:::file
+  end
+
+  %% ─── STAGE 4: ALPHALENS SCREENING ──────────────────────────────
+  subgraph ALPHA["📊  STAGE 4 — Alphalens Factor Screening  (Cell 7)"]
+    direction TB
+    AL1["Build price panel & forward-return series\n(held-out 2017–2019 window only\n → avoids data leakage)"]:::screen
+    AL2["Compute Spearman IC per factor\nIC = rank_corr(factor_t , fwd_ret_t+21)"]:::screen
+    AL3{{"| mean IC | > 0.01?"}}:::decision
+    AL4["✅ Feature passes IC gate\nCompute ICIR = mean(IC) / std(IC)"]:::screen
+    AL5["❌ Feature dropped"]:::drop
+    SELFEATS["📋 Selected Features\n(reduced from 18 → passing features)"]:::screen
+  end
+
+  %% ─── STAGE 5: ML MATRIX PREP ────────────────────────────────────
+  subgraph MLPREP["🗂️  STAGE 5 — ML Feature Matrix Preparation  (Cells 8–10)"]
+    direction TB
+    ML1["Cell 8 · Alphalens inputs\n(price panel, forward returns)"]:::mlprep
+    ML2["Cell 9 · Build wide ML matrix\nShape: dates × tickers (index format)"]:::mlprep
+    ML3["Cell 10 · Compute walk-forward CV\nsplit dates for all 8 folds"]:::mlprep
+  end
+
+  %% ─── STAGE 6: WALK-FORWARD CV SETUP ─────────────────────────────
+  subgraph WFCV["🔁  STAGE 6 — Walk-Forward CV Setup  (Cell 11)"]
+    direction LR
+    WF1["Fold 1\nTrain: days 1-756\nEmb: 757-777\nTest: 778-840"]:::fold
+    WF2["Fold 2\nTrain: days 85-840\nEmb: 841-861\nTest: 862-924"]:::fold
+    WF3["Fold 3 … "]:::fold
+    WF8["Fold 8\n(most recent)"]:::fold
+    WF1 -.->|stride=84d| WF2 -.->|stride=84d| WF3 -.-> WF8
+  end
+
+  %% ─── STAGE 7: LGBM TRAINING ─────────────────────────────────────
+  subgraph TRAIN["🤖  STAGE 7 — LightGBM Walk-Forward Training  (Cells 12–14)"]
+    direction TB
+    TRN1["For each fold k in 1…8:"]:::train
+    TRN2["🏋️ Train LightGBM Regressor\n756 days of (features → fwd_ret_21d)\nL2 loss (MSE minimisation)"]:::train
+    TRN3["🚧 Embargo window (21 days)\nNo predictions in train-test gap"]:::train
+    TRN4["🔮 Predict test window (63 days)\nOut-of-fold predictions collected"]:::train
+    TRN5{"More folds?"}:::decision
+    OOF[("Out-of-fold\nPredictions\n(all 8 folds)")]:::file
+  end
+
+  %% ─── STAGE 8: SIGNAL QC ─────────────────────────────────────────
+  subgraph SQC["🔎  STAGE 8 — Signal Filtering & Quality Control  (Cell 15a)"]
+    direction TB
+    SQ1["Compute cross-sectional IC per date\nSpearman corr(signal, actual return)"]:::sigqc
+    SQ2["NaN-out predictions from dropped folds\n(insufficient training data)"]:::sigqc
+    SQ3["Cross-sectional winsorization\nClip at decile 10 / 90 per date"]:::sigqc
+    SQ4["Compute Mean IC & ICIR\n(signal quality diagnostics)"]:::sigqc
+    SIG["📶 Filtered ML Signals\n(date × ticker)"]:::sigqc
+  end
+
+  %% ─── STAGE 8B: ALPHA ANALYSIS ───────────────────────────────────
+  subgraph ALPHAB["📈  STAGE 8b — Alpha Analysis  (Cell 15b)"]
+    direction TB
+    AB1["Quantile return analysis (deciles 1–10)"]:::screen
+    AB2["Long-short spread (Q10 − Q1)"]:::screen
+    AB3["Rolling IC (21-day window)"]:::screen
+    AB4["Signal turnover & autocorrelation"]:::screen
+    AB5["Sortino / Calmar per quantile"]:::screen
+  end
+
+  %% ─── STAGE 9: PORTFOLIO ─────────────────────────────────────────
+  subgraph PORT["💼  STAGE 9 — Portfolio Construction & Backtest  (Cells 16–17)"]
+    direction TB
+    P1["Select top decile (10%) of ranked signals\nper rebalance date (every 21 days)"]:::port
+    P2["🏗️ Position Sizing\nSignal-weighted · Max 5% per stock\nMax 40% per market"]:::port
+    P3{{"Drawdown > −15%?"}}:::decision
+    P4["🛑 Circuit Breaker Triggered\nFlat portfolio until recovery"]:::drop
+    P5["📊 Apply Transaction Costs\nCommission: 5 bps\nSlippage: 2.5 bps\nTotal: ~15 bps per turn"]:::port
+    P6["📉 Compute Daily P&L\nEquity curve + drawdown series"]:::port
+  end
+
+  %% ─── STAGE 10: METRICS ──────────────────────────────────────────
+  subgraph METRICS["📐  STAGE 10 — Performance Metrics  (Cells 18–20)"]
+    direction TB
+    M1["Return metrics\nAnnual / Total / Gross returns"]:::metric
+    M2["Risk-adjusted metrics\nSharpe · Sortino · Calmar ratios"]:::metric
+    M3["Drawdown analysis\nMax DD · duration · recovery"]:::metric
+    M4["Signal quality metrics\nMean IC · ICIR · % positive IC folds"]:::metric
+    M5["Portfolio statistics\nAvg holdings · Turnover · Autocorrelation"]:::metric
+    M6["Benchmark comparison\nEqual-weight baseline portfolio"]:::metric
+  end
+
+  %% ─── STAGE 11: SHAP ─────────────────────────────────────────────
+  subgraph SHAP["🔍  STAGE 11 — SHAP Explainability  (Cells 21–22)"]
+    direction TB
+    SH1["Compute SHAP values on final fold test set"]:::shap
+    SH2["Rank features by mean |SHAP|"]:::shap
+    SH3["📊 SHAP summary & bar plots\n→ shap_importance_v2.png"]:::shap
+  end
+
+  %% ─── STAGE 12: EXPORT ───────────────────────────────────────────
+  subgraph EXPORT["📤  STAGE 12 — Dashboard Export  (Cell 23)"]
+    direction TB
+    EX1["Serialize results to JSON\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n• Config params & metadata\n• Equity curve & drawdown\n• Per-rebalance holdings\n• Quantile returns (decile analysis)\n• Long-short spread series\n• Rolling IC & turnover\n• Monthly returns heatmap\n• Top 20 stocks by signal"]:::export
+    JSON[("💾 dashboard_data.json\n~193 KB")]:::file
+  end
+
+  %% ─── STAGE 13: VISUALIZATION ────────────────────────────────────
+  subgraph VIZ["🖥️  STAGE 13 — Visualization & Web Dashboard  (Cells 24–25 + app.py)"]
+    direction TB
+    V1["📈 equity_curve_v2.png\nCumulative returns vs benchmark"]:::viz
+    V2["🎯 shap_importance_v2.png\nFeature importance ranking"]:::viz
+    V3["🏆 top20_stocks_v2.png\nTop holdings by signal strength"]:::viz
+    V4["📊 stock_ranking_latest.csv\nAll tickers ranked by latest signal"]:::viz
+    V5["🌐 Flask Web App (app.py)\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nGET  /api/status\nGET  /api/pipeline-cells\nPOST /api/run-pipeline  (SSE stream)\nPOST /api/stop-pipeline\nPOST /api/update-parquet\nGET  /api/download-parquet"]:::viz
+    V6[("🖥️ dashboard.html\nInteractive web UI · 86 KB")]:::file
+  end
+
+  END(["⏹  END — Pipeline Complete"]):::start
+
+  %% ─── CONNECTIONS ────────────────────────────────────────────────
+  S1 --> SETUP
+  C1 --> C2 --> C3
+
+  SETUP --> INGEST
+  C3 --> C4 --> DELISTD
+  DELISTD -->|"Yes (INCLUDE_DELISTED=True)"| C5B
+  DELISTD -->|Active tickers| C5A
+  C5A --> C5C
+  C5B --> C5C
+  C5C --> RAW
+
+  RAW --> FEAT
+  F_RET & F_MOM & F_TRD & F_VOL & F_VLM --> LIQ --> FWD --> FFILE
+
+  FFILE --> ALPHA
+  AL1 --> AL2 --> AL3
+  AL3 -->|"Yes"| AL4 --> SELFEATS
+  AL3 -->|"No"| AL5
+
+  SELFEATS --> MLPREP
+  ML1 --> ML2 --> ML3
+
+  ML3 --> WFCV
+  WFCV --> TRAIN
+  TRN1 --> TRN2 --> TRN3 --> TRN4 --> TRN5
+  TRN5 -->|"Yes — next fold"| TRN2
+  TRN5 -->|"No — all folds done"| OOF
+
+  OOF --> SQC
+  SQ1 --> SQ2 --> SQ3 --> SQ4 --> SIG
+
+  SIG --> ALPHAB
+  AB1 & AB2 & AB3 & AB4 & AB5 --> PORT
+
+  PORT
+  P1 --> P2 --> P3
+  P3 -->|"Yes"| P4
+  P3 -->|"No"| P5
+  P4 -.->|"Resume when\ndrawdown recovers"| P5
+  P5 --> P6
+
+  P6 --> METRICS
+  M1 & M2 & M3 & M4 & M5 & M6 --> SHAP
+
+  SHAP --> SH1 --> SH2 --> SH3
+  SH3 --> EXPORT
+  EX1 --> JSON
+
+  JSON --> VIZ
+  V1 & V2 & V3 & V4 --> V5 --> V6
+
+  V6 --> END
+
+  %% ─── STYLES ─────────────────────────────────────────────────────
+  classDef start      fill:#1e3a5f,stroke:#60a5fa,stroke-width:2px,color:#e2e8f0,font-weight:bold
+  classDef setup      fill:#1e3a8a,stroke:#3b82f6,stroke-width:1.5px,color:#dbeafe
+  classDef ingest     fill:#134e4a,stroke:#2dd4bf,stroke-width:1.5px,color:#ccfbf1
+  classDef feat       fill:#2e1065,stroke:#a855f7,stroke-width:1.5px,color:#f3e8ff
+  classDef screen     fill:#3b1f05,stroke:#f59e0b,stroke-width:1.5px,color:#fef3c7
+  classDef mlprep     fill:#1a2744,stroke:#818cf8,stroke-width:1.5px,color:#e0e7ff
+  classDef fold       fill:#042f2e,stroke:#34d399,stroke-width:1.5px,color:#d1fae5
+  classDef train      fill:#052e16,stroke:#4ade80,stroke-width:1.5px,color:#dcfce7
+  classDef sigqc      fill:#1c1917,stroke:#78716c,stroke-width:1.5px,color:#e7e5e4
+  classDef port       fill:#4a044e,stroke:#d946ef,stroke-width:1.5px,color:#fae8ff
+  classDef metric     fill:#172554,stroke:#60a5fa,stroke-width:1.5px,color:#dbeafe
+  classDef shap       fill:#1e1b4b,stroke:#818cf8,stroke-width:1.5px,color:#e0e7ff
+  classDef export     fill:#0c4a6e,stroke:#38bdf8,stroke-width:1.5px,color:#e0f2fe
+  classDef viz        fill:#1c2a3a,stroke:#67e8f9,stroke-width:1.5px,color:#cffafe
+  classDef file       fill:#0f172a,stroke:#475569,stroke-width:1.5px,color:#94a3b8,font-style:italic
+  classDef decision   fill:#1f2937,stroke:#f87171,stroke-width:2px,color:#fecaca
+  classDef drop       fill:#450a0a,stroke:#ef4444,stroke-width:1.5px,color:#fee2e2
+</div>
+</div>
+
+<footer>
+  Shariah ML4T Pipeline v2 · Stefan Jansen MFAT 2nd Edition · Generated 2026-06-07
+</footer>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    securityLevel: 'loose',
+    flowchart: { htmlLabels: true, curve: 'basis', padding: 20 },
+    theme: 'dark'
+  });
+</script>
+
+</body>
+</html>

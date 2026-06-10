@@ -1,0 +1,9 @@
+__pycache__/
+*.py[cod]
+*.pdf
+*.parquet
+.env
+*.egg-info/
+dist/
+build/
+.ipynb_checkpoints/

@@ -1,0 +1,23 @@
+# Shariah ML Quant Pipeline — Requirements
+# Python 3.13+
+# Install with: pip install -r requirements.txt
+
+# Core data
+pandas>=2.0.0
+numpy>=1.26.0
+
+# Machine learning
+lightgbm>=4.0.0
+scikit-learn>=1.3.0
+
+# Statistics
+scipy>=1.11.0
+
+# Explainability
+shap>=0.44.0
+
+# Plotting
+matplotlib>=3.7.0
+
+# Data download (EODHD API)
+requests>=2.31.0

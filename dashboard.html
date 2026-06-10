@@ -1,0 +1,1650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ML4T Pipeline Dashboard — Jansen v2</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg-primary: #1e1e2e;
+    --bg-secondary: #181825;
+    --bg-surface: #252540;
+    --bg-terminal: #11111b;
+    --border: #45475a;
+    --text-primary: #cdd6f4;
+    --text-secondary: #a6adc8;
+    --text-muted: #6c7086;
+    --accent-blue: #89b4fa;
+    --accent-green: #a6e3a1;
+    --accent-red: #f38ba8;
+    --accent-yellow: #f9e2af;
+    --accent-mauve: #cba6f7;
+    --accent-teal: #94e2d5;
+    --accent-peach: #fab387;
+    --terminal-green: #a6e3a1;
+    --terminal-prompt: #89b4fa;
+    --scrollbar-thumb: #45475a;
+    --scrollbar-track: #1e1e2e;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    overflow-x: hidden;
+  }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+  ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 4px; }
+
+  /* ── Header ── */
+  .header {
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-left { display: flex; align-items: center; gap: 16px; }
+  .header h1 { font-size: 18px; font-weight: 600; color: var(--accent-blue); letter-spacing: -0.3px; }
+  .header-badge {
+    font-size: 11px; padding: 2px 8px; border-radius: 10px;
+    background: var(--accent-green); color: var(--bg-primary); font-weight: 600;
+  }
+  .header-right { display: flex; align-items: center; gap: 12px; font-size: 12px; color: var(--text-muted); }
+  .load-btn {
+    background: var(--accent-blue); color: var(--bg-primary); border: none;
+    padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;
+  }
+  .load-btn:hover { opacity: 0.85; }
+
+  /* ── Tabs ── */
+  .tab-bar {
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 0;
+  }
+  .tab-btn {
+    padding: 10px 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tab-btn:hover { color: var(--text-secondary); }
+  .tab-btn.active { color: var(--accent-blue); border-bottom-color: var(--accent-blue); }
+  .tab-page { display: none; }
+  .tab-page.active { display: block; }
+
+  /* ── Metrics strip ── */
+  .metrics-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .metric-card { background: var(--bg-secondary); padding: 14px 18px; text-align: center; }
+  .metric-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 4px; }
+  .metric-value { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .metric-sub { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+  .metric-value.positive { color: var(--accent-green); }
+  .metric-value.negative { color: var(--accent-red); }
+  .metric-value.neutral { color: var(--accent-blue); }
+  .metric-value.warn { color: var(--accent-yellow); }
+
+  /* ── Controls strip ── */
+  .controls-strip {
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .control-group { display: flex; align-items: center; gap: 6px; }
+  .control-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+  .control-display { font-size: 12px; font-family: 'Cascadia Code', monospace; color: var(--accent-peach); min-width: 40px; text-align: center; }
+
+  /* ── Grid layouts ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; }
+
+  .panel {
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+  }
+  .panel:last-child, .panel:nth-child(2n) { border-right: none; }
+  .grid-3 .panel:nth-child(3n) { border-right: none; }
+  .grid-3 .panel:nth-child(3n-1) { border-right: 1px solid var(--border); }
+  .panel.full-width { grid-column: 1 / -1; border-right: none; }
+
+  .panel-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 16px; background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border); min-height: 40px;
+  }
+  .panel-title {
+    font-size: 12px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.8px; color: var(--text-secondary);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .panel-icon {
+    width: 16px; height: 16px; border-radius: 3px;
+    display: inline-flex; align-items: center; justify-content: center; font-size: 10px;
+  }
+  .panel-body { flex: 1; overflow: auto; }
+  .chart-container { padding: 16px; height: 380px; position: relative; }
+  .chart-container canvas { max-height: 100%; }
+
+  /* ── Tables ── */
+  .stock-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .stock-table thead { position: sticky; top: 0; z-index: 1; }
+  .stock-table th {
+    background: var(--bg-surface); padding: 8px 12px; text-align: left;
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px;
+    color: var(--text-muted); border-bottom: 1px solid var(--border); font-weight: 600;
+  }
+  .stock-table td {
+    padding: 7px 12px; border-bottom: 1px solid rgba(69, 71, 90, 0.3);
+    font-family: 'Cascadia Code', monospace; font-size: 12px;
+  }
+  .stock-table tr:hover { background: rgba(137, 180, 250, 0.05); }
+  .stock-table tr.in-portfolio { background: rgba(166, 227, 161, 0.08); }
+  .stock-table tr.in-portfolio:hover { background: rgba(166, 227, 161, 0.14); }
+  .stock-table .rank { color: var(--text-muted); width: 40px; }
+  .stock-table .ticker { color: var(--accent-blue); font-weight: 600; }
+  .stock-table .positive { color: var(--accent-green); }
+  .stock-table .negative { color: var(--accent-red); }
+
+  .signal-bar-bg { background: rgba(137, 180, 250, 0.1); border-radius: 3px; height: 18px; position: relative; min-width: 100px; }
+  .signal-bar-fill { background: var(--accent-blue); height: 100%; border-radius: 3px; opacity: 0.6; transition: width 0.3s ease; }
+
+  .badge-in { font-size: 9px; padding: 1px 5px; border-radius: 8px; background: var(--accent-green); color: var(--bg-primary); font-weight: 700; }
+  .badge-out { font-size: 9px; padding: 1px 5px; border-radius: 8px; background: var(--bg-surface); color: var(--text-muted); font-weight: 600; }
+
+  /* ── Terminal ── */
+  .terminal {
+    background: var(--bg-terminal);
+    font-family: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 12.5px; line-height: 1.6; padding: 12px 16px;
+    height: 420px; overflow-y: auto; white-space: pre; color: var(--terminal-green);
+  }
+  .terminal .prompt { color: var(--terminal-prompt); }
+  .terminal .comment { color: var(--text-muted); }
+  .terminal .highlight { color: var(--accent-yellow); }
+  .terminal .value { color: var(--accent-peach); }
+  .terminal .section { color: var(--accent-mauve); font-weight: 600; }
+
+  /* ── Performance Metrics Table ── */
+  .perf-table { width: 100%; border-collapse: collapse; }
+  .perf-table th {
+    background: var(--bg-surface); padding: 9px 16px; text-align: left;
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px;
+    color: var(--text-muted); border-bottom: 1px solid var(--border); font-weight: 600;
+  }
+  .perf-table td {
+    padding: 9px 16px; border-bottom: 1px solid rgba(69,71,90,0.3); font-size: 13px;
+  }
+  .perf-table tr:hover { background: rgba(137,180,250,0.05); }
+  .perf-table .pm-no { color: var(--text-muted); width: 36px; font-family: 'Cascadia Code', monospace; font-size: 11px; }
+  .perf-table .pm-metric { color: var(--text-primary); font-weight: 600; min-width: 120px; }
+  .perf-table .pm-score { font-family: 'Cascadia Code', monospace; font-weight: 700; font-size: 14px; min-width: 100px; }
+  .perf-table .pm-desc { color: var(--text-secondary); }
+  .perf-table .pm-criteria { color: var(--text-muted); font-size: 11.5px; }
+  .perf-table .score-pos { color: var(--accent-green); }
+  .perf-table .score-neu { color: var(--accent-yellow); }
+  .perf-table .score-neg { color: var(--accent-red); }
+  .perf-table .score-inf { color: var(--text-secondary); }
+
+  /* ── Heatmap ── */
+  .heatmap-grid { display: grid; gap: 2px; padding: 16px; }
+  .heatmap-cell {
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-family: 'Cascadia Code', monospace;
+    border-radius: 3px; min-height: 32px; min-width: 50px;
+    transition: opacity 0.2s;
+  }
+  .heatmap-cell:hover { opacity: 0.8; }
+  .heatmap-header { color: var(--text-muted); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+  .heatmap-row-label { color: var(--text-secondary); font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; }
+
+  /* ── Status bar ── */
+  .status-bar {
+    background: var(--bg-secondary); border-top: 1px solid var(--border);
+    padding: 4px 16px; font-size: 11px; color: var(--text-muted);
+    display: flex; justify-content: space-between; position: sticky; bottom: 0;
+  }
+
+  /* ── Loading ── */
+  .loading-overlay {
+    position: fixed; inset: 0; background: rgba(17, 17, 27, 0.9);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    z-index: 999; gap: 16px;
+  }
+  .loading-overlay.hidden { display: none; }
+  .loading-spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--accent-blue); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .drop-zone { border: 2px dashed var(--border); border-radius: 12px; padding: 40px; text-align: center; cursor: pointer; transition: border-color 0.2s; }
+  .drop-zone:hover, .drop-zone.drag-over { border-color: var(--accent-blue); }
+  .drop-zone h2 { color: var(--accent-blue); margin-bottom: 8px; font-size: 16px; }
+  .drop-zone p { color: var(--text-muted); font-size: 13px; }
+
+  /* ── Info box ── */
+  .info-box { background: var(--bg-surface); border-radius: 8px; padding: 16px; margin: 16px; }
+  .info-box h3 { font-size: 13px; color: var(--accent-blue); margin-bottom: 10px; }
+  .info-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 12px; border-bottom: 1px solid rgba(69,71,90,0.2); }
+  .info-row:last-child { border-bottom: none; }
+  .info-label { color: var(--text-muted); }
+  .info-value { color: var(--text-primary); font-family: 'Cascadia Code', monospace; }
+
+  /* ── Info tooltip ── */
+  .info-tip {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 700;
+    font-style: italic;
+    font-family: Georgia, serif;
+    cursor: help;
+    flex-shrink: 0;
+    transition: all 0.2s;
+    z-index: 2;
+  }
+  .info-tip:hover {
+    background: var(--accent-blue);
+    color: var(--bg-primary);
+    border-color: var(--accent-blue);
+  }
+  .info-tip .info-tip-text {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 320px;
+    background: var(--bg-terminal);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: 'Segoe UI', -apple-system, sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    font-style: normal;
+    line-height: 1.55;
+    color: var(--text-secondary);
+    text-transform: none;
+    letter-spacing: 0;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    z-index: 999;
+    pointer-events: none;
+    transition: opacity 0.2s, visibility 0.2s;
+  }
+  .info-tip .info-tip-text::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-bottom-color: var(--border);
+  }
+  .info-tip .info-tip-text::after {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-bottom-color: var(--bg-terminal);
+  }
+  .info-tip:hover .info-tip-text {
+    visibility: visible;
+    opacity: 1;
+  }
+  /* Flip tooltip above when near bottom */
+  .info-tip.tip-above .info-tip-text {
+    top: auto;
+    bottom: calc(100% + 8px);
+  }
+  .info-tip.tip-above .info-tip-text::before {
+    bottom: auto; top: 100%;
+    border-bottom-color: transparent;
+    border-top-color: var(--border);
+  }
+  .info-tip.tip-above .info-tip-text::after {
+    bottom: auto; top: 100%;
+    border-bottom-color: transparent;
+    border-top-color: var(--bg-terminal);
+  }
+  /* Align left/right when near edges */
+  .info-tip.tip-left .info-tip-text { left: 0; transform: none; }
+  .info-tip.tip-left .info-tip-text::before,
+  .info-tip.tip-left .info-tip-text::after { left: 14px; transform: none; }
+  .info-tip.tip-right .info-tip-text { left: auto; right: 0; transform: none; }
+  .info-tip.tip-right .info-tip-text::before,
+  .info-tip.tip-right .info-tip-text::after { left: auto; right: 14px; transform: none; }
+  .info-tip .tip-title { color: var(--accent-blue); font-weight: 600; font-size: 12px; margin-bottom: 6px; display: block; }
+  .info-tip .tip-how { color: var(--accent-yellow); font-weight: 600; font-size: 11px; margin-top: 8px; margin-bottom: 3px; display: block; }
+
+  /* ── Scatter tooltip ── */
+  .scatter-note { font-size: 11px; color: var(--text-muted); text-align: center; padding: 4px; }
+
+  @media (max-width: 1024px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .panel { border-right: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Loading / Drop zone -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="drop-zone" id="dropZone">
+    <h2>ML4T Pipeline Dashboard</h2>
+    <p>Drop <code>dashboard_data.json</code> here or click to browse</p>
+    <p style="margin-top: 12px; font-size: 11px; color: var(--text-muted);">
+      Run the export cell in your notebook first
+    </p>
+    <input type="file" id="fileInput" accept=".json" style="display:none">
+  </div>
+</div>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-left">
+    <h1>ML4T Pipeline Dashboard</h1>
+    <span class="header-badge" id="statusBadge">Ready</span>
+  </div>
+  <div class="header-right">
+    <span id="genTime">&mdash;</span>
+    <button class="load-btn" id="reloadBtn">Load JSON</button>
+  </div>
+</div>
+
+<!-- Metrics Strip -->
+<div class="metrics-strip" id="metricsStrip">
+  <div class="metric-card"><div class="metric-label">Sharpe (net)</div><div class="metric-value neutral" id="m-sharpe">&mdash;</div><div class="metric-sub" id="m-sharpe-gross"></div></div>
+  <div class="metric-card"><div class="metric-label">Annual Return</div><div class="metric-value positive" id="m-annual">&mdash;</div><div class="metric-sub" id="m-annual-gross"></div></div>
+  <div class="metric-card"><div class="metric-label">Total Return</div><div class="metric-value positive" id="m-total">&mdash;</div></div>
+  <div class="metric-card"><div class="metric-label">Max Drawdown</div><div class="metric-value negative" id="m-maxdd">&mdash;</div></div>
+  <div class="metric-card"><div class="metric-label">Mean IC</div><div class="metric-value neutral" id="m-meanic">&mdash;</div></div>
+  <div class="metric-card"><div class="metric-label">ICIR</div><div class="metric-value neutral" id="m-icir">&mdash;</div></div>
+  <div class="metric-card"><div class="metric-label">OOF IC (per-date)</div><div class="metric-value warn" id="m-oofic">&mdash;</div><div class="metric-sub" id="m-oofic-raw"></div></div>
+  <div class="metric-card"><div class="metric-label">Features</div><div class="metric-value neutral" id="m-features">&mdash;</div></div>
+  <div class="metric-card"><div class="metric-label">Win Rate</div><div class="metric-value neutral" id="m-winrate">&mdash;</div></div>
+  <div class="metric-card"><div class="metric-label">Cost / Rebal</div><div class="metric-value neutral" id="m-cost">&mdash;</div></div>
+</div>
+
+<!-- Tabs -->
+<div class="tab-bar">
+  <button class="tab-btn active" data-tab="backtest">Backtest</button>
+  <button class="tab-btn" data-tab="model">Model Diagnostics</button>
+  <button class="tab-btn" data-tab="portfolio">Portfolio</button>
+  <button class="tab-btn" data-tab="alpha">Alpha Analysis</button>
+  <button class="tab-btn" data-tab="terminal">Terminal</button>
+</div>
+
+<!-- ═══════════════════ TAB: BACKTEST ═══════════════════ -->
+<div class="tab-page active" id="tab-backtest">
+  <!-- Controls -->
+  <div class="controls-strip">
+    <div class="control-group"><span class="control-label">Train</span><span class="control-display" id="c-train">&mdash;</span><span class="control-label" style="color:var(--text-muted)">days</span></div>
+    <div class="control-group"><span class="control-label">Test</span><span class="control-display" id="c-test">&mdash;</span></div>
+    <div class="control-group"><span class="control-label">Horizon</span><span class="control-display" id="c-horizon">&mdash;</span></div>
+    <div class="control-group"><span class="control-label">Embargo</span><span class="control-display" id="c-embargo">&mdash;</span></div>
+    <div class="control-group"><span class="control-label">Splits</span><span class="control-display" id="c-splits">&mdash;</span></div>
+    <div class="control-group"><span class="control-label">Top Decile</span><span class="control-display" id="c-decile">&mdash;</span></div>
+    <div class="control-group"><span class="control-label">Cost</span><span class="control-display" id="c-cost">&mdash;</span><span class="control-label" style="color:var(--text-muted)">bps RT</span></div>
+    <div class="control-group"><span class="control-label">Universe</span><span class="control-display" id="c-universe">&mdash;</span><span class="control-label" style="color:var(--text-muted)">tickers</span></div>
+    <div class="control-group"><span class="control-label">Weighting</span><span class="control-display" id="c-weighting">&mdash;</span></div>
+    <div class="control-group"><span class="control-label">Max Pos</span><span class="control-display" id="c-maxpos">&mdash;</span></div>
+    <div class="control-group"><span class="control-label">Max Mkt</span><span class="control-display" id="c-maxmkt">&mdash;</span></div>
+    <div class="control-group"><span class="control-label">Circuit Breaker</span><span class="control-display" id="c-cb">&mdash;</span></div>
+  </div>
+
+  <div class="grid-2">
+    <!-- Equity Curve + Drawdown -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title"><span class="panel-icon" style="background:var(--accent-blue);">&#x1F4C8;</span> Equity Curve & Drawdown</div>
+        <span style="font-size:11px; color:var(--text-muted);" id="backtest-period">&mdash;</span>
+      </div>
+      <div class="panel-body chart-container"><canvas id="equityChart"></canvas></div>
+    </div>
+
+    <!-- Per-Period Returns -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title"><span class="panel-icon" style="background:var(--accent-green);">&#x1F4CA;</span> Per-Rebalance Returns (net)</div>
+        <span style="font-size:11px; color:var(--text-muted);" id="period-summary">&mdash;</span>
+      </div>
+      <div class="panel-body chart-container"><canvas id="periodReturnChart"></canvas></div>
+    </div>
+
+    <!-- Gross vs Net comparison -->
+    <div class="panel full-width">
+      <div class="panel-header">
+        <div class="panel-title"><span class="panel-icon" style="background:var(--accent-yellow);">&#x1F4B0;</span> Gross vs Net Equity (cost impact)</div>
+      </div>
+      <div class="panel-body chart-container" style="height:300px;"><canvas id="grossNetChart"></canvas></div>
+    </div>
+
+    <!-- Signal-Weighted vs Equal-Weight comparison -->
+    <div class="panel full-width">
+      <div class="panel-header">
+        <div class="panel-title"><span class="panel-icon" style="background:var(--accent-teal);">&#x2696;</span> Signal-Weighted vs Equal-Weight</div>
+        <span style="font-size:11px; color:var(--text-muted);" id="sw-ew-summary">&mdash;</span>
+      </div>
+      <div class="panel-body chart-container" style="height:300px;"><canvas id="swEwChart"></canvas></div>
+    </div>
+
+    <!-- Monthly Returns Heatmap -->
+    <div class="panel full-width">
+      <div class="panel-header">
+        <div class="panel-title"><span class="panel-icon" style="background:var(--accent-peach);">&#x1F5D3;</span> Monthly Returns Heatmap</div>
+        <span style="font-size:11px; color:var(--text-muted);" id="heatmap-info">&mdash;</span>
+      </div>
+      <div class="panel-body" style="overflow-x:auto;">
+        <div id="monthlyHeatmap"></div>
+      </div>
+    </div>
+
+    <!-- Performance Metrics Table -->
+    <div class="panel full-width">
+      <div class="panel-header">
+        <div class="panel-title"><span class="panel-icon" style="background:var(--accent-mauve);">&#x1F4CB;</span> Performance Metrics Summary</div>
+      </div>
+      <div class="panel-body" style="padding:0; overflow-x:auto;">
+        <table class="perf-table">
+          <thead><tr><th>No</th><th>Metric</th><th>Your Score</th><th>Description</th><th>Criteria</th></tr></thead>
+          <tbody id="perfMetricsBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ TAB: MODEL DIAGNOSTICS ═══════════════════ -->
+<div class="tab-page" id="tab-model">
+  <div class="grid-2">
+    <!-- IC per Fold -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title"><span class="panel-icon" style="background:var(--accent-mauve);">&#x1F4CA;</span> IC per CV Fold</div>
+        <span style="font-size:11px; color:var(--text-muted);" id="ic-summary">&mdash;</span>
+      </div>
+      <div class="panel-body chart-container"><canvas id="icChart"></canvas></div>
+    </div>
+
+    <!-- SHAP Importance -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title"><span class="panel-icon" style="background:var(--accent-peach);">&#x1F50D;</span> SHAP Feature Importance</div>
+      </div>
+      <div class="panel-body chart-container"><canvas id="shapChart"></canvas></div>
+    </div>
+
+    <!-- OOF Scatter -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title"><span class="panel-icon" style="background:var(--accent-teal);">&#x2B24;</span> OOF Signal vs Actual</div>
+      </div>
+      <div class="panel-body chart-container"><canvas id="oofScatterChart"></canvas></div>
+      <div class="scatter-note" id="scatter-note"></div>
+    </div>
+
+    <!-- Fold Details Table -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title"><span class="panel-icon" style="background:var(--accent-blue);">&#x1F4CB;</span> Fold Details</div>
+      </div>
+      <div class="panel-body" style="overflow-y:auto; max-height:380px;">
+        <table class="stock-table" id="foldTable">
+          <thead><tr><th>Fold</th><th>IC</th><th>AUC</th><th>Train</th><th>Test</th><th>Period</th></tr></thead>
+          <tbody id="foldTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Walk-Forward Folds Timeline -->
+    <div class="panel full-width">
+      <div class="panel-header">
+        <div class="panel-title"><span class="panel-icon" style="background:var(--accent-yellow);">&#x1F4C5;</span> Walk-Forward CV Folds Timeline</div>
+        <span style="font-size:11px; color:var(--text-muted);" id="folds-timeline-info">&mdash;</span>
+      </div>
+      <div class="panel-body" style="padding:16px 16px 16px 0; overflow-x:auto;">
+        <div id="foldsTimelineSVG"></div>
+      </div>
+    </div>
+
+    <!-- Feature Selection -->
+    <div class="panel full-width">
+      <div class="panel-header">
+        <div class="panel-title"><span class="panel-icon" style="background:var(--accent-green);">&#x2705;</span> LassoCV Feature Selection</div>
+      </div>
+      <div class="panel-body" style="padding:16px; display:flex; gap:16px; flex-wrap:wrap;">
+        <div class="info-box" style="flex:1; min-width:300px;" id="feature-selected-box"></div>
+        <div class="info-box" style="flex:1; min-width:300px;" id="feature-config-box"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ TAB: PORTFOLIO ═══════════════════ -->
+<div class="tab-page" id="tab-portfolio">
+  <!-- Top Decile Portfolio (full width) -->
+  <div class="grid-2" style="grid-template-columns: 1fr;">
+    <div class="panel full-width">
+      <div class="panel-header">
+        <div class="panel-title"><span class="panel-icon" style="background:var(--accent-green);">&#x2705;</span> Top Decile — Actual Portfolio Holdings</div>
+        <span style="font-size:11px; color:var(--text-muted);" id="decile-info">&mdash;</span>
+      </div>
+      <div class="panel-body" style="overflow-y:auto; max-height:350px;">
+        <table class="stock-table" id="decileTable">
+          <thead><tr><th>#</th><th>Ticker</th><th>Region</th><th>Signal</th><th style="min-width:120px">Strength</th><th>Fwd 21d Return</th></tr></thead>
+          <tbody id="decileTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <!-- Portfolio Info -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title"><span class="panel-icon" style="background:var(--accent-peach);">&#x1F4BC;</span> Portfolio Summary</div>
+      </div>
+      <div class="panel-body" style="overflow-y:auto; max-height:500px;">
+        <div class="info-box" id="portfolio-info"></div>
+        <div class="info-box" id="portfolio-region-info" style="margin-top:0;"></div>
+        <div class="info-box" id="portfolio-cost-info" style="margin-top:0;"></div>
+      </div>
+    </div>
+
+    <!-- Per-rebalance portfolio table -->
+    <div class="panel full-width">
+      <div class="panel-header">
+        <div class="panel-title"><span class="panel-icon" style="background:var(--accent-blue);">&#x1F4C5;</span> All Rebalance Periods</div>
+      </div>
+      <div class="panel-body" style="overflow-y:auto; max-height:400px;">
+        <table class="stock-table" id="rebalTable">
+          <thead><tr><th>Date</th><th>Stocks</th><th>Gross Ret</th><th>Cost</th><th>Net Ret</th><th>Cum. Return</th></tr></thead>
+          <tbody id="rebalTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ TAB: ALPHA ANALYSIS ═══════════════════ -->
+<div class="tab-page" id="tab-alpha">
+  <div class="grid-2">
+    <!-- Quantile Returns -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title"><span class="panel-icon" style="background:var(--accent-green);">&#x1F4CA;</span> Quantile Mean Returns</div>
+        <span style="font-size:11px; color:var(--text-muted);" id="quantile-info">&mdash;</span>
+      </div>
+      <div class="panel-body chart-container"><canvas id="quantileChart"></canvas></div>
+    </div>
+
+    <!-- Long-Short Spread -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title"><span class="panel-icon" style="background:var(--accent-blue);">&#x2696;</span> Top vs Bottom Decile (cumulative)</div>
+        <span style="font-size:11px; color:var(--text-muted);" id="longshort-info">&mdash;</span>
+      </div>
+      <div class="panel-body chart-container"><canvas id="longShortChart"></canvas></div>
+    </div>
+
+    <!-- Rolling IC -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title"><span class="panel-icon" style="background:var(--accent-mauve);">&#x1F4C8;</span> Rolling IC (cross-sectional)</div>
+        <span style="font-size:11px; color:var(--text-muted);" id="rolling-ic-info">&mdash;</span>
+      </div>
+      <div class="panel-body chart-container"><canvas id="rollingICChart"></canvas></div>
+    </div>
+
+    <!-- Factor Turnover -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title"><span class="panel-icon" style="background:var(--accent-yellow);">&#x1F504;</span> Factor Turnover</div>
+        <span style="font-size:11px; color:var(--text-muted);" id="turnover-info">&mdash;</span>
+      </div>
+      <div class="panel-body chart-container"><canvas id="turnoverChart"></canvas></div>
+    </div>
+
+    <!-- Factor Autocorrelation -->
+    <div class="panel full-width">
+      <div class="panel-header">
+        <div class="panel-title"><span class="panel-icon" style="background:var(--accent-teal);">&#x1F517;</span> Factor Rank Autocorrelation</div>
+        <span style="font-size:11px; color:var(--text-muted);" id="autocorr-info">&mdash;</span>
+      </div>
+      <div class="panel-body chart-container" style="height:300px;"><canvas id="autocorrChart"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ TAB: TERMINAL ═══════════════════ -->
+<div class="tab-page" id="tab-terminal">
+  <div class="grid-2" style="grid-template-columns: 1fr;">
+    <div class="panel full-width">
+      <div class="panel-header">
+        <div class="panel-title"><span class="panel-icon" style="background:var(--accent-teal);">&#x2B1B;</span> Terminal Output</div>
+        <button class="load-btn" style="font-size:10px; padding:3px 10px;" onclick="scrollTerminal()">&#x2193; Bottom</button>
+      </div>
+      <div class="panel-body"><div class="terminal" id="terminal" style="height:600px;"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Status Bar -->
+<div class="status-bar">
+  <span id="sb-left">Jansen MFAT 2e — ML4T Pipeline v2</span>
+  <span id="sb-right">Shariah-compliant &bull; US/MY/HK</span>
+</div>
+
+<script>
+// ── State
+let DATA = null;
+const charts = {};
+
+// ── File loading
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const overlay = document.getElementById('loadingOverlay');
+const reloadBtn = document.getElementById('reloadBtn');
+
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drag-over'); if (e.dataTransfer.files.length) loadFile(e.dataTransfer.files[0]); });
+fileInput.addEventListener('change', e => { if (e.target.files.length) loadFile(e.target.files[0]); });
+reloadBtn.addEventListener('click', () => fileInput.click());
+
+function loadFile(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    try { DATA = JSON.parse(e.target.result); overlay.classList.add('hidden'); renderAll(); }
+    catch (err) { alert('Invalid JSON: ' + err.message); }
+  };
+  reader.readAsText(file);
+}
+
+fetch('dashboard_data.json')
+  .then(r => { if (r.ok) return r.json(); throw new Error('not found'); })
+  .then(data => { DATA = data; overlay.classList.add('hidden'); renderAll(); })
+  .catch(() => {});
+
+// ── Tabs
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    // Resize charts when tab becomes visible
+    Object.values(charts).forEach(c => c && c.resize && c.resize());
+  });
+});
+
+// ── Render
+function renderAll() {
+  renderMetrics();
+  renderControls();
+  renderEquityChart();
+  renderPeriodReturnChart();
+  renderGrossNetChart();
+  renderSWvsEWChart();
+  renderPerfTable();
+  renderICChart();
+  renderSHAPChart();
+  renderOOFScatter();
+  renderFoldTable();
+  renderFoldsTimeline();
+  renderFeatureInfo();
+  renderDecileTable();
+  renderPortfolioInfo();
+  renderRebalTable();
+  renderMonthlyHeatmap();
+  renderQuantileChart();
+  renderLongShortChart();
+  renderRollingICChart();
+  renderTurnoverChart();
+  renderAutocorrChart();
+  renderTerminal();
+  renderStatusBar();
+}
+
+// ── Helpers
+const fmt = (v, d=2) => v != null ? v.toFixed(d) : '—';
+const pct = (v, d=1) => v != null ? v.toFixed(d) + '%' : '—';
+
+function renderMetrics() {
+  const m = DATA.metrics;
+  document.getElementById('m-sharpe').textContent = fmt(m.sharpe);
+  document.getElementById('m-annual').textContent = pct(m.annual_return_pct);
+  document.getElementById('m-total').textContent = pct(m.total_return_pct);
+  document.getElementById('m-maxdd').textContent = pct(m.max_drawdown_pct);
+  document.getElementById('m-meanic').textContent = fmt(m.mean_ic, 4);
+  document.getElementById('m-icir').textContent = fmt(m.icir);
+  document.getElementById('m-oofic').textContent = fmt(m.oof_signal_ic, 4);
+  if (m.oof_signal_ic_pooled != null) document.getElementById('m-oofic-raw').textContent = 'pooled: ' + fmt(m.oof_signal_ic_pooled, 4);
+  if (m.dropped_folds != null) document.getElementById('m-features').parentElement.insertAdjacentHTML('afterend', '<div class="metric-card"><div class="metric-label">Folds Kept</div><div class="metric-value neutral">' + m.total_folds + '/' + m.total_folds_all + '</div><div class="metric-sub">min ' + m.min_train_days + 'd train</div></div>');
+  document.getElementById('m-features').textContent = m.n_features_selected + '/' + m.n_features_total;
+
+  // Win rate
+  const eq = DATA.equity;
+  if (eq && eq.period_returns) {
+    const wins = eq.period_returns.filter(r => r > 0).length;
+    const wr = (wins / eq.period_returns.length * 100);
+    document.getElementById('m-winrate').textContent = pct(wr, 0);
+    const wrEl = document.getElementById('m-winrate');
+    wrEl.className = 'metric-value ' + (wr >= 60 ? 'positive' : wr >= 50 ? 'neutral' : 'negative');
+  }
+
+  // Cost per rebal
+  const c = DATA.config;
+  document.getElementById('m-cost').textContent = fmt(c.TOTAL_COST_BPS, 0) + ' bps';
+
+  // Gross metrics sub-labels
+  if (m.sharpe_gross != null) {
+    document.getElementById('m-sharpe-gross').textContent = 'gross: ' + fmt(m.sharpe_gross);
+    document.getElementById('m-annual-gross').textContent = 'gross: ' + pct(m.annual_return_gross_pct);
+  }
+
+  // Color coding
+  const sharpeEl = document.getElementById('m-sharpe');
+  sharpeEl.className = 'metric-value ' + (m.sharpe >= 1 ? 'positive' : m.sharpe >= 0.5 ? 'neutral' : 'negative');
+  const oofEl = document.getElementById('m-oofic');
+  oofEl.className = 'metric-value ' + (m.oof_signal_ic > 0.02 ? 'positive' : m.oof_signal_ic > 0 ? 'neutral' : 'warn');
+
+  document.getElementById('genTime').textContent = 'Generated: ' + DATA.generated_at.slice(0, 19);
+  document.getElementById('statusBadge').textContent = m.sharpe >= 1 ? 'Strong' : m.sharpe >= 0.5 ? 'Moderate' : 'Weak';
+}
+
+function renderControls() {
+  const c = DATA.config;
+  const m = DATA.metrics;
+  document.getElementById('c-train').textContent = c.TRAIN_PERIOD;
+  document.getElementById('c-test').textContent = c.TEST_PERIOD;
+  document.getElementById('c-horizon').textContent = c.TARGET_HORIZON;
+  document.getElementById('c-embargo').textContent = c.EMBARGO;
+  document.getElementById('c-splits').textContent = c.N_SPLITS;
+  document.getElementById('c-decile').textContent = (c.TOP_DECILE * 100).toFixed(0) + '%';
+  document.getElementById('c-cost').textContent = c.TOTAL_COST_BPS;
+  document.getElementById('c-universe').textContent = m.universe_tickers;
+  if (c.SIGNAL_WEIGHTED != null) {
+    document.getElementById('c-weighting').textContent = c.SIGNAL_WEIGHTED ? 'Signal' : 'Equal';
+    document.getElementById('c-maxpos').textContent = (c.MAX_POSITION_SIZE * 100).toFixed(0) + '%';
+    document.getElementById('c-maxmkt').textContent = (c.MAX_MARKET_CONC * 100).toFixed(0) + '%';
+    document.getElementById('c-cb').textContent = (c.DD_CIRCUIT_BREAKER * 100).toFixed(0) + '%';
+  }
+}
+
+function makeChart(id, config) {
+  if (charts[id]) charts[id].destroy();
+  charts[id] = new Chart(document.getElementById(id).getContext('2d'), config);
+  return charts[id];
+}
+
+const chartTooltip = { backgroundColor: '#252540', titleColor: '#cdd6f4', bodyColor: '#a6adc8', borderColor: '#45475a', borderWidth: 1 };
+const gridColor = 'rgba(69, 71, 90, 0.3)';
+
+function renderEquityChart() {
+  const eq = DATA.equity;
+  makeChart('equityChart', {
+    type: 'line',
+    data: {
+      labels: eq.dates,
+      datasets: [
+        { label: 'Cumulative Return', data: eq.cumulative, borderColor: '#89b4fa', backgroundColor: 'rgba(137,180,250,0.08)', fill: true, tension: 0.3, pointRadius: 0, borderWidth: 2, yAxisID: 'y' },
+        { label: 'Drawdown %', data: eq.drawdown.map(d => d * 100), borderColor: '#f38ba8', backgroundColor: 'rgba(243,139,168,0.15)', fill: true, tension: 0.3, pointRadius: 0, borderWidth: 1.5, yAxisID: 'y1' }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { labels: { color: '#a6adc8', font: { size: 11 } } }, tooltip: { ...chartTooltip, callbacks: { label: ctx => ctx.datasetIndex === 0 ? 'Cum. Return: ' + ctx.parsed.y.toFixed(2) + 'x' : 'Drawdown: ' + ctx.parsed.y.toFixed(1) + '%' } } },
+      scales: {
+        x: { ticks: { color: '#6c7086', maxTicksLimit: 8, font: { size: 10 } }, grid: { color: gridColor } },
+        y: { position: 'left', title: { display: true, text: 'Cumulative Return', color: '#89b4fa', font: { size: 11 } }, ticks: { color: '#89b4fa', font: { size: 10 } }, grid: { color: gridColor } },
+        y1: { position: 'right', title: { display: true, text: 'Drawdown %', color: '#f38ba8', font: { size: 11 } }, ticks: { color: '#f38ba8', font: { size: 10 } }, grid: { drawOnChartArea: false } }
+      }
+    }
+  });
+  document.getElementById('backtest-period').textContent = DATA.metrics.backtest_start + ' → ' + DATA.metrics.backtest_end;
+}
+
+function renderPeriodReturnChart() {
+  const eq = DATA.equity;
+  if (!eq || !eq.period_returns) return;
+  const colors = eq.period_returns.map(r => r >= 0 ? '#a6e3a199' : '#f38ba899');
+  const borders = eq.period_returns.map(r => r >= 0 ? '#a6e3a1' : '#f38ba8');
+  makeChart('periodReturnChart', {
+    type: 'bar',
+    data: {
+      labels: eq.dates,
+      datasets: [{ label: 'Period Return', data: eq.period_returns.map(r => r * 100), backgroundColor: colors, borderColor: borders, borderWidth: 1 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { ...chartTooltip, callbacks: { label: ctx => 'Return: ' + ctx.parsed.y.toFixed(2) + '%' } } },
+      scales: {
+        x: { ticks: { color: '#6c7086', maxTicksLimit: 8, font: { size: 10 } }, grid: { color: gridColor } },
+        y: { title: { display: true, text: 'Return %', color: '#a6adc8', font: { size: 11 } }, ticks: { color: '#a6adc8', font: { size: 10 } }, grid: { color: gridColor } }
+      }
+    }
+  });
+  const wins = eq.period_returns.filter(r => r > 0).length;
+  const avg = eq.period_returns.reduce((a, b) => a + b, 0) / eq.period_returns.length * 100;
+  document.getElementById('period-summary').textContent = `Win rate: ${(wins/eq.period_returns.length*100).toFixed(0)}% | Avg: ${avg.toFixed(2)}%`;
+}
+
+function renderSWvsEWChart() {
+  const eq = DATA.equity;
+  const m  = DATA.metrics;
+  if (!eq || !eq.cumulative_ew) return;
+  const swLabel = m.signal_weighted ? 'Signal-Weighted' : 'Active';
+  makeChart('swEwChart', {
+    type: 'line',
+    data: {
+      labels: eq.dates,
+      datasets: [
+        { label: swLabel, data: eq.cumulative, borderColor: '#89b4fa', tension: 0.3, pointRadius: 0, borderWidth: 2, fill: false },
+        { label: 'Equal-Weight', data: eq.cumulative_ew, borderColor: '#6c7086', borderDash: [5, 3], tension: 0.3, pointRadius: 0, borderWidth: 1.5, fill: false }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { labels: { color: '#a6adc8', font: { size: 11 } } }, tooltip: chartTooltip },
+      scales: {
+        x: { ticks: { color: '#6c7086', maxTicksLimit: 10, font: { size: 10 } }, grid: { color: gridColor } },
+        y: { title: { display: true, text: 'Cumulative Return', color: '#a6adc8', font: { size: 11 } }, ticks: { color: '#a6adc8', font: { size: 10 } }, grid: { color: gridColor } }
+      }
+    }
+  });
+  const swSharpe = m.sharpe != null ? m.sharpe.toFixed(2) : '—';
+  const ewSharpe = m.sharpe_ew != null ? m.sharpe_ew.toFixed(2) : '—';
+  const trips    = m.circuit_trips != null ? m.circuit_trips : 0;
+  document.getElementById('sw-ew-summary').textContent =
+    `${swLabel} Sharpe: ${swSharpe} vs EW: ${ewSharpe} | Max pos: ${m.max_position_size_pct}% | Circuit trips: ${trips}`;
+}
+
+function renderPerfTable() {
+  const m = DATA.metrics;
+  const c = DATA.config;
+  const eq = DATA.equity;
+  const wins = eq ? eq.period_returns.filter(r => r > 0).length : 0;
+  const total = eq ? eq.period_returns.length : 1;
+  const winRate = wins / total * 100;
+
+  const rows = [
+    { metric: 'Sharpe',        score: fmt(m.sharpe),                       desc: 'Risk-adjusted return (annualised)',                  criteria: '> 1.0 good, > 2.0 excellent',  cls: m.sharpe >= 1.0 ? 'pos' : m.sharpe >= 0.5 ? 'neu' : 'neg' },
+    { metric: 'Annual Return', score: pct(m.annual_return_pct),             desc: 'Compound annual growth rate',                       criteria: '> 10% for equity',              cls: m.annual_return_pct >= 10 ? 'pos' : m.annual_return_pct >= 5 ? 'neu' : 'neg' },
+    { metric: 'Total Return',  score: pct(m.total_return_pct),              desc: 'Cumulative return over backtest',                    criteria: 'Higher is better',              cls: m.total_return_pct > 0 ? 'pos' : 'neg' },
+    { metric: 'Max Drawdown',  score: pct(m.max_drawdown_pct),              desc: 'Worst peak-to-trough decline',                      criteria: '< -20% acceptable',             cls: m.max_drawdown_pct >= -10 ? 'pos' : m.max_drawdown_pct >= -20 ? 'neu' : 'neg' },
+    { metric: 'Features',      score: m.n_features_selected + '/' + m.n_features_total, desc: 'Selected by LassoCV from IC-screened set', criteria: 'Fewer = more robust',        cls: 'inf' },
+    { metric: 'Mean IC',       score: fmt(m.mean_ic, 4),                    desc: 'Average Information Coefficient across folds',       criteria: '> 0.02 is decent',             cls: m.mean_ic >= 0.02 ? 'pos' : m.mean_ic > 0 ? 'neu' : 'neg' },
+    { metric: 'ICIR',          score: fmt(m.icir),                          desc: 'IC / std(IC) — consistency of IC',                  criteria: '> 0.5 good',                   cls: m.icir >= 0.5 ? 'pos' : m.icir > 0 ? 'neu' : 'neg' },
+    { metric: 'OOF IC',        score: fmt(m.oof_signal_ic, 4),              desc: 'Out-of-fold signal vs actual correlation',           criteria: '> 0 means predictive',         cls: m.oof_signal_ic > 0 ? 'pos' : 'neg' },
+    { metric: 'Win Rate',      score: winRate.toFixed(1) + '%',             desc: '% of rebalance periods with positive return',        criteria: '> 50%',                        cls: winRate >= 55 ? 'pos' : winRate >= 50 ? 'neu' : 'neg' },
+    { metric: 'Cost/Rebal',    score: fmt(c.TOTAL_COST_BPS, 0) + ' bps',   desc: 'Round-trip transaction cost per rebalance',          criteria: 'Lower is better',              cls: 'inf' },
+    { metric: 'Sortino',       score: m.sortino != null ? fmt(m.sortino) : '—',  desc: 'Sharpe using downside deviation only',              criteria: '> 1.5 good, > 3.0 excellent',  cls: m.sortino >= 1.5 ? 'pos' : m.sortino >= 0.5 ? 'neu' : m.sortino != null ? 'neg' : 'inf' },
+    { metric: 'Calmar',        score: m.calmar != null ? fmt(m.calmar) : '—',    desc: 'Annual return / max drawdown',                      criteria: '> 1.0 good, > 2.0 excellent',  cls: m.calmar >= 1.0 ? 'pos' : m.calmar >= 0.5 ? 'neu' : m.calmar != null ? 'neg' : 'inf' },
+  ];
+
+  if (m.sharpe_ew != null) {
+    rows.push(
+      { metric: '── Risk Overlay', score: '', desc: '', criteria: '', cls: 'inf' },
+      { metric: 'Weighting',       score: m.signal_weighted ? 'Signal-Wtd' : 'Equal-Wt',  desc: 'Portfolio weight method (Jansen Ch.12)',             criteria: 'Signal-weighted if IC stable', cls: 'inf' },
+      { metric: 'EW Sharpe',       score: fmt(m.sharpe_ew),                                desc: 'Equal-weight baseline Sharpe for comparison',        criteria: 'SW > EW = signal adds value',  cls: m.sharpe > m.sharpe_ew ? 'pos' : 'neu' },
+      { metric: 'Max Position',    score: fmt(m.max_position_size_pct, 0) + '%',           desc: 'Hard cap per stock (prevents concentration)',         criteria: 'Typically 3–10%',              cls: 'inf' },
+      { metric: 'Max Market Conc', score: fmt(m.max_market_conc_pct, 0) + '%',             desc: 'Max allocation to any single market (US/HK/MY)',     criteria: 'Typically 30–50%',             cls: 'inf' },
+      { metric: 'Circuit Breaker', score: (m.dd_circuit_breaker_pct || 0).toFixed(0) + '%', desc: 'Skip rebalance threshold (rolling drawdown)',       criteria: 'Triggered ' + (m.circuit_trips || 0) + ' time(s)', cls: m.circuit_trips > 0 ? 'neu' : 'pos' }
+    );
+  }
+
+  document.getElementById('perfMetricsBody').innerHTML = rows.map((r, i) => `
+    <tr>
+      <td class="pm-no">${i + 1}</td>
+      <td class="pm-metric">${r.metric}</td>
+      <td class="pm-score score-${r.cls}">${r.score}</td>
+      <td class="pm-desc">${r.desc}</td>
+      <td class="pm-criteria">${r.criteria}</td>
+    </tr>`).join('');
+}
+
+function renderGrossNetChart() {
+  const eq = DATA.equity;
+  if (!eq || !eq.cumulative_gross) return;
+  makeChart('grossNetChart', {
+    type: 'line',
+    data: {
+      labels: eq.dates,
+      datasets: [
+        { label: 'Gross', data: eq.cumulative_gross, borderColor: '#a6adc8', borderDash: [5, 3], tension: 0.3, pointRadius: 0, borderWidth: 1.5, fill: false },
+        { label: 'Net (after IBKR costs)', data: eq.cumulative, borderColor: '#89b4fa', tension: 0.3, pointRadius: 0, borderWidth: 2, fill: false }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { labels: { color: '#a6adc8', font: { size: 11 } } }, tooltip: chartTooltip },
+      scales: {
+        x: { ticks: { color: '#6c7086', maxTicksLimit: 10, font: { size: 10 } }, grid: { color: gridColor } },
+        y: { title: { display: true, text: 'Cumulative Return', color: '#a6adc8', font: { size: 11 } }, ticks: { color: '#a6adc8', font: { size: 10 } }, grid: { color: gridColor } }
+      }
+    }
+  });
+}
+
+function renderICChart() {
+  const folds = DATA.folds;
+  const colors = folds.map(f => f.ic > 0 ? '#a6e3a1' : '#f38ba8');
+  makeChart('icChart', {
+    type: 'bar',
+    data: {
+      labels: folds.map(f => 'F' + f.fold),
+      datasets: [{ label: 'IC', data: folds.map(f => f.ic), backgroundColor: colors.map(c => c + '99'), borderColor: colors, borderWidth: 1 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { ...chartTooltip, callbacks: { afterLabel: ctx => { const f = folds[ctx.dataIndex]; return `AUC: ${f.auc}\nTrain: ${f.n_train.toLocaleString()} (${f.train_days}d)\nTest: ${f.n_test.toLocaleString()}\n${f.test_start} → ${f.test_end}`; } } }
+      },
+      scales: {
+        x: { ticks: { color: '#6c7086', font: { size: 10 } }, grid: { color: gridColor } },
+        y: { title: { display: true, text: 'Information Coefficient', color: '#a6adc8', font: { size: 11 } }, ticks: { color: '#a6adc8', font: { size: 10 } }, grid: { color: gridColor } }
+      }
+    }
+  });
+  const m = DATA.metrics;
+  document.getElementById('ic-summary').textContent = `Mean IC: ${m.mean_ic} | ICIR: ${m.icir} | ${m.positive_ic_folds}/${m.total_folds} positive`;
+}
+
+function renderSHAPChart() {
+  const shap = DATA.shap;
+  const reversed = [...shap].reverse();
+  makeChart('shapChart', {
+    type: 'bar',
+    data: {
+      labels: reversed.map(s => s.feature),
+      datasets: [{ label: 'Mean |SHAP|', data: reversed.map(s => s.importance), backgroundColor: reversed.map((_, i) => `rgba(250,179,135,${0.4 + i / reversed.length * 0.6})`), borderColor: '#fab387', borderWidth: 1 }]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: chartTooltip },
+      scales: {
+        x: { title: { display: true, text: 'Mean |SHAP| Value', color: '#a6adc8', font: { size: 11 } }, ticks: { color: '#a6adc8', font: { size: 10 } }, grid: { color: gridColor } },
+        y: { ticks: { color: '#fab387', font: { size: 10, family: "'Cascadia Code', monospace" } }, grid: { display: false } }
+      }
+    }
+  });
+}
+
+function renderOOFScatter() {
+  if (!DATA.oof_scatter) {
+    document.getElementById('scatter-note').textContent = 'OOF scatter data not available — re-export with updated script';
+    return;
+  }
+  const pts = DATA.oof_scatter;
+  makeChart('oofScatterChart', {
+    type: 'scatter',
+    data: {
+      datasets: [{ label: 'OOF predictions', data: pts.map(p => ({ x: p.signal, y: p.actual })), backgroundColor: 'rgba(137,180,250,0.25)', borderColor: 'rgba(137,180,250,0.5)', pointRadius: 1.5 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: chartTooltip },
+      scales: {
+        x: { title: { display: true, text: 'Predicted Signal', color: '#a6adc8', font: { size: 11 } }, ticks: { color: '#a6adc8', font: { size: 10 } }, grid: { color: gridColor } },
+        y: { title: { display: true, text: 'Actual 21d Return', color: '#a6adc8', font: { size: 11 } }, ticks: { color: '#a6adc8', font: { size: 10 } }, grid: { color: gridColor } }
+      }
+    }
+  });
+  document.getElementById('scatter-note').textContent = `${pts.length.toLocaleString()} OOF observations | IC = ${DATA.metrics.oof_signal_ic}`;
+}
+
+function renderFoldTable() {
+  const tbody = document.getElementById('foldTableBody');
+  tbody.innerHTML = DATA.folds.map(f => {
+    const icClass = f.ic > 0 ? 'positive' : 'negative';
+    return `<tr>
+      <td class="rank">F${f.fold}</td>
+      <td class="${icClass}">${f.ic.toFixed(4)}</td>
+      <td>${f.auc.toFixed(4)}</td>
+      <td>${f.n_train.toLocaleString()} (${f.train_days}d)</td>
+      <td>${f.n_test.toLocaleString()}</td>
+      <td>${f.test_start} → ${f.test_end}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderFoldsTimeline() {
+  const folds = DATA.folds;
+  const container = document.getElementById('foldsTimelineSVG');
+
+  if (!folds.length || !folds[0].train_start) {
+    document.getElementById('folds-timeline-info').textContent = 'Re-run notebook to export train_start/train_end';
+    container.innerHTML = '<p style="color:var(--text-muted); padding:24px; text-align:center;">Fold date ranges not available. Re-run the notebook (cells 10 + 16) to export train_start / train_end.</p>';
+    return;
+  }
+
+  // Layout constants
+  const leftMargin = 50;
+  const rightMargin = 100;
+  const topMargin = 40;
+  const rowHeight = 28;
+  const barHeight = 18;
+  const nFolds = folds.length;
+  const totalHeight = topMargin + nFolds * rowHeight + 30;
+  const width = Math.max(900, container.clientWidth || 900);
+  const chartWidth = width - leftMargin - rightMargin;
+
+  // Date range
+  const allDates = folds.flatMap(f => [f.train_start, f.train_end, f.test_start, f.test_end]);
+  const minMs = Math.min(...allDates.map(d => new Date(d).getTime()));
+  const maxMs = Math.max(...allDates.map(d => new Date(d).getTime()));
+  const rangeMs = maxMs - minMs || 1;
+  const toX = d => leftMargin + ((new Date(d).getTime() - minMs) / rangeMs) * chartWidth;
+
+  // Year ticks
+  const minYear = new Date(minMs).getFullYear();
+  const maxYear = new Date(maxMs).getFullYear();
+  let yearTicks = '';
+  for (let y = minYear; y <= maxYear + 1; y++) {
+    const x = toX(y + '-01-01');
+    if (x >= leftMargin && x <= leftMargin + chartWidth) {
+      yearTicks += `<line x1="${x}" y1="${topMargin - 10}" x2="${x}" y2="${totalHeight - 10}" stroke="#45475a" stroke-width="0.5" stroke-dasharray="4,4"/>`;
+      yearTicks += `<text x="${x}" y="${topMargin - 16}" fill="#6c7086" font-size="11" text-anchor="middle" font-family="'Cascadia Code',monospace">${y}</text>`;
+    }
+  }
+
+  // Fold rows
+  let rows = '';
+  folds.forEach((f, i) => {
+    const y = topMargin + i * rowHeight;
+    const yMid = y + barHeight / 2;
+
+    // Train bar
+    const trainX1 = toX(f.train_start);
+    const trainX2 = toX(f.train_end);
+    const trainW = Math.max(2, trainX2 - trainX1);
+    rows += `<rect x="${trainX1}" y="${y}" width="${trainW}" height="${barHeight}" rx="3" fill="rgba(137,180,250,0.55)" stroke="#89b4fa" stroke-width="0.5"/>`;
+
+    // Purge dot (midpoint between train_end and test_start)
+    const purgeX = (toX(f.train_end) + toX(f.test_start)) / 2;
+    rows += `<circle cx="${purgeX}" cy="${yMid}" r="3.5" fill="#f9e2af" opacity="0.8"/>`;
+
+    // Test bar (colored by IC)
+    const testX1 = toX(f.test_start);
+    const testX2 = toX(f.test_end);
+    const testW = Math.max(2, testX2 - testX1);
+    const testFill = f.ic > 0 ? 'rgba(166,227,161,0.65)' : 'rgba(243,139,168,0.55)';
+    const testStroke = f.ic > 0 ? '#a6e3a1' : '#f38ba8';
+    rows += `<rect x="${testX1}" y="${y}" width="${testW}" height="${barHeight}" rx="3" fill="${testFill}" stroke="${testStroke}" stroke-width="0.5"/>`;
+
+    // Fold label (left)
+    rows += `<text x="${leftMargin - 8}" y="${yMid + 4}" fill="#a6adc8" font-size="11" text-anchor="end" font-family="'Cascadia Code',monospace">F${f.fold}</text>`;
+
+    // IC label (right)
+    const icColor = f.ic > 0 ? '#a6e3a1' : '#f38ba8';
+    const icSign = f.ic >= 0 ? '+' : '';
+    rows += `<text x="${leftMargin + chartWidth + 8}" y="${yMid + 4}" fill="${icColor}" font-size="11" text-anchor="start" font-family="'Cascadia Code',monospace">${icSign}${f.ic.toFixed(2)}</text>`;
+
+    // Tooltip rect (invisible, for hover)
+    rows += `<rect x="${leftMargin}" y="${y}" width="${chartWidth}" height="${barHeight}" fill="transparent" class="fold-hover-row">
+      <title>Fold ${f.fold}\nTrain: ${f.train_start} → ${f.train_end} (${f.train_days}d, ${f.n_train.toLocaleString()} rows)\nTest: ${f.test_start} → ${f.test_end} (${f.n_test.toLocaleString()} rows)\nIC: ${f.ic.toFixed(4)} | AUC: ${f.auc.toFixed(4)}</title>
+    </rect>`;
+  });
+
+  // Legend
+  const legendY = totalHeight - 18;
+  const legend = `
+    <rect x="${leftMargin}" y="${legendY}" width="14" height="10" rx="2" fill="rgba(137,180,250,0.55)" stroke="#89b4fa" stroke-width="0.5"/>
+    <text x="${leftMargin + 18}" y="${legendY + 9}" fill="#a6adc8" font-size="10">Train</text>
+    <circle cx="${leftMargin + 62}" cy="${legendY + 5}" r="3.5" fill="#f9e2af"/>
+    <text x="${leftMargin + 70}" y="${legendY + 9}" fill="#a6adc8" font-size="10">Purge</text>
+    <rect x="${leftMargin + 115}" y="${legendY}" width="14" height="10" rx="2" fill="rgba(166,227,161,0.65)" stroke="#a6e3a1" stroke-width="0.5"/>
+    <text x="${leftMargin + 133}" y="${legendY + 9}" fill="#a6adc8" font-size="10">Test (IC+)</text>
+    <rect x="${leftMargin + 200}" y="${legendY}" width="14" height="10" rx="2" fill="rgba(243,139,168,0.55)" stroke="#f38ba8" stroke-width="0.5"/>
+    <text x="${leftMargin + 218}" y="${legendY + 9}" fill="#a6adc8" font-size="10">Test (IC−)</text>
+    <text x="${leftMargin + chartWidth}" y="${legendY + 9}" fill="#6c7086" font-size="10" text-anchor="end">IC</text>
+  `;
+
+  // "weak" / "strong" annotations
+  const weakY = topMargin + 2 * rowHeight;
+  const strongY = topMargin + (nFolds - 1) * rowHeight;
+  const annotations = `
+    <text x="8" y="${weakY + barHeight/2 + 3}" fill="#f38ba8" font-size="9" font-style="italic" opacity="0.7">weak</text>
+    <line x1="14" y1="${weakY - 5}" x2="14" y2="${weakY + barHeight + 5}" stroke="#f38ba8" stroke-width="1" stroke-dasharray="3,3" opacity="0.4"/>
+    <text x="8" y="${strongY + barHeight/2 + 3}" fill="#a6e3a1" font-size="9" font-style="italic" opacity="0.7">strong</text>
+    <line x1="14" y1="${strongY - 5}" x2="14" y2="${strongY + barHeight + 5}" stroke="#a6e3a1" stroke-width="1" stroke-dasharray="3,3" opacity="0.4"/>
+  `;
+
+  container.innerHTML = `<svg width="100%" viewBox="0 0 ${width} ${totalHeight}" xmlns="http://www.w3.org/2000/svg" style="overflow:visible;">
+    ${yearTicks}
+    ${rows}
+    ${annotations}
+    ${legend}
+  </svg>`;
+
+  const c = DATA.config;
+  document.getElementById('folds-timeline-info').textContent =
+    `${folds.length} folds | Train: ${c.TRAIN_PERIOD}d | Test: ${c.TEST_PERIOD}d | Purge: ${c.TARGET_HORIZON}d | Embargo: ${c.EMBARGO}d | Stride: ${c.TEST_PERIOD + c.EMBARGO}d`;
+}
+
+function renderFeatureInfo() {
+  const selBox = document.getElementById('feature-selected-box');
+  const features = DATA.selected_features || [];
+  const all = DATA.all_features || [];
+  const zeroed = all.filter(f => !features.includes(f));
+
+  selBox.innerHTML = `<h3>Selected Features (${features.length})</h3>` +
+    features.map(f => `<div class="info-row"><span class="info-value" style="color:var(--accent-green);">&#x2713; ${f}</span></div>`).join('') +
+    (zeroed.length ? `<h3 style="margin-top:12px; color:var(--accent-red);">Zeroed by Lasso (${zeroed.length})</h3>` +
+    zeroed.map(f => `<div class="info-row"><span class="info-value" style="color:var(--text-muted);">&#x2717; ${f}</span></div>`).join('') : '');
+
+  const cfgBox = document.getElementById('feature-config-box');
+  const c = DATA.config;
+  const m = DATA.metrics;
+  cfgBox.innerHTML = `<h3>Model Configuration</h3>
+    <div class="info-row"><span class="info-label">Algorithm</span><span class="info-value">LightGBM (regression)</span></div>
+    <div class="info-row"><span class="info-label">Feature Selection</span><span class="info-value">LassoCV (first fold)</span></div>
+    <div class="info-row"><span class="info-label">Walk-Forward Splits</span><span class="info-value">${c.N_SPLITS}</span></div>
+    <div class="info-row"><span class="info-label">Train Period</span><span class="info-value">${c.TRAIN_PERIOD} days (~${(c.TRAIN_PERIOD/252).toFixed(1)}y)</span></div>
+    <div class="info-row"><span class="info-label">Test Period</span><span class="info-value">${c.TEST_PERIOD} days (~${(c.TEST_PERIOD/63).toFixed(0)}Q)</span></div>
+    <div class="info-row"><span class="info-label">Purge / Embargo</span><span class="info-value">${c.TARGET_HORIZON}d / ${c.EMBARGO}d</span></div>
+    <div class="info-row"><span class="info-label">IC Threshold</span><span class="info-value">${c.IC_THRESHOLD}</span></div>
+    <div class="info-row"><span class="info-label">Top Decile</span><span class="info-value">${(c.TOP_DECILE*100).toFixed(0)}% (~${m.top_decile_count || '?'} stocks)</span></div>
+    <div class="info-row"><span class="info-label">Rebalance</span><span class="info-value">Every ${c.REBAL_DAYS} trading days</span></div>
+    <div class="info-row"><span class="info-label">Commission</span><span class="info-value">${c.COMMISSION_BPS} bps</span></div>
+    <div class="info-row"><span class="info-label">Slippage</span><span class="info-value">${c.SLIPPAGE_BPS} bps</span></div>
+    <div class="info-row"><span class="info-label">Total Cost (RT)</span><span class="info-value">${c.TOTAL_COST_BPS} bps</span></div>`;
+}
+
+function renderDecileTable() {
+  const top = DATA.top_stocks || DATA.top20;
+  const decileCount = DATA.metrics.top_decile_count || Math.ceil(DATA.metrics.universe_tickers * (DATA.config.TOP_DECILE || 0.10));
+  const held = top.filter((_, i) => i < decileCount);
+  const maxSignal = Math.max(...held.map(s => Math.abs(s.signal)));
+  const tbody = document.getElementById('decileTableBody');
+
+  function getRegion(ticker) {
+    const t = (ticker || '').toUpperCase();
+    if (t.endsWith('.KL') || t.endsWith('.KLSE')) return 'MY';
+    if (t.endsWith('.HK')) return 'HK';
+    return 'US';
+  }
+
+  tbody.innerHTML = held.map((s, i) => {
+    const retClass = s.fwd_return_pct >= 0 ? 'positive' : 'negative';
+    const retSign = s.fwd_return_pct >= 0 ? '+' : '';
+    const barWidth = Math.min(100, (Math.abs(s.signal) / maxSignal) * 100);
+    const region = getRegion(s.ticker);
+    return `<tr class="in-portfolio">
+      <td class="rank">${i + 1}</td>
+      <td class="ticker">${s.ticker}</td>
+      <td>${region}</td>
+      <td>${s.signal.toFixed(4)}</td>
+      <td><div class="signal-bar-bg"><div class="signal-bar-fill" style="width:${barWidth}%"></div></div></td>
+      <td class="${retClass}">${retSign}${s.fwd_return_pct.toFixed(1)}%</td>
+    </tr>`;
+  }).join('');
+
+  const avgRet = held.reduce((a, s) => a + s.fwd_return_pct, 0) / held.length;
+  document.getElementById('decile-info').textContent =
+    `${held.length} stocks held | Avg fwd return: ${avgRet >= 0 ? '+' : ''}${avgRet.toFixed(1)}% | Rebalance: ${DATA.metrics.latest_rebal_date}`;
+}
+
+function renderPortfolioInfo() {
+  const m = DATA.metrics;
+  const c = DATA.config;
+  const eq = DATA.equity;
+
+  // Main portfolio info
+  const costPerRebal = c.TOTAL_COST_BPS / 10000;
+  const totalCostDrag = (m.holding_periods * costPerRebal * 100).toFixed(2);
+
+  document.getElementById('portfolio-info').innerHTML = `<h3>Backtest Summary</h3>
+    <div class="info-row"><span class="info-label">Period</span><span class="info-value">${m.backtest_start} → ${m.backtest_end}</span></div>
+    <div class="info-row"><span class="info-label">Holding Periods</span><span class="info-value">${m.holding_periods} (non-overlapping ${c.REBAL_DAYS}-day)</span></div>
+    <div class="info-row"><span class="info-label">Universe</span><span class="info-value">${m.universe_tickers} tickers / ${m.universe_rows.toLocaleString()} rows</span></div>
+    <div class="info-row"><span class="info-label">Portfolio Size</span><span class="info-value">~${m.top_decile_count || '?'} stocks (top ${(c.TOP_DECILE*100).toFixed(0)}%)</span></div>
+    <div class="info-row"><span class="info-label">Weighting</span><span class="info-value">Equal-weight within decile</span></div>
+    <div class="info-row"><span class="info-label">Sharpe (net)</span><span class="info-value">${fmt(m.sharpe)}</span></div>
+    <div class="info-row"><span class="info-label">Annual Return (net)</span><span class="info-value">${pct(m.annual_return_pct)}</span></div>
+    <div class="info-row"><span class="info-label">Total Return</span><span class="info-value">${pct(m.total_return_pct)}</span></div>
+    <div class="info-row"><span class="info-label">Max Drawdown</span><span class="info-value">${pct(m.max_drawdown_pct)}</span></div>`;
+
+  // Region breakdown
+  const regionBox = document.getElementById('portfolio-region-info');
+  if (DATA.region_breakdown) {
+    const rb = DATA.region_breakdown;
+    regionBox.innerHTML = `<h3>Region Breakdown (latest rebalance)</h3>` +
+      Object.entries(rb).map(([region, count]) =>
+        `<div class="info-row"><span class="info-label">${region}</span><span class="info-value">${count} stocks</span></div>`
+      ).join('');
+  } else {
+    regionBox.innerHTML = `<h3>Region Breakdown</h3><div class="info-row"><span class="info-label">Not available</span><span class="info-value">Re-export with updated script</span></div>`;
+  }
+
+  // Cost impact
+  document.getElementById('portfolio-cost-info').innerHTML = `<h3>Cost Impact (IBKR)</h3>
+    <div class="info-row"><span class="info-label">Commission</span><span class="info-value">${c.COMMISSION_BPS} bps per side</span></div>
+    <div class="info-row"><span class="info-label">Slippage</span><span class="info-value">${c.SLIPPAGE_BPS} bps per side</span></div>
+    <div class="info-row"><span class="info-label">Round-trip</span><span class="info-value">${c.TOTAL_COST_BPS} bps</span></div>
+    <div class="info-row"><span class="info-label">Total Cost Drag</span><span class="info-value">~${totalCostDrag}% over ${m.holding_periods} rebalances</span></div>
+    <div class="info-row"><span class="info-label">Gross vs Net Spread</span><span class="info-value">${m.sharpe_gross != null ? fmt(m.sharpe_gross - m.sharpe, 2) + ' Sharpe points' : 'Re-export for data'}</span></div>`;
+}
+
+function renderRebalTable() {
+  const eq = DATA.equity;
+  if (!eq || !eq.period_returns) return;
+  const tbody = document.getElementById('rebalTableBody');
+  const costPerRebal = DATA.config.TOTAL_COST_BPS / 10000;
+
+  let cum = 1;
+  const rows = eq.dates.map((d, i) => {
+    const netRet = eq.period_returns[i];
+    const grossRet = netRet + costPerRebal;
+    cum *= (1 + netRet);
+    const retClass = netRet >= 0 ? 'positive' : 'negative';
+    const nStocks = DATA.rebal_details ? DATA.rebal_details[i]?.n_stocks || '—' : '—';
+    return `<tr>
+      <td>${d}</td>
+      <td>${nStocks}</td>
+      <td class="${grossRet >= 0 ? 'positive' : 'negative'}">${(grossRet*100).toFixed(2)}%</td>
+      <td style="color:var(--accent-yellow)">-${(costPerRebal*100).toFixed(2)}%</td>
+      <td class="${retClass}">${(netRet*100).toFixed(2)}%</td>
+      <td>${cum.toFixed(3)}x</td>
+    </tr>`;
+  });
+  tbody.innerHTML = rows.join('');
+}
+
+// ═══════════════════ ALPHA ANALYSIS RENDERERS ═══════════════════
+
+function renderQuantileChart() {
+  const qr = DATA.quantile_returns;
+  if (!qr) { document.getElementById('quantile-info').textContent = 'Re-export notebook with updated Cell 15'; return; }
+  const labels = qr.map(q => q.label);
+  const values = qr.map(q => q.mean_return * 100);
+  const colors = values.map((v, i) => {
+    if (i === 0) return '#f38ba899';        // bottom
+    if (i === values.length - 1) return '#a6e3a199';  // top
+    return 'rgba(137,180,250,0.4)';
+  });
+  const borders = values.map((v, i) => {
+    if (i === 0) return '#f38ba8';
+    if (i === values.length - 1) return '#a6e3a1';
+    return '#89b4fa';
+  });
+  makeChart('quantileChart', {
+    type: 'bar',
+    data: { labels, datasets: [{ label: 'Mean Fwd Return %', data: values, backgroundColor: colors, borderColor: borders, borderWidth: 1 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { ...chartTooltip, callbacks: { label: ctx => ctx.parsed.y.toFixed(3) + '%' } } },
+      scales: {
+        x: { ticks: { color: '#6c7086', font: { size: 10 } }, grid: { color: gridColor } },
+        y: { title: { display: true, text: 'Mean Fwd Return %', color: '#a6adc8', font: { size: 11 } }, ticks: { color: '#a6adc8', font: { size: 10 } }, grid: { color: gridColor } }
+      }
+    }
+  });
+  const spread = values[values.length - 1] - values[0];
+  const monotonic = values.every((v, i) => i === 0 || v >= values[i - 1]);
+  document.getElementById('quantile-info').textContent = `Spread: ${spread.toFixed(3)}% | ${monotonic ? 'Monotonic ✓' : 'Non-monotonic ⚠'}`;
+}
+
+function renderLongShortChart() {
+  const ls = DATA.long_short;
+  if (!ls) { document.getElementById('longshort-info').textContent = 'Re-export notebook'; return; }
+  makeChart('longShortChart', {
+    type: 'line',
+    data: {
+      labels: ls.dates,
+      datasets: [
+        { label: 'Top Decile', data: ls.cum_top, borderColor: '#a6e3a1', tension: 0.3, pointRadius: 0, borderWidth: 2, fill: false },
+        { label: 'Bottom Decile', data: ls.cum_bottom, borderColor: '#f38ba8', tension: 0.3, pointRadius: 0, borderWidth: 2, fill: false },
+        { label: 'L/S Spread', data: ls.cum_spread, borderColor: '#89b4fa', borderDash: [5, 3], tension: 0.3, pointRadius: 0, borderWidth: 1.5, fill: false }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { labels: { color: '#a6adc8', font: { size: 11 } } }, tooltip: chartTooltip },
+      scales: {
+        x: { ticks: { color: '#6c7086', maxTicksLimit: 8, font: { size: 10 } }, grid: { color: gridColor } },
+        y: { title: { display: true, text: 'Cumulative Return', color: '#a6adc8', font: { size: 11 } }, ticks: { color: '#a6adc8', font: { size: 10 } }, grid: { color: gridColor } }
+      }
+    }
+  });
+  const topFinal = ls.cum_top[ls.cum_top.length - 1];
+  const botFinal = ls.cum_bottom[ls.cum_bottom.length - 1];
+  document.getElementById('longshort-info').textContent = `Top: ${topFinal.toFixed(2)}x | Bottom: ${botFinal.toFixed(2)}x | Spread: ${(topFinal - botFinal).toFixed(2)}x`;
+}
+
+function renderRollingICChart() {
+  const ric = DATA.rolling_ic;
+  if (!ric) { document.getElementById('rolling-ic-info').textContent = 'Re-export notebook'; return; }
+  makeChart('rollingICChart', {
+    type: 'line',
+    data: {
+      labels: ric.dates,
+      datasets: [
+        { label: 'Rolling IC', data: ric.values, borderColor: 'rgba(137,180,250,0.6)', backgroundColor: 'rgba(137,180,250,0.08)', fill: true, tension: 0.3, pointRadius: 0, borderWidth: 1.5 },
+        { label: 'Cumulative Mean', data: ric.cumulative_mean, borderColor: '#f9e2af', borderDash: [4, 3], tension: 0.3, pointRadius: 0, borderWidth: 1.5, fill: false }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { labels: { color: '#a6adc8', font: { size: 11 } } },
+        tooltip: { ...chartTooltip, callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(4) } },
+        annotation: { annotations: { zero: { type: 'line', yMin: 0, yMax: 0, borderColor: '#45475a', borderWidth: 1 } } }
+      },
+      scales: {
+        x: { ticks: { color: '#6c7086', maxTicksLimit: 10, font: { size: 10 } }, grid: { color: gridColor } },
+        y: { title: { display: true, text: 'IC (rank corr)', color: '#a6adc8', font: { size: 11 } }, ticks: { color: '#a6adc8', font: { size: 10 } }, grid: { color: gridColor } }
+      }
+    }
+  });
+  const mean = ric.values.reduce((a, b) => a + b, 0) / ric.values.length;
+  const pos = ric.values.filter(v => v > 0).length;
+  document.getElementById('rolling-ic-info').textContent = `Mean: ${mean.toFixed(4)} | ${pos}/${ric.values.length} positive (${(pos/ric.values.length*100).toFixed(0)}%)`;
+}
+
+function renderTurnoverChart() {
+  const to = DATA.turnover;
+  if (!to) { document.getElementById('turnover-info').textContent = 'Re-export notebook'; return; }
+  makeChart('turnoverChart', {
+    type: 'line',
+    data: {
+      labels: to.dates,
+      datasets: [{ label: 'Turnover %', data: to.values.map(v => v * 100), borderColor: '#fab387', backgroundColor: 'rgba(250,179,135,0.1)', fill: true, tension: 0.3, pointRadius: 2, borderWidth: 1.5 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { ...chartTooltip, callbacks: { label: ctx => 'Turnover: ' + ctx.parsed.y.toFixed(1) + '%' } }
+      },
+      scales: {
+        x: { ticks: { color: '#6c7086', maxTicksLimit: 8, font: { size: 10 } }, grid: { color: gridColor } },
+        y: { title: { display: true, text: 'Turnover %', color: '#a6adc8', font: { size: 11 } }, ticks: { color: '#a6adc8', font: { size: 10 } }, grid: { color: gridColor }, min: 0, max: 100 }
+      }
+    }
+  });
+  const avg = to.values.reduce((a, b) => a + b, 0) / to.values.length * 100;
+  document.getElementById('turnover-info').textContent = `Avg turnover: ${avg.toFixed(1)}% per rebalance`;
+}
+
+function renderAutocorrChart() {
+  const ac = DATA.factor_autocorrelation;
+  if (!ac) { document.getElementById('autocorr-info').textContent = 'Re-export notebook'; return; }
+  makeChart('autocorrChart', {
+    type: 'line',
+    data: {
+      labels: ac.dates,
+      datasets: [{ label: 'Rank Autocorrelation', data: ac.values, borderColor: '#94e2d5', backgroundColor: 'rgba(148,226,213,0.1)', fill: true, tension: 0.3, pointRadius: 2, borderWidth: 1.5 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { ...chartTooltip, callbacks: { label: ctx => 'Autocorr: ' + ctx.parsed.y.toFixed(4) } }
+      },
+      scales: {
+        x: { ticks: { color: '#6c7086', maxTicksLimit: 10, font: { size: 10 } }, grid: { color: gridColor } },
+        y: { title: { display: true, text: 'Spearman ρ (t vs t-1)', color: '#a6adc8', font: { size: 11 } }, ticks: { color: '#a6adc8', font: { size: 10 } }, grid: { color: gridColor }, min: -0.2, max: 1.0 }
+      }
+    }
+  });
+  const avg = ac.values.reduce((a, b) => a + b, 0) / ac.values.length;
+  document.getElementById('autocorr-info').textContent = `Mean autocorr: ${avg.toFixed(3)} | ${avg > 0.7 ? 'High persistence ✓' : avg > 0.3 ? 'Moderate persistence' : 'Low persistence ⚠'}`;
+}
+
+function renderMonthlyHeatmap() {
+  const mr = DATA.monthly_returns;
+  if (!mr) { document.getElementById('heatmap-info').textContent = 'Re-export notebook'; return; }
+
+  const years = [...new Set(mr.map(m => m.year))].sort();
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const nCols = months.length + 2;  // months + year label + annual
+
+  // Build lookup
+  const lookup = {};
+  mr.forEach(m => { lookup[m.year + '-' + m.month] = m.ret; });
+
+  // Color scale
+  const allVals = mr.map(m => m.ret);
+  const maxAbs = Math.max(Math.abs(Math.min(...allVals)), Math.abs(Math.max(...allVals)), 0.01);
+
+  function retColor(v) {
+    if (v == null) return 'transparent';
+    const intensity = Math.min(Math.abs(v) / maxAbs, 1);
+    if (v >= 0) return `rgba(166, 227, 161, ${0.15 + intensity * 0.7})`;
+    return `rgba(243, 139, 168, ${0.15 + intensity * 0.7})`;
+  }
+
+  let html = `<div class="heatmap-grid" style="grid-template-columns: 60px repeat(12, 1fr) 70px;">`;
+  // Header row
+  html += `<div class="heatmap-cell heatmap-header"></div>`;
+  months.forEach(m => { html += `<div class="heatmap-cell heatmap-header">${m}</div>`; });
+  html += `<div class="heatmap-cell heatmap-header">Annual</div>`;
+
+  // Data rows
+  years.forEach(year => {
+    html += `<div class="heatmap-cell heatmap-row-label">${year}</div>`;
+    let yearTotal = 1;
+    let hasData = false;
+    months.forEach((_, mi) => {
+      const key = year + '-' + (mi + 1);
+      const v = lookup[key];
+      if (v != null) {
+        yearTotal *= (1 + v);
+        hasData = true;
+        html += `<div class="heatmap-cell" style="background:${retColor(v)}; color:${Math.abs(v) < 0.001 ? 'var(--text-muted)' : 'var(--text-primary)'}" title="${year} ${months[mi]}: ${(v*100).toFixed(2)}%">${(v*100).toFixed(1)}%</div>`;
+      } else {
+        html += `<div class="heatmap-cell" style="color:var(--text-muted)">—</div>`;
+      }
+    });
+    const annRet = hasData ? yearTotal - 1 : null;
+    if (annRet != null) {
+      html += `<div class="heatmap-cell" style="background:${retColor(annRet)}; font-weight:700; color:var(--text-primary)" title="${year} Annual: ${(annRet*100).toFixed(2)}%">${(annRet*100).toFixed(1)}%</div>`;
+    } else {
+      html += `<div class="heatmap-cell" style="color:var(--text-muted)">—</div>`;
+    }
+  });
+  html += `</div>`;
+  document.getElementById('monthlyHeatmap').innerHTML = html;
+
+  const posMonths = allVals.filter(v => v > 0).length;
+  document.getElementById('heatmap-info').textContent = `${posMonths}/${allVals.length} positive months (${(posMonths/allVals.length*100).toFixed(0)}%)`;
+}
+
+function renderTerminal() {
+  const terminal = document.getElementById('terminal');
+  const lines = DATA.terminal;
+  const html = lines.map(line => {
+    if (line.startsWith('──') || line.startsWith('── ')) return `<span class="section">${esc(line)}</span>`;
+    if (line.startsWith('Pipeline complete')) return `<span class="highlight">${esc(line)}</span>`;
+    let escaped = esc(line);
+    escaped = escaped.replace(/([:=])\s*([-+]?\d+\.?\d*%?)/g, '$1 <span class="value">$2</span>');
+    if (escaped.startsWith('Fold') || escaped.startsWith('  #')) escaped = `<span style="color:var(--text-secondary)">${escaped}</span>`;
+    return escaped;
+  }).join('\n');
+  terminal.innerHTML = `<span class="prompt">$ python pipeline_v2.py</span>\n<span class="comment"># Jansen MFAT 2e — Walk-forward ML4T Pipeline</span>\n\n${html}`;
+}
+
+function scrollTerminal() { const t = document.getElementById('terminal'); t.scrollTop = t.scrollHeight; }
+
+function renderStatusBar() {
+  const m = DATA.metrics;
+  document.getElementById('sb-left').textContent = `Jansen MFAT 2e — ${m.holding_periods} periods • ${m.universe_tickers} tickers • ${m.universe_rows.toLocaleString()} rows`;
+}
+
+function esc(text) { const d = document.createElement('div'); d.textContent = text; return d.innerHTML; }
+
+// ═══════════════════ INFO TOOLTIPS ═══════════════════
+
+const PANEL_TIPS = {
+  'Equity Curve & Drawdown': {
+    what: 'Shows your portfolio\'s cumulative growth (blue) and peak-to-trough drawdown (red) over the backtest period.',
+    how: 'The blue line should trend upward. The red area shows how much you\'d lose from any peak — shallower is better. A good strategy recovers from drawdowns quickly. Compare drawdown depth to your Max DD metric.'
+  },
+  'Per-Rebalance Returns (net)': {
+    what: 'Each bar is the net return for one rebalance period (after transaction costs). Green = profit, red = loss.',
+    how: 'Look for more green than red bars (win rate) and check that green bars are larger than red ones on average (positive skew). Clusters of red bars indicate regime sensitivity.'
+  },
+  'Gross vs Net Equity (cost impact)': {
+    what: 'Compares portfolio growth before (gross) and after (net) transaction costs. The gap between the two lines is your total cost drag.',
+    how: 'If the lines diverge significantly, your strategy is sensitive to costs. A large gap suggests too-frequent rebalancing or trading illiquid names. The net line is what you\'d actually earn.'
+  },
+  'Signal-Weighted vs Equal-Weight': {
+    what: 'Compares weighting stocks by signal strength vs. giving equal weight to all top-decile picks.',
+    how: 'If signal-weighted beats equal-weight, your model\'s signal magnitude contains useful information — stronger signals predict better returns. If they\'re similar, the ranking alone drives performance.'
+  },
+  'Monthly Returns Heatmap': {
+    what: 'Year-by-month grid showing portfolio returns. Green = positive, red = negative. The rightmost column is the annual total.',
+    how: 'Look for seasonal patterns (certain months consistently red/green), regime shifts (entire years of one color), and whether recent performance matches the backtest average. Helps spot overfitting to specific periods.'
+  },
+  'Performance Metrics Summary': {
+    what: 'Scorecard of key risk/return metrics with color-coded assessments (green = good, yellow = moderate, red = poor).',
+    how: 'Sharpe > 1.0, positive Mean IC, ICIR > 0.5, and win rate > 50% are the key benchmarks. No single metric tells the whole story — look for consistency across all of them.'
+  },
+  'IC per CV Fold': {
+    what: 'Information Coefficient (Spearman rank correlation between predicted signal and actual returns) for each walk-forward fold.',
+    how: 'All bars should be positive — negative IC means the model\'s predictions were inversely correlated with actual returns in that period. Early folds often have less training data and weaker IC. Consistent IC across folds indicates a robust signal.'
+  },
+  'SHAP Feature Importance': {
+    what: 'Mean absolute SHAP values showing which features drive the model\'s predictions most. Based on game-theoretic attribution (Jansen Ch.12).',
+    how: 'Top features should make intuitive sense (e.g., momentum, volatility). If a single feature dominates, the model may be fragile. If noisy features rank high, the model might be overfitting.'
+  },
+  'OOF Signal vs Actual': {
+    what: 'Scatter plot of out-of-fold predicted signals (x-axis) vs. actual forward returns (y-axis). Each dot is one stock-date observation.',
+    how: 'A positive trend (bottom-left to top-right) indicates predictive power. Dense clustering around zero with no trend means the signal is noise. The OOF IC value quantifies this relationship.'
+  },
+  'Fold Details': {
+    what: 'Detailed breakdown of each CV fold: IC, AUC, training/test sizes, and time periods covered.',
+    how: 'Check that training size is sufficient (>50k rows typically). Folds with very short training periods or very few test samples are less reliable. AUC near 0.5 means no better than random.'
+  },
+  'Walk-Forward CV Folds Timeline': {
+    what: 'Visual timeline showing how train (blue) and test (green/red) windows slide forward through time. Yellow dots mark purge gaps. IC colors the test bars.',
+    how: 'Verify there\'s no overlap between train and test periods. The purge gap (yellow) prevents information leakage from forward returns. Green test bars = positive IC, red = negative IC.'
+  },
+  'LassoCV Feature Selection': {
+    what: 'Shows which features survived L1 regularisation (LassoCV). Features with zero coefficients are removed before training LightGBM.',
+    how: 'Fewer surviving features generally means a more robust model. If most features are zeroed, the original feature set may contain too much noise. The selected features should align with the SHAP importance ranking.'
+  },
+  'Top Decile — Actual Portfolio Holdings': {
+    what: 'The stocks actually held in the top-decile portfolio at the latest rebalance date, ranked by signal strength.',
+    how: 'Check for concentration risk — are holdings spread across regions and sectors? The signal strength bar shows relative conviction. Forward return shows how each pick performed after selection.'
+  },
+  'Portfolio Summary': {
+    what: 'Summary statistics for the backtest: period, universe size, portfolio sizing, and key return metrics.',
+    how: 'Verify the universe is large enough for diversification. Check that cost assumptions are realistic for your broker. Compare gross vs net Sharpe to gauge cost sensitivity.'
+  },
+  'All Rebalance Periods': {
+    what: 'Per-period breakdown showing gross return, cost deduction, net return, and cumulative growth for every rebalance.',
+    how: 'Scan for periods where cost exceeds the gross return (net negative despite a correct signal). The cumulative column shows portfolio value progression — look for steady growth without large jumps.'
+  },
+  'Quantile Mean Returns': {
+    what: 'Average forward returns for each signal decile (D1 = weakest signal, D10 = strongest). This is Jansen\'s primary Alphalens diagnostic.',
+    how: 'A good signal produces a monotonic spread — returns should increase steadily from D1 to D10. If the spread is non-monotonic (D5 beats D10, for example), the signal\'s ranking ability is unreliable.'
+  },
+  'Top vs Bottom Decile (cumulative)': {
+    what: 'Cumulative returns of the top decile (long) vs bottom decile (short), plus their spread. Tests whether the signal distinguishes winners from losers.',
+    how: 'Top should trend up, bottom should lag or trend down. A widening spread confirms the signal has discriminative power. If both lines move together, the signal is just tracking the market.'
+  },
+  'Rolling IC (cross-sectional)': {
+    what: 'Cross-sectional Spearman rank correlation between signal and forward returns at each rebalance date. The yellow line shows the cumulative mean.',
+    how: 'Look for IC that stays consistently above zero. Prolonged negative IC periods indicate regime changes where the model fails. The cumulative mean should stabilize — if it\'s still drifting, you need more data.'
+  },
+  'Factor Turnover': {
+    what: 'Percentage of portfolio names that change at each rebalance (Jaccard distance between consecutive portfolios).',
+    how: 'High turnover (>50%) means the signal is noisy and generates high transaction costs. Low turnover (<20%) means stable rankings but may indicate a slow-moving signal. Ideal is 20-40% for a monthly horizon.'
+  },
+  'Factor Rank Autocorrelation': {
+    what: 'Spearman correlation of stock signal rankings between consecutive rebalance dates. Measures signal persistence.',
+    how: 'High autocorrelation (>0.7) means the signal is stable — stocks ranked highly today will likely rank highly next period. Low autocorrelation (<0.3) suggests a noisy, rapidly changing signal that will generate excessive turnover and costs.'
+  },
+};
+
+function injectInfoTips() {
+  document.querySelectorAll('.panel-title').forEach(titleEl => {
+    if (titleEl.querySelector('.info-tip')) return; // already injected
+    const titleText = titleEl.textContent.trim();
+    const match = Object.keys(PANEL_TIPS).find(k => titleText.includes(k));
+    if (!match) return;
+    const tip = PANEL_TIPS[match];
+
+    const icon = document.createElement('span');
+    icon.className = 'info-tip';
+    icon.textContent = 'i';
+
+    const tooltip = document.createElement('span');
+    tooltip.className = 'info-tip-text';
+    tooltip.innerHTML = `<span class="tip-title">${match}</span>${tip.what}<span class="tip-how">How to read:</span>${tip.how}`;
+    icon.appendChild(tooltip);
+
+    titleEl.appendChild(icon);
+  });
+
+  // Edge-aware positioning
+  document.querySelectorAll('.info-tip').forEach(icon => {
+    icon.addEventListener('mouseenter', () => {
+      const rect = icon.getBoundingClientRect();
+      const tip = icon.querySelector('.info-tip-text');
+      // Flip above if near bottom
+      if (rect.bottom + 220 > window.innerHeight) icon.classList.add('tip-above');
+      else icon.classList.remove('tip-above');
+      // Align left/right if near edges
+      if (rect.left < 180) { icon.classList.add('tip-left'); icon.classList.remove('tip-right'); }
+      else if (rect.right + 180 > window.innerWidth) { icon.classList.add('tip-right'); icon.classList.remove('tip-left'); }
+      else { icon.classList.remove('tip-left', 'tip-right'); }
+    });
+  });
+}
+
+// Inject after first render or on load
+const _origRenderAll = renderAll;
+renderAll = function() { _origRenderAll(); injectInfoTips(); };
+// Also inject if page loaded without data (static panels)
+document.addEventListener('DOMContentLoaded', () => setTimeout(injectInfoTips, 100));
+</script>
+</body>
+</html>
