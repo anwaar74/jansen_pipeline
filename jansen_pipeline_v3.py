@@ -1,25 +1,63 @@
 """
 ========================================================================
-Shariah ML Pipeline v3 — Jansen MFAT 2nd Ed. Aligned (Sharpe-fix release)
+Shariah ML Pipeline v4.3 — Jansen MFAT 2nd Ed. Aligned (Sharpe-fix release)
 ========================================================================
 Markets:        US (NYSE/NASDAQ) · Malaysia (KLSE) · Hong Kong (HKEX)
-Alpha engine:   LightGBM walk-forward CV (purge + embargo)
-Target:         Cross-sectional RANK of 21d forward return  (Jansen Ch.4/12)
-Features:       Cross-sectional RANK per date  (Jansen Ch.4)
-Selection:      Tree gain importance — no Lasso pre-screen  (Jansen Ch.6)
-Backtest:       Long-short market-neutral, top vs bottom quintile  (Jansen Ch.12)
+Alpha engine:   LightGBM ensemble (21d target × 3 seeds)
+Target:         Cross-sectional RANK of forward return     (Jansen Ch.4/12)
+Features:       Cross-sectional RANK per date              (Jansen Ch.4)
+Selection:      Tree gain importance — no Lasso pre-screen (Jansen Ch.6)
+Backtest:       Long-short EW top-quintile, EMA-smoothed,
+                vol-targeted (de-lever only)                (Jansen Ch.12)
 Liquidity:      Per-market ADV thresholds
 Survivorship:   Includes EODHD delisted stocks
 
-Changes vs v2 (the cause of the negative Sharpe):
-  P0  Target → cross-sectional rank per date  (was raw 21d return)
-  P0  Features → rank-transformed per date     (was raw, regime-biased)
-  P0  Dropped LassoCV pre-selection (was killing 16/17 features)
-  P0  Backtest → long-short market-neutral     (was long-only, all-US)
-  P1  Added Jansen Ch.4 alphas: 12-1 momentum, short-term reversal,
-       idiosyncratic vol, volume shock, drawdown depth, Amihud illiquidity
-  P1  Early stopping on per-date Spearman IC, not RMSE
-  P2  Loosened DD circuit breaker (-25% vs -15%; was tripping 14/24 periods)
+v2 → v3 (Sharpe -0.20 → +0.10):
+  Target → cross-sectional rank per date  (was raw 21d return)
+  Features → rank-transformed per date    (was raw, regime-biased)
+  Dropped LassoCV pre-selection (was killing 16/17 features)
+  Backtest → long-short market-neutral    (was long-only, all-US)
+  Added Jansen Ch.4 alphas: 12-1 momentum, short-term reversal,
+   idiosyncratic vol, volume shock, drawdown depth, Amihud illiquidity
+
+v3 → v4 attempt (Sharpe +0.10 → -0.65 — REGRESSED):
+  Cell 11: 5d×21d horizon ensemble       → 5d disagreed with 21d on
+                                            cross-section levels, INVERTED
+                                            the long-short (cum_top 1.46 <
+                                            cum_bottom 2.99 vs v3 spread +0.20)
+  Cell 13: 30% basket + signal-weighted  → pulled in middle-quantile noise
+  Cell 13: MAX_LEVERAGE 1.5×             → amplified bad-signal periods
+
+v4 → v4.1 (rollback to conservative ground, keep wins):
+  Cell 11: Drop 5d horizon. Single 21d × 3 seeds.
+  Cell 13: Revert to 20% basket, equal-weight positions, MAX_LEVERAGE 1.0.
+  KEEP   : EMA smoothing α=0.5 (turnover 75%→60%, autocorr 0.45→0.63 — works)
+  KEEP   : Vol target de-lever (avg lev 0.87 in v4 — actively reducing risk)
+
+v4.1 → v4.2 attempt (Sharpe +0.10 → -0.17 — ROLLED BACK):
+  Cell 8 : Target switched to market-NEUTRALISED rank. Per-fold IC
+           improved (0.046 → 0.052, ICIR 0.65 → 0.73) BUT long-short
+           spread collapsed to +0.005 (D10 +2.35% vs D1 +2.45%). Model
+           learned "beat the market" but backtest trades absolute returns
+           and basket is 100% US. target_demeaned and target_demeaned_rank
+           stay in fd2 for a future per-market backtest variant.
+
+v4.2 → v4.3 (calibrate the signal POST-HOC, not at the target):
+  Cell 13: Decile-return CALIBRATION. Across v3/v4/v4.2, D3-D6 (middle
+           deciles) consistently beat D10 (long) and D1 (short) — the
+           model's "best" prediction was empirically not its best decile.
+           Each rebalance: bucket signal into 10 deciles, look up the
+           past 6 rebalances' realised return PER PREDICTED DECILE, long
+           the top-2 expected-return deciles, short the bottom-2.
+           Adapts to whatever non-monotonic shape the model has, no
+           hardcoding required. Warm-up uses standard top/bottom quintile.
+           Result: Sharpe +0.10 → +0.68, return 0.5% → 30.5%, DD -17% → -11%.
+
+v4.3 + (tighten vol target — realised vol was 53% on initial v4.3 run):
+  Cell 13: MIN_LEVERAGE 0.30 → 0.10  (let the overlay deflate harder)
+  Cell 13: VOL_TARGET_ANN 0.10 → 0.12
+           Expected: realised vol 53% → ~25%, return 30.5% → ~12-15%,
+                     DD -11% → ~-6-8%, Sharpe stays similar.
 
 Run end-to-end:    python jansen_pipeline_v3.py
 """
@@ -373,13 +411,21 @@ fd2[passed_features] = (
 
 # ── Rank-transform target per date (Jansen Ch.12)
 fd2['target_rank'] = fd2.groupby('date')['target_21d'].rank(pct=True)
-# Optional: market-neutralised residual target (for ablation)
+
+# v4.2 — market-NEUTRALISED rank target (Jansen Ch.4 "sector neutralisation").
+# Subtract per-market mean before ranking so the model learns
+# "stocks that beat their market" instead of "stocks with high raw returns".
+# Removes the dominant source of regime/beta noise the bimodal fold-IC
+# in v3/v4.1 came from. (Use sector if you have GICS; market is the proxy here.)
 fd2['target_demeaned'] = (
     fd2['target_21d'] - fd2.groupby(['date','market'])['target_21d'].transform('mean')
 )
+fd2['target_demeaned_rank'] = (
+    fd2.groupby('date')['target_demeaned'].rank(pct=True)
+)
 
 X_all = fd2[passed_features].copy()
-y_all = fd2['target_rank'].copy()   # train on rank target
+y_all = fd2['target_rank'].copy()   # v4.1 baseline — raw rank (was market-neutral in v4.2 but flattened the spread)
 y_raw = fd2['target_21d'].copy()    # keep raw for IC computation + backtest
 
 unique_dates = np.sort(fd2['date'].unique())
@@ -438,9 +484,10 @@ print(f'Selected features (no Lasso): {len(selected_features)}')
 
 
 # ═══════════════════════════════════════════════════════════════════════
-# CELL 11 — LightGBM walk-forward training on RANK target
-# REPLACES v2 Cell 13.  Early-stop uses RMSE on rank target; we also
-# report per-date Spearman IC against the RAW return.
+# CELL 11 v4 — ENSEMBLE training (5d × 21d horizons × 3 seeds = 6 models/fold)
+# Replaces single-model v3.  Targets the bimodal fold-IC variance
+# (v3 had F0=+0.17, F2=-0.02): seed+horizon ensemble pulls ICIR up by
+# smoothing both extremes. (Jansen Ch.12 "horizon ensembling".)
 # ═══════════════════════════════════════════════════════════════════════
 import lightgbm as lgb
 from scipy.stats import spearmanr
@@ -458,61 +505,98 @@ LGB_PARAMS = dict(
     reg_alpha         = 0.5,
     reg_lambda        = 2.0,
     n_jobs            = -1,
-    random_state      = 42,
     verbosity         = -1,
 )
 
+# v4.1 — drop 5d horizon. The 5d model disagreed with 21d on signal levels,
+# inverting the cross-section at the extremes (cum_top 1.46 < cum_bottom 2.99
+# in v4). Keep only 21d × 3 seeds.
+SEEDS    = [42, 7, 2024]
+HORIZONS = [('21d', y_all)]
+
 results   = []
-oof_preds = pd.Series(np.nan, index=fd2.index)
+oof_preds = pd.Series(np.nan, index=fd2.index, dtype=float)
 
 for fold_i, (train_idx, test_idx) in enumerate(splits):
-    X_tr = np.array(X_all.loc[train_idx], dtype=float)
-    y_tr = np.array(y_all.loc[train_idx], dtype=float)   # rank target
-    X_te = np.array(X_all.loc[test_idx],  dtype=float)
-    y_te = np.array(y_all.loc[test_idx],  dtype=float)
-    y_te_raw = np.array(y_raw.loc[test_idx], dtype=float)
+    test_idx_arr = np.array(test_idx)
+    n_test = len(test_idx_arr)
+    pred_accum = np.zeros(n_test)
+    pred_count = np.zeros(n_test)
+    best_iters = []
 
-    ok_tr = np.isfinite(X_tr).all(axis=1) & np.isfinite(y_tr)
-    ok_te = np.isfinite(X_te).all(axis=1) & np.isfinite(y_te)
-    X_tr, y_tr = X_tr[ok_tr], y_tr[ok_tr]
-    X_te, y_te = X_te[ok_te], y_te[ok_te]
-    y_te_raw   = y_te_raw[ok_te]
+    for horizon_name, y_series in HORIZONS:
+        X_tr_full = np.array(X_all.loc[train_idx], dtype=float)
+        y_tr_full = np.array(y_series.loc[train_idx], dtype=float)
+        X_te_full = np.array(X_all.loc[test_idx],  dtype=float)
+        y_te_full = np.array(y_series.loc[test_idx], dtype=float)
 
-    model = lgb.LGBMRegressor(**LGB_PARAMS)
-    model.fit(X_tr, y_tr,
-              eval_set=[(X_te, y_te)],
-              callbacks=[lgb.early_stopping(50, verbose=False), lgb.log_evaluation(-1)])
-    preds = model.predict(X_te)
+        ok_tr = np.isfinite(X_tr_full).all(axis=1) & np.isfinite(y_tr_full)
+        ok_te = np.isfinite(X_te_full).all(axis=1) & np.isfinite(y_te_full)
+        X_tr, y_tr = X_tr_full[ok_tr], y_tr_full[ok_tr]
+        X_te, y_te = X_te_full[ok_te], y_te_full[ok_te]
 
-    # IC vs RAW returns (what we trade on)
-    rho_pooled, _ = spearmanr(preds, y_te_raw)
-    te_dates = fd2.loc[test_idx, 'date'].values[ok_te]
+        if len(X_tr) < 1000 or len(X_te) < 100:
+            continue
+
+        for seed in SEEDS:
+            params = {**LGB_PARAMS, 'random_state': seed}
+            m = lgb.LGBMRegressor(**params)
+            m.fit(X_tr, y_tr,
+                  eval_set=[(X_te, y_te)],
+                  callbacks=[lgb.early_stopping(50, verbose=False),
+                             lgb.log_evaluation(-1)])
+            best_iters.append(m.best_iteration_)
+            preds_te = m.predict(X_te)
+
+            # Per-date rank of preds (so 5d/21d are on the same scale)
+            te_dates_ok = fd2.loc[test_idx, 'date'].values[ok_te]
+            preds_rank = (pd.Series(preds_te)
+                          .groupby(pd.Series(te_dates_ok))
+                          .rank(pct=True)
+                          .values)
+            pred_accum[ok_te] += preds_rank
+            pred_count[ok_te] += 1
+
+    if pred_count.sum() == 0:
+        continue
+
+    pred_count[pred_count == 0] = np.nan
+    fold_ensemble = pred_accum / pred_count
+
+    # Rank-average across models within each date (defensive)
+    te_dates_full = fd2.loc[test_idx, 'date'].values
+    fold_ens = (pd.Series(fold_ensemble, index=test_idx_arr)
+                .groupby(te_dates_full).rank(pct=True))
+    oof_preds.loc[test_idx_arr] = fold_ens.values
+
+    # IC vs RAW returns
+    y_te_raw = y_raw.loc[test_idx].values
+    valid    = np.isfinite(fold_ens.values) & np.isfinite(y_te_raw)
+    rho_p, _ = spearmanr(fold_ens.values[valid], y_te_raw[valid])
+    auc = (roc_auc_score((y_te_raw[valid] > 0).astype(int), fold_ens.values[valid])
+           if len(np.unique(y_te_raw[valid] > 0)) > 1 else np.nan)
+
     per_date = []
-    for d in np.unique(te_dates):
-        m = te_dates == d
-        if m.sum() >= 10:
-            r, _ = spearmanr(preds[m], y_te_raw[m])
+    for d in np.unique(te_dates_full[valid]):
+        mm = (te_dates_full == d) & valid
+        if mm.sum() >= 10:
+            r, _ = spearmanr(fold_ens.values[mm], y_te_raw[mm])
             if np.isfinite(r): per_date.append(r)
-    rho_perdate = float(np.mean(per_date)) if per_date else np.nan
-
-    auc = roc_auc_score((y_te_raw > 0).astype(int), preds) \
-          if len(np.unique(y_te_raw > 0)) > 1 else np.nan
-
-    te_idx_arr = np.array(test_idx)[ok_te]
-    oof_preds.iloc[te_idx_arr] = preds
+    rho_pd = float(np.mean(per_date)) if per_date else np.nan
 
     te_d = fd2.loc[test_idx, 'date']
     results.append(dict(
-        fold=fold_i, ic=rho_perdate, ic_pooled=rho_pooled, auc=auc,
-        n_train=ok_tr.sum(), n_test=ok_te.sum(),
+        fold=fold_i, ic=rho_pd, ic_pooled=rho_p, auc=auc,
+        n_train=int(valid.sum()), n_test=int(valid.sum()),
         train_days=fd2.loc[train_idx, 'date'].nunique(),
         test_start=te_d.min().date(), test_end=te_d.max().date(),
     ))
-    print(f'Fold {fold_i:2d} | IC(perdate)={rho_perdate:+.4f}  IC(pooled)={rho_pooled:+.4f}  '
-          f'AUC={auc:.4f}  best_iter={model.best_iteration_}')
+    print(f'Fold {fold_i:2d} | IC(perdate)={rho_pd:+.4f}  IC(pooled)={rho_p:+.4f}  '
+          f'AUC={auc:.4f}  best_iters={best_iters}')
 
 res_df = pd.DataFrame(results)
-print(f'\nMean per-date IC: {res_df.ic.mean():.4f}  (ICIR={res_df.ic.mean()/res_df.ic.std():.2f})')
+print(f'\nEnsemble Mean per-date IC: {res_df.ic.mean():.4f}  '
+      f'(ICIR={res_df.ic.mean()/res_df.ic.std():.2f})')
 print(f'Positive IC folds: {(res_df.ic > 0).sum()}/{len(res_df)}')
 
 
@@ -568,38 +652,107 @@ print(f'OOF IC (per-date avg): {ic_oof:+.4f}  ICIR={ic_oof_ir:.2f}')
 
 
 # ═══════════════════════════════════════════════════════════════════════
-# CELL 13 — Long-SHORT market-neutral backtest (Jansen Ch.12)
-# REPLACES v2 Cell 15.
-# LONG_ONLY = True falls back to long-only top-quintile for Shariah.
+# CELL 13 v4.3 — Decile-return CALIBRATED backtest
+# Across v3/v4/v4.2, middle deciles (D3-D6) consistently outperformed
+# the extremes (D1/D10). The signal correctly RANKS but is mis-calibrated:
+# its "best" prediction (top quintile) isn't actually the best decile.
+# Fix: each rebalance, look at the prior CALIB_LOOKBACK rebalances'
+# realised return PER PREDICTED DECILE; long the N_LONG_DECILES highest
+# expected-return deciles, short the N_SHORT_DECILES lowest. Adapts to
+# whatever non-monotonic shape the model has without hardcoding it.
+# (Jansen Ch.12 "post-processing the signal — isotonic / decile regression")
 # ═══════════════════════════════════════════════════════════════════════
 import matplotlib.pyplot as plt
 
-LONG_ONLY          = False        # set True for Shariah long-only
-TOP_DECILE         = 0.20         # quintile (broader basket)
+LONG_ONLY          = False
 REBAL_DAYS         = TARGET_HORIZON
 COMMISSION_BPS     = 5.0
 SLIPPAGE_BPS       = 2.5
 TOTAL_COST_BPS     = (COMMISSION_BPS + SLIPPAGE_BPS) * 2
+
+# Decile calibration (v4.3)
+DECILE_CALIB       = True         # use rolling decile-return history to pick longs/shorts
+N_DECILES          = 10
+CALIB_LOOKBACK     = 6            # rebal periods of history
+CALIB_WARMUP       = 4            # # of rebals to collect before switching on
+N_LONG_DECILES     = 2            # deciles long
+N_SHORT_DECILES    = 2            # deciles short
+
+# Legacy quintile fallback (used during warm-up)
+TOP_FRAC           = 0.20
+TOP_DECILE         = TOP_FRAC
+
+# Signal smoothing — KEPT from v4
+EMA_ALPHA          = 0.50
+
+# Sizing
+SIGNAL_WEIGHTED    = False        # equal-weight within longs/shorts
 MAX_POSITION_SIZE  = 0.05
 MAX_MARKET_CONC    = 0.40
-DD_CIRCUIT_BREAKER = -0.25        # loosened (v2 -0.15 tripped 14/24 periods)
-SIGNAL_WEIGHTED    = True
+
+# Volatility target — v4.3 calibration had 53% realised vol; tighten so the
+# overlay can actually deflate the book in stressful regimes.
+VOL_TARGET         = True
+VOL_TARGET_ANN     = 0.12       # was 0.10 — slightly higher target
+VOL_LOOKBACK       = 6
+MAX_LEVERAGE       = 1.0
+MIN_LEVERAGE       = 0.10       # was 0.30 — allow heavy deflation
+
+DD_CIRCUIT_BREAKER = -0.25
 
 bt = pd.DataFrame({
     'date':   fd2['date'].values,
     'ticker': fd2['ticker'].values,
     'market': fd2['market'].values,
     'actual': y_raw.values,
-    'signal': oof_preds_filtered.values,
-}).dropna(subset=['signal','actual'])
+    'signal_raw': oof_preds_filtered.values,
+}).dropna(subset=['signal_raw','actual'])
 
 all_dates   = np.sort(bt['date'].unique())
 rebal_dates = all_dates[::REBAL_DAYS]
 print(f'Backtest: {len(bt):,} rows, {bt["date"].nunique()} dates, '
       f'{bt["ticker"].nunique()} tickers, {len(rebal_dates)} rebalances')
 
+# ── EMA-smooth signal per ticker, then re-rank per date
+sig_panel = bt.pivot_table(index='date', columns='ticker', values='signal_raw')
+sig_panel_smooth = sig_panel.ewm(alpha=EMA_ALPHA, adjust=False, min_periods=1).mean()
+sig_panel_rank   = sig_panel_smooth.rank(axis=1, pct=True)
+sig_long = sig_panel_rank.stack().rename('signal').reset_index()
+bt = bt.drop(columns=['signal_raw']).merge(sig_long, on=['date','ticker'], how='left')
+bt = bt.dropna(subset=['signal'])
+print(f'Signal EMA-smoothed (α={EMA_ALPHA}); panel: {sig_panel.shape}')
+
+
+def _signal_weights(grp_side, side='long'):
+    """Rank-weighted weights within long/short book, position-capped."""
+    s = grp_side['signal'].values.astype(float)
+    if side == 'long':
+        w = s - s.min()
+    else:
+        w = (1 - s) - (1 - s).min()
+    if w.sum() == 0:
+        return np.ones(len(s)) / len(s)
+    w = w / w.sum()
+    for _ in range(50):
+        over = w > MAX_POSITION_SIZE
+        if not over.any(): break
+        excess = (w[over] - MAX_POSITION_SIZE).sum()
+        w[over] = MAX_POSITION_SIZE
+        under = ~over
+        room = (MAX_POSITION_SIZE - w[under]).sum()
+        if room <= 1e-12: break
+        w[under] += excess * (MAX_POSITION_SIZE - w[under]) / room
+    return w / w.sum()
+
+
 period_returns = []
 cum_eq, peak_eq, cb_trips = 1.0, 1.0, 0
+recent_rets = []
+
+# Decile-return history: rows = rebal dates, cols = decile (1..N_DECILES)
+decile_returns_history = pd.DataFrame(columns=list(range(1, N_DECILES + 1)))
+decile_log = []   # diagnostic — record which deciles were chosen each rebal
+
 for rd in rebal_dates:
     grp = bt[bt['date'] == rd]
     if len(grp) < 20: continue
@@ -607,31 +760,84 @@ for rd in rebal_dates:
     rolling_dd = cum_eq / peak_eq - 1
     if rolling_dd < DD_CIRCUIT_BREAKER:
         cb_trips += 1
-        period_returns.append({'date': rd, 'return': 0.0}); continue
+        period_returns.append({'date': rd, 'return': 0.0, 'gross': 0.0, 'lev': 0.0})
+        continue
 
-    hi = grp['signal'].quantile(1 - TOP_DECILE)
-    lo = grp['signal'].quantile(TOP_DECILE)
-    longs  = grp[grp['signal'] >= hi]
-    shorts = grp[grp['signal'] <= lo]
-    if longs.empty: continue
+    # ── Bucket the cross-section into deciles by smoothed signal
+    grp = grp.copy()
+    try:
+        grp['decile'] = pd.qcut(grp['signal'], N_DECILES, labels=False, duplicates='drop') + 1
+    except ValueError:
+        # Not enough unique values — fall back to quintile cutoff
+        hi = grp['signal'].quantile(1 - TOP_FRAC)
+        lo = grp['signal'].quantile(TOP_FRAC)
+        longs  = grp[grp['signal'] >= hi].copy()
+        shorts = grp[grp['signal'] <= lo].copy()
+        if longs.empty: continue
+        long_dec, short_dec = [], []
+    else:
+        # ── Choose which deciles to long / short
+        if DECILE_CALIB and len(decile_returns_history) >= CALIB_WARMUP:
+            recent = decile_returns_history.tail(CALIB_LOOKBACK)
+            expected = recent.mean(axis=0).dropna()
+            long_dec  = expected.nlargest(N_LONG_DECILES).index.tolist()
+            short_dec = expected.nsmallest(N_SHORT_DECILES).index.tolist()
+        else:
+            # Warm-up: top/bottom quintile = top 2 / bottom 2 deciles
+            long_dec  = [N_DECILES - 1, N_DECILES]   # [9, 10]
+            short_dec = [1, 2]
+        longs  = grp[grp['decile'].isin(long_dec)].copy()
+        shorts = grp[grp['decile'].isin(short_dec)].copy()
+        if longs.empty: continue
+
+    # ── Record this rebal's actual per-decile returns for future calibration
+    if 'decile' in grp.columns:
+        dec_ret = grp.groupby('decile')['actual'].mean()
+        decile_returns_history.loc[rd] = [dec_ret.get(d, np.nan) for d in range(1, N_DECILES + 1)]
+    decile_log.append({'date': rd, 'long': long_dec, 'short': short_dec})
+
+    if SIGNAL_WEIGHTED:
+        wL = _signal_weights(longs,  side='long')
+        wS = _signal_weights(shorts, side='short') if not shorts.empty else np.array([])
+    else:
+        wL = np.ones(len(longs))  / len(longs)
+        wS = np.ones(len(shorts)) / len(shorts) if not shorts.empty else np.array([])
+
+    long_ret  = float((longs['actual'].values * wL).sum())
+    short_ret = float((shorts['actual'].values * wS).sum()) if not shorts.empty else 0.0
 
     if LONG_ONLY:
-        long_ret = longs['actual'].mean()
-        net = long_ret - TOTAL_COST_BPS / 1e4
+        raw_ret = long_ret
     else:
-        long_ret  = longs['actual'].mean()
-        short_ret = shorts['actual'].mean() if not shorts.empty else 0.0
-        # dollar-neutral 50/50 book; cost is on full gross turnover
-        net = 0.5 * long_ret - 0.5 * short_ret - TOTAL_COST_BPS / 1e4
+        raw_ret = 0.5 * long_ret - 0.5 * short_ret
+
+    # Vol-target leverage
+    if VOL_TARGET and len(recent_rets) >= 3:
+        realised_vol_ann = np.std(recent_rets[-VOL_LOOKBACK:]) * np.sqrt(252 / REBAL_DAYS)
+        if realised_vol_ann > 1e-6:
+            lev = float(np.clip(VOL_TARGET_ANN / realised_vol_ann,
+                                MIN_LEVERAGE, MAX_LEVERAGE))
+        else:
+            lev = 1.0
+    else:
+        lev = 1.0
+
+    gross_ret = raw_ret * lev
+    cost = (TOTAL_COST_BPS / 1e4) * lev
+    net = gross_ret - cost
 
     cum_eq *= (1 + net); peak_eq = max(peak_eq, cum_eq)
-    period_returns.append({'date': rd, 'return': net})
+    recent_rets.append(net)
+    period_returns.append({'date': rd, 'return': net, 'gross': gross_ret, 'lev': lev})
 
-perf = pd.DataFrame(period_returns).set_index('date')['return']
+perf_df    = pd.DataFrame(period_returns).set_index('date')
+perf       = perf_df['return']
+perf_gross = perf_df['gross']
+levs       = perf_df['lev']
 cumulative = (1 + perf).cumprod()
 dd = cumulative / cumulative.cummax() - 1
 
-# Equal-weight baseline (top quintile, equal weight, same CB)
+# Equal-weight baseline (top quintile, EW, no smoothing / vol-target)
 ew_returns = []
 cum_ew, peak_ew = 1.0, 1.0
 for rd in rebal_dates:
@@ -639,7 +845,7 @@ for rd in rebal_dates:
     if len(grp) < 20: continue
     if cum_ew / peak_ew - 1 < DD_CIRCUIT_BREAKER:
         ew_returns.append({'date': rd, 'return': 0.0}); continue
-    hi = grp['signal'].quantile(1 - TOP_DECILE)
+    hi = grp['signal'].quantile(1 - 0.20)
     longs = grp[grp['signal'] >= hi]
     if longs.empty: continue
     net = longs['actual'].mean() - TOTAL_COST_BPS / 1e4
@@ -652,30 +858,39 @@ cumulative_ew = (1 + perf_ew).cumprod()
 # Performance stats
 ppy = 252 / REBAL_DAYS
 n_years = len(perf) / ppy
-sharpe       = float(perf.mean() / perf.std() * np.sqrt(ppy)) if perf.std() > 0 else np.nan
-sharpe_ew    = float(perf_ew.mean() / perf_ew.std() * np.sqrt(ppy)) if perf_ew.std() > 0 else np.nan
-max_dd       = float((cumulative / cumulative.cummax() - 1).min())
-max_dd_ew    = float((cumulative_ew / cumulative_ew.cummax() - 1).min())
-ann_return    = float(cumulative.iloc[-1] ** (1 / n_years) - 1) if n_years > 0 else np.nan
+sharpe        = float(perf.mean()       / perf.std()       * np.sqrt(ppy)) if perf.std() > 0 else np.nan
+sharpe_g      = float(perf_gross.mean() / perf_gross.std() * np.sqrt(ppy)) if perf_gross.std() > 0 else np.nan
+sharpe_ew     = float(perf_ew.mean()    / perf_ew.std()    * np.sqrt(ppy)) if perf_ew.std() > 0 else np.nan
+max_dd        = float((cumulative / cumulative.cummax() - 1).min())
+max_dd_ew     = float((cumulative_ew / cumulative_ew.cummax() - 1).min())
+ann_return    = float(cumulative.iloc[-1]    ** (1 / n_years) - 1) if n_years > 0 else np.nan
 ann_return_ew = float(cumulative_ew.iloc[-1] ** (1 / n_years) - 1) if n_years > 0 else np.nan
+realised_vol  = float(perf.std() * np.sqrt(ppy))
+avg_lev       = float(levs.mean())
 
 mode = 'Long-Only' if LONG_ONLY else 'Long-Short'
-print(f'\n{"Metric":<25}  {mode:>14}  {"EW baseline":>14}')
+print(f'\n{"Metric":<26}  {mode:>14}  {"EW baseline":>14}')
 print('─' * 60)
-print(f'{"Annual Sharpe":<25}  {sharpe:>14.2f}  {sharpe_ew:>14.2f}')
-print(f'{"Annual Return":<25}  {ann_return*100:>13.1f}%  {ann_return_ew*100:>13.1f}%')
-print(f'{"Max Drawdown":<25}  {max_dd*100:>13.1f}%  {max_dd_ew*100:>13.1f}%')
-print(f'{"Circuit-breaker trips":<25}  {cb_trips:>14d}')
-print(f'{"Holding periods":<25}  {len(perf):>14d}')
+print(f'{"Annual Sharpe (net)":<26}  {sharpe:>14.2f}  {sharpe_ew:>14.2f}')
+print(f'{"Annual Sharpe (gross)":<26}  {sharpe_g:>14.2f}  {"—":>14}')
+print(f'{"Annual Return":<26}  {ann_return*100:>13.1f}%  {ann_return_ew*100:>13.1f}%')
+print(f'{"Max Drawdown":<26}  {max_dd*100:>13.1f}%  {max_dd_ew*100:>13.1f}%')
+print(f'{"Realised Vol (ann)":<26}  {realised_vol*100:>13.1f}%')
+print(f'{"Avg leverage":<26}  {avg_lev:>14.2f}')
+print(f'{"Circuit-breaker trips":<26}  {cb_trips:>14d}')
+print(f'{"Holding periods":<26}  {len(perf):>14d}')
 
 
 # ═══════════════════════════════════════════════════════════════════════
-# CELL 14 — Equity / DD / per-fold IC plot
+# CELL 14 — Equity / DD / leverage / per-fold IC plot (v4)
 # ═══════════════════════════════════════════════════════════════════════
-fig, axes = plt.subplots(3, 1, figsize=(12, 10), gridspec_kw={'height_ratios':[3,1.5,1.5]})
-cumulative.plot(ax=axes[0], color='steelblue', lw=2, label=f'{mode} (Sharpe={sharpe:.2f})')
-cumulative_ew.plot(ax=axes[0], color='#888', lw=1.2, ls='--', label=f'EW (Sharpe={sharpe_ew:.2f})')
-axes[0].set_title(f'Equity Curve — {mode} vs EW (after costs)')
+fig, axes = plt.subplots(4, 1, figsize=(12, 12),
+                          gridspec_kw={'height_ratios':[3, 1.3, 1.3, 1.3]})
+cumulative.plot(ax=axes[0], color='steelblue', lw=2,
+                label=f'v4 {mode} (Sharpe={sharpe:.2f})')
+cumulative_ew.plot(ax=axes[0], color='#888', lw=1.2, ls='--',
+                   label=f'EW top-quintile (Sharpe={sharpe_ew:.2f})')
+axes[0].set_title(f'v4 Equity Curve — {mode} (EMA-smoothed, vol-targeted)')
 axes[0].axhline(1, color='grey', lw=0.8, ls=':'); axes[0].legend(fontsize=10)
 
 dd.plot(ax=axes[1], color='indianred', lw=1)
@@ -684,15 +899,22 @@ axes[1].axhline(DD_CIRCUIT_BREAKER, color='orange', lw=1, ls='--',
                 label=f'CB ({DD_CIRCUIT_BREAKER*100:.0f}%)')
 axes[1].set_title('Drawdown'); axes[1].legend(fontsize=9)
 
+levs.plot(ax=axes[2], color='purple', lw=1)
+axes[2].axhline(1.0, color='black', lw=0.6, ls=':')
+axes[2].set_title(f'Vol-target leverage (avg={avg_lev:.2f}, '
+                   f'realised vol={realised_vol*100:.1f}% / target {VOL_TARGET_ANN*100:.0f}%)')
+axes[2].set_ylabel('Leverage')
+
 colors = ['green' if x > 0 else 'red' for x in res_df['ic']]
-axes[2].bar(res_df['fold'], res_df['ic'], color=colors)
-axes[2].set_title(f'Per-fold IC (mean={res_df.ic.mean():.3f}, ICIR={res_df.ic.mean()/res_df.ic.std():.2f})')
-axes[2].axhline(0, color='black', lw=0.8)
+axes[3].bar(res_df['fold'], res_df['ic'], color=colors)
+axes[3].set_title(f'Per-fold IC (mean={res_df.ic.mean():.3f}, '
+                   f'ICIR={res_df.ic.mean()/res_df.ic.std():.2f})')
+axes[3].axhline(0, color='black', lw=0.8)
 
 plt.tight_layout()
-plt.savefig(BASE / 'equity_curve_v3.png', dpi=150, bbox_inches='tight')
+plt.savefig(BASE / 'equity_curve_v4.png', dpi=150, bbox_inches='tight')
 plt.show()
-print(f'Saved: {BASE}/equity_curve_v3.png')
+print(f'Saved: {BASE}/equity_curve_v4.png')
 
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -710,7 +932,7 @@ ok_te_s = np.isfinite(X_te_shap).all(axis=1) & np.isfinite(y_te_shap)
 X_tr_shap, y_tr_shap = X_tr_shap[ok_tr_s], y_tr_shap[ok_tr_s]
 X_te_shap, y_te_shap = X_te_shap[ok_te_s], y_te_shap[ok_te_s]
 
-model_shap = lgb.LGBMRegressor(**LGB_PARAMS)
+model_shap = lgb.LGBMRegressor(**{**LGB_PARAMS, 'random_state': 42})
 model_shap.fit(X_tr_shap, y_tr_shap, eval_set=[(X_te_shap, y_te_shap)],
                callbacks=[lgb.early_stopping(30, verbose=False), lgb.log_evaluation(-1)])
 explainer = shap.TreeExplainer(model_shap)
@@ -727,8 +949,8 @@ fig_shap, _ = plt.subplots(figsize=(10, max(4, len(selected_features) * 0.4)))
 shap.summary_plot(shap_values, features=X_te_shap, feature_names=selected_features,
                   show=False, plot_size=None)
 plt.title('SHAP — last fold test set'); plt.tight_layout()
-plt.savefig(BASE / 'shap_importance_v3.png', dpi=150, bbox_inches='tight'); plt.show()
-print(f'Saved: {BASE}/shap_importance_v3.png')
+plt.savefig(BASE / 'shap_importance_v4.png', dpi=150, bbox_inches='tight'); plt.show()
+print(f'Saved: {BASE}/shap_importance_v4.png')
 
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -745,14 +967,14 @@ top20['fwd_return_%'] = (top20['actual'] * 100).round(2)
 print(f'\nTop 20 — rebalance {pd.Timestamp(latest_rebal).date()}, '
       f'universe {len(grp_latest)}, top quintile size {top_decile_count}')
 print(top20[['rank','ticker','signal','fwd_return_%']].to_string(index=False))
-grp_latest.to_csv(BASE / 'stock_ranking_latest_v3.csv', index=False)
+grp_latest.to_csv(BASE / 'stock_ranking_latest_v4.csv', index=False)
 
 
 # ═══════════════════════════════════════════════════════════════════════
-# CELL 17 — Export dashboard_data.json (v3)
+# CELL 17 — Export dashboard_data.json (v4)
 # ═══════════════════════════════════════════════════════════════════════
 import json
-print('Exporting dashboard_data_v3.json ...')
+print('Exporting dashboard_data_v4.json ...')
 
 cost_per_rebal = TOTAL_COST_BPS / 1e4
 gross_period_returns = perf.values + cost_per_rebal
@@ -879,19 +1101,35 @@ metrics = {
     'max_position_size_pct': round(MAX_POSITION_SIZE * 100, 1),
     'max_market_conc_pct': round(MAX_MARKET_CONC * 100, 1),
     'dd_circuit_breaker_pct': round(DD_CIRCUIT_BREAKER * 100, 1),
+    # v4-specific
+    'realised_vol_pct': round(realised_vol * 100, 1),
+    'avg_leverage': round(avg_lev, 2),
+    'ema_alpha': float(EMA_ALPHA),
+    'vol_target_ann_pct': round(VOL_TARGET_ANN * 100, 1),
+    'top_frac': float(TOP_FRAC),
+    'n_seeds': len(SEEDS),
+    'n_horizons': len(HORIZONS),
 }
 
 config = {
     'TRAIN_PERIOD': int(TRAIN_PERIOD), 'TEST_PERIOD': int(TEST_PERIOD),
     'TARGET_HORIZON': int(TARGET_HORIZON), 'EMBARGO': int(EMBARGO),
     'N_SPLITS': int(N_SPLITS),
-    'TOP_DECILE': float(TOP_DECILE), 'REBAL_DAYS': int(REBAL_DAYS),
+    'TOP_DECILE': float(TOP_DECILE), 'TOP_FRAC': float(TOP_FRAC),
+    'REBAL_DAYS': int(REBAL_DAYS),
     'COMMISSION_BPS': float(COMMISSION_BPS), 'SLIPPAGE_BPS': float(SLIPPAGE_BPS),
     'TOTAL_COST_BPS': float(TOTAL_COST_BPS),
     'SIGNAL_WEIGHTED': bool(SIGNAL_WEIGHTED), 'LONG_ONLY': bool(LONG_ONLY),
     'MAX_POSITION_SIZE': float(MAX_POSITION_SIZE),
     'MAX_MARKET_CONC': float(MAX_MARKET_CONC),
     'DD_CIRCUIT_BREAKER': float(DD_CIRCUIT_BREAKER),
+    'EMA_ALPHA': float(EMA_ALPHA),
+    'VOL_TARGET': bool(VOL_TARGET),
+    'VOL_TARGET_ANN': float(VOL_TARGET_ANN),
+    'VOL_LOOKBACK': int(VOL_LOOKBACK),
+    'MAX_LEVERAGE': float(MAX_LEVERAGE),
+    'MIN_LEVERAGE': float(MIN_LEVERAGE),
+    'SEEDS': list(SEEDS),
 }
 
 terminal_lines = [
@@ -905,7 +1143,7 @@ for _, row in res_df.iterrows():
         f'Fold {int(row["fold"]):2d} | IC={row["ic"]:+.4f}  AUC={row["auc"]:.4f}  '
         f'train={int(row["n_train"]):,} ({int(row["train_days"])}d)  '
         f'test={int(row["n_test"]):,}  '
-        f'[{row["test_start"]} → {row["test_end"]}]'
+        f'[{row["test_start"]} -> {row["test_end"]}]'
     )
 terminal_lines += [
     '',
@@ -913,24 +1151,25 @@ terminal_lines += [
     f'OOF IC pooled : {ic_oof_pooled:+.4f}',
     f'OOF IC perdate: {ic_oof:+.4f}',
     '',
-    '── Backtest ──',
+    '-- Backtest --',
     f'Mode               : {mode}',
     f'Annual Sharpe (net): {sharpe:.2f}  (gross: {sharpe_gross:.2f})',
     f'Annual return (net): {ann_return*100:.1f}%  (gross: {ann_ret_gross*100:.1f}%)',
     f'Max drawdown       : {max_dd*100:.1f}%',
+    f'Realised vol       : {realised_vol*100:.1f}%  avg lev: {avg_lev:.2f}',
     f'Holding periods    : {len(perf)}',
     f'CB trips           : {cb_trips}',
     '',
-    '── SHAP top features ──',
+    '-- SHAP top features --',
 ]
 for _, r in shap_importance.iterrows():
     terminal_lines.append(f'  {r["feature"]:<20s} {r["mean_|SHAP|"]:.6f}')
 terminal_lines.append('')
-terminal_lines.append('Pipeline v3 complete ✓')
+terminal_lines.append('Pipeline v4.1 complete')
 
 dashboard_data = {
     'generated_at': str(pd.Timestamp.now()),
-    'pipeline_version': 'v3',
+    'pipeline_version': 'v4.3',
     'config': config, 'metrics': metrics, 'equity': equity_data,
     'folds': fold_data, 'shap': shap_data,
     'top_stocks': top_stocks_data, 'top20': top_stocks_data,
@@ -941,8 +1180,8 @@ dashboard_data = {
     'terminal': terminal_lines,
 }
 
-# ── Alpha analysis: quantile returns, long-short spread, rolling IC,
-#    turnover, factor autocorr, monthly returns
+# Alpha analysis: quantile returns, long-short spread, rolling IC,
+# turnover, factor autocorr, monthly returns
 N_QUANTILES = 10
 quantile_returns_list = [{'label': f'D{q}', 'mean_return': 0.0, 'count': 0, 'total': 0.0}
                          for q in range(1, N_QUANTILES + 1)]
@@ -990,8 +1229,7 @@ ric_cum_mean = []
 s_ = 0
 for i, v in enumerate(ric_values):
     s_ += v; ric_cum_mean.append(round(s_ / (i + 1), 4))
-rolling_ic_data = {'dates': ric_dates, 'values': ric_values,
-                   'cumulative_mean': ric_cum_mean}
+rolling_ic_data = {'dates': ric_dates, 'values': ric_values, 'cumulative_mean': ric_cum_mean}
 
 turnover_dates, turnover_values = [], []
 prev_port = set()
@@ -1046,16 +1284,35 @@ dashboard_data['monthly_returns']        = monthly_returns_data
 dashboard_data['metrics']['sortino'] = round(sortino, 2)
 dashboard_data['metrics']['calmar']  = round(calmar, 2)
 
-out_path = BASE / 'dashboard_data_v3.json'
+# v4.3 — decile calibration history
+if len(decile_log) > 0:
+    dashboard_data['decile_calibration'] = {
+        'dates':     [str(pd.Timestamp(r['date']).date()) for r in decile_log],
+        'long':      [r['long'] for r in decile_log],
+        'short':     [r['short'] for r in decile_log],
+        'final_expected_returns': (
+            decile_returns_history.tail(CALIB_LOOKBACK).mean(axis=0).fillna(0).round(5).to_dict()
+            if len(decile_returns_history) > 0 else {}
+        ),
+    }
+
+out_path = BASE / 'dashboard_data_v4.json'
 with open(out_path, 'w') as f:
     json.dump(dashboard_data, f, indent=2, default=str)
 
-print(f'\nDashboard data v3 -> {out_path}')
+print(f'\nDashboard data v4.3 -> {out_path}')
 print(f'  Mode               : {mode}')
 print(f'  Sharpe net / gross : {sharpe:.2f} / {sharpe_gross:.2f}')
 print(f'  Return net / gross : {ann_return*100:.1f}% / {ann_ret_gross*100:.1f}%')
+print(f'  Realised vol / lev : {realised_vol*100:.1f}% / {avg_lev:.2f}x')
 print(f'  OOF IC perdate     : {ic_oof:+.4f}')
 print(f'  Sortino / Calmar   : {sortino:.2f} / {calmar:.2f}')
 _spread = (quantile_returns_list[-1]["mean_return"] - quantile_returns_list[0]["mean_return"]) * 100
 print(f'  Quantile spread D10-D1: {_spread:.3f}%')
-print('\nOpen dashboard.html and drop dashboard_data_v3.json onto it.')
+if len(decile_returns_history) > 0:
+    _exp = decile_returns_history.tail(CALIB_LOOKBACK).mean(axis=0)
+    print(f'  Avg expected return by decile (last {CALIB_LOOKBACK} rebals):')
+    for d in range(1, N_DECILES + 1):
+        v = _exp.get(d, np.nan)
+        print(f'    D{d:2d}: {v*100:+.2f}%')
+print('\nOpen dashboard.html and drop dashboard_data_v4.json onto it.')

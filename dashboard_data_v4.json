@@ -1,0 +1,11143 @@
+{
+  "generated_at": "2026-06-10 17:37:48.885967",
+  "pipeline_version": "v4.3",
+  "config": {
+    "TRAIN_PERIOD": 756,
+    "TEST_PERIOD": 63,
+    "TARGET_HORIZON": 21,
+    "EMBARGO": 21,
+    "N_SPLITS": 8,
+    "TOP_DECILE": 0.2,
+    "TOP_FRAC": 0.2,
+    "REBAL_DAYS": 21,
+    "COMMISSION_BPS": 5.0,
+    "SLIPPAGE_BPS": 2.5,
+    "TOTAL_COST_BPS": 15.0,
+    "SIGNAL_WEIGHTED": false,
+    "LONG_ONLY": false,
+    "MAX_POSITION_SIZE": 0.05,
+    "MAX_MARKET_CONC": 0.4,
+    "DD_CIRCUIT_BREAKER": -0.25,
+    "EMA_ALPHA": 0.5,
+    "VOL_TARGET": true,
+    "VOL_TARGET_ANN": 0.12,
+    "VOL_LOOKBACK": 6,
+    "MAX_LEVERAGE": 1.0,
+    "MIN_LEVERAGE": 0.1,
+    "SEEDS": [
+      42,
+      7,
+      2024
+    ]
+  },
+  "metrics": {
+    "sharpe": 0.69,
+    "sharpe_gross": 0.74,
+    "annual_return_pct": 31.1,
+    "annual_return_gross_pct": 33.5,
+    "total_return_pct": 72.0,
+    "max_drawdown_pct": -11.3,
+    "mean_ic": 0.0461,
+    "icir": 0.65,
+    "mean_ic_all_folds": 0.0461,
+    "icir_all_folds": 0.65,
+    "oof_signal_ic": 0.0458,
+    "oof_signal_ic_pooled": -0.0044,
+    "oof_signal_ic_raw": -0.0044,
+    "positive_ic_folds": 5,
+    "total_folds": 8,
+    "total_folds_all": 8,
+    "dropped_folds": 0,
+    "min_train_days": 500,
+    "n_features_selected": 20,
+    "n_features_total": 20,
+    "backtest_start": "2023-10-31",
+    "backtest_end": "2026-04-07",
+    "holding_periods": 24,
+    "universe_tickers": 373,
+    "universe_rows": 145080,
+    "latest_rebal_date": "2026-04-07",
+    "top_decile_count": 43,
+    "sharpe_ew": 1.29,
+    "annual_return_ew_pct": 23.6,
+    "max_drawdown_ew_pct": -9.7,
+    "circuit_trips": 0,
+    "signal_weighted": false,
+    "long_only": false,
+    "max_position_size_pct": 5.0,
+    "max_market_conc_pct": 40.0,
+    "dd_circuit_breaker_pct": -25.0,
+    "realised_vol_pct": 53.0,
+    "avg_leverage": 0.78,
+    "ema_alpha": 0.5,
+    "vol_target_ann_pct": 12.0,
+    "top_frac": 0.2,
+    "n_seeds": 3,
+    "n_horizons": 1,
+    "sortino": 5.97,
+    "calmar": 2.74
+  },
+  "equity": {
+    "dates": [
+      "2023-10-31",
+      "2023-11-29",
+      "2023-12-28",
+      "2024-02-27",
+      "2024-03-27",
+      "2024-04-25",
+      "2024-06-24",
+      "2024-07-23",
+      "2024-08-21",
+      "2024-10-18",
+      "2024-11-18",
+      "2024-12-17",
+      "2025-02-14",
+      "2025-03-17",
+      "2025-04-15",
+      "2025-06-12",
+      "2025-07-11",
+      "2025-08-11",
+      "2025-10-08",
+      "2025-11-06",
+      "2025-12-05",
+      "2026-02-05",
+      "2026-03-06",
+      "2026-04-07"
+    ],
+    "cumulative": [
+      1.0073132951131663,
+      1.036864040197353,
+      1.1049622848708915,
+      1.1349471167344218,
+      1.0985863108757294,
+      1.0556688735114603,
+      1.059034418109779,
+      1.0770649449325247,
+      1.0727944994083785,
+      1.068801891419208,
+      1.1007384666074642,
+      1.0890781519493253,
+      1.023984534503605,
+      1.02736145114495,
+      1.0061498914283808,
+      1.750043450619563,
+      1.7486266054287638,
+      1.7489996245835986,
+      1.7434846520706104,
+      1.7408009039029873,
+      1.7443505842845932,
+      1.7367364822616194,
+      1.7110190689990765,
+      1.7199287722791552
+    ],
+    "cumulative_gross": [
+      1.0088132951131663,
+      1.0399212644412084,
+      1.1097801806969498,
+      1.1415604237611106,
+      1.1067000850777584,
+      1.0651257246614332,
+      1.070119106935254,
+      1.089943534121656,
+      1.0872569416913307,
+      1.0848413943955793,
+      1.1188845036498702,
+      1.1087102916102913,
+      1.0441063371363832,
+      1.0491157713658794,
+      1.029028731737335,
+      1.7913812281364707,
+      1.7926179874866772,
+      1.7956893179178823,
+      1.7927206567227383,
+      1.7926502004949045,
+      1.7989945824728326,
+      1.7938404509042518,
+      1.7699682086874489,
+      1.781839827161777
+    ],
+    "drawdown": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      -0.03203744502502737,
+      -0.06985192706693544,
+      -0.06688655136907706,
+      -0.050999884442581966,
+      -0.05476256682767289,
+      -0.0582804470269358,
+      -0.030141184221328277,
+      -0.04041506789944105,
+      -0.09776894499726918,
+      -0.09479354941138363,
+      -0.11348301908253544,
+      0.0,
+      -0.0008096057216737673,
+      -0.000596457211159418,
+      -0.0037477918314716696,
+      -0.005281324137011323,
+      -0.0032529857089859116,
+      -0.007603793124812186,
+      -0.02229909297776056,
+      -0.017207960367924824
+    ],
+    "period_returns": [
+      0.007313295113166357,
+      0.029336200790308242,
+      0.06567712065757146,
+      0.027136520652407514,
+      -0.032037445025027506,
+      -0.039066058751503804,
+      0.0031880684206628046,
+      0.017025439886011934,
+      -0.0039648913876903676,
+      -0.003721689467435125,
+      0.029880724804715125,
+      -0.010593174502274346,
+      -0.0597694640455419,
+      0.003297819964617013,
+      -0.020646637746559136,
+      0.7393466575195008,
+      -0.0008096057216737032,
+      0.00021332121659176597,
+      -0.0031532153783630362,
+      -0.0015393012863267651,
+      0.002039107616297269,
+      -0.004365006720307044,
+      -0.01480789603098164,
+      0.00520724955174858
+    ],
+    "period_returns_gross": [
+      0.008813295113166357,
+      0.030836200790308244,
+      0.06717712065757146,
+      0.028636520652407516,
+      -0.030537445025027504,
+      -0.0375660587515038,
+      0.004688068420662805,
+      0.018525439886011935,
+      -0.0024648913876903675,
+      -0.002221689467435125,
+      0.03138072480471513,
+      -0.009093174502274346,
+      -0.0582694640455419,
+      0.004797819964617013,
+      -0.019146637746559135,
+      0.7408466575195007,
+      0.0006903942783262968,
+      0.001713321216591766,
+      -0.0016532153783630362,
+      -3.930128632676508e-05,
+      0.003539107616297269,
+      -0.0028650067203070443,
+      -0.01330789603098164,
+      0.006707249551748579
+    ],
+    "cumulative_ew": [
+      1.1023065081226384,
+      1.1786867302365516,
+      1.177277343590183,
+      1.228144448220837,
+      1.1863159435766713,
+      1.2168276383779,
+      1.1961463989529908,
+      1.2101300219002165,
+      1.215288471789817,
+      1.1867222057075892,
+      1.1789670732789794,
+      1.2398232636085789,
+      1.1482741401299712,
+      1.1195927085723625,
+      1.2919275868740696,
+      1.313410698838406,
+      1.3148094585679244,
+      1.351444041877204,
+      1.326153293302072,
+      1.3784586526689737,
+      1.4172437958985589,
+      1.4012565802993264,
+      1.3797169706728964,
+      1.5271941339102475
+    ],
+    "period_returns_ew": [
+      0.10230650812263851,
+      0.06929127384360442,
+      -0.0011957262351512126,
+      0.0432074097982141,
+      -0.03405829396107354,
+      0.025719703900495182,
+      -0.016996030310815747,
+      0.011690561422469515,
+      0.004262723671213775,
+      -0.02350574924828895,
+      -0.006534918105780161,
+      0.051618227267657434,
+      -0.07384046272220164,
+      -0.02497786073486097,
+      0.1539264028625716,
+      0.016628727633502042,
+      0.001064982743596859,
+      0.027863036024384568,
+      -0.018713870342720294,
+      0.03944141271682351,
+      0.02813660254117105,
+      -0.011280497854708457,
+      -0.015371638520212226,
+      0.10688943194300612
+    ]
+  },
+  "folds": [
+    {
+      "fold": 0,
+      "ic": 0.1767,
+      "auc": 0.6162,
+      "n_train": 17991,
+      "n_test": 17991,
+      "train_days": 756,
+      "train_start": "2020-11-04",
+      "train_end": "2023-09-29",
+      "test_start": "2023-10-31",
+      "test_end": "2024-01-26"
+    },
+    {
+      "fold": 1,
+      "ic": -0.0235,
+      "auc": 0.4862,
+      "n_train": 18199,
+      "n_test": 18199,
+      "train_days": 756,
+      "train_start": "2021-03-03",
+      "train_end": "2024-01-26",
+      "test_start": "2024-02-27",
+      "test_end": "2024-05-23"
+    },
+    {
+      "fold": 2,
+      "ic": -0.017,
+      "auc": 0.5201,
+      "n_train": 18236,
+      "n_test": 18236,
+      "train_days": 756,
+      "train_start": "2021-06-29",
+      "train_end": "2024-05-23",
+      "test_start": "2024-06-24",
+      "test_end": "2024-09-18"
+    },
+    {
+      "fold": 3,
+      "ic": 0.0481,
+      "auc": 0.5258,
+      "n_train": 18048,
+      "n_test": 18048,
+      "train_days": 756,
+      "train_start": "2021-10-25",
+      "train_end": "2024-09-18",
+      "test_start": "2024-10-18",
+      "test_end": "2025-01-15"
+    },
+    {
+      "fold": 4,
+      "ic": 0.0527,
+      "auc": 0.5003,
+      "n_train": 18054,
+      "n_test": 18054,
+      "train_days": 756,
+      "train_start": "2022-02-18",
+      "train_end": "2025-01-15",
+      "test_start": "2025-02-14",
+      "test_end": "2025-05-13"
+    },
+    {
+      "fold": 5,
+      "ic": -0.0202,
+      "auc": 0.5007,
+      "n_train": 18282,
+      "n_test": 18282,
+      "train_days": 756,
+      "train_start": "2022-06-16",
+      "train_end": "2025-05-13",
+      "test_start": "2025-06-12",
+      "test_end": "2025-09-08"
+    },
+    {
+      "fold": 6,
+      "ic": 0.0386,
+      "auc": 0.5035,
+      "n_train": 18194,
+      "n_test": 18194,
+      "train_days": 756,
+      "train_start": "2022-10-12",
+      "train_end": "2025-09-08",
+      "test_start": "2025-10-08",
+      "test_end": "2026-01-06"
+    },
+    {
+      "fold": 7,
+      "ic": 0.1132,
+      "auc": 0.5516,
+      "n_train": 18076,
+      "n_test": 18076,
+      "train_days": 756,
+      "train_start": "2023-02-08",
+      "train_end": "2026-01-06",
+      "test_start": "2026-02-05",
+      "test_end": "2026-05-05"
+    }
+  ],
+  "shap": [
+    {
+      "feature": "atr_pct",
+      "importance": 0.012617
+    },
+    {
+      "feature": "mom_12_1",
+      "importance": 0.007751
+    },
+    {
+      "feature": "idio_vol_63d",
+      "importance": 0.006694
+    },
+    {
+      "feature": "ret_63d",
+      "importance": 0.006429
+    },
+    {
+      "feature": "amihud_21d",
+      "importance": 0.006066
+    },
+    {
+      "feature": "vol_63d",
+      "importance": 0.005895
+    },
+    {
+      "feature": "close_vs_sma200",
+      "importance": 0.00452
+    },
+    {
+      "feature": "dd_depth_252d",
+      "importance": 0.003407
+    },
+    {
+      "feature": "vol_21d",
+      "importance": 0.002898
+    },
+    {
+      "feature": "bb_width",
+      "importance": 0.002218
+    },
+    {
+      "feature": "ret_21d",
+      "importance": 0.00221
+    },
+    {
+      "feature": "close_vs_sma50",
+      "importance": 0.001735
+    },
+    {
+      "feature": "ret_1d",
+      "importance": 0.001602
+    },
+    {
+      "feature": "reversal_21d",
+      "importance": 0.001328
+    },
+    {
+      "feature": "rsi_14",
+      "importance": 0.001283
+    },
+    {
+      "feature": "vol_ratio",
+      "importance": 0.001244
+    },
+    {
+      "feature": "reversal_5d",
+      "importance": 0.001199
+    },
+    {
+      "feature": "bb_position",
+      "importance": 0.001028
+    },
+    {
+      "feature": "vol_shock",
+      "importance": 0.000407
+    },
+    {
+      "feature": "ret_5d",
+      "importance": 0.000301
+    }
+  ],
+  "top_stocks": [
+    {
+      "rank": 1,
+      "ticker": "MSFT",
+      "signal": 0.997319,
+      "fwd_return_pct": 11.19,
+      "in_portfolio": true
+    },
+    {
+      "rank": 2,
+      "ticker": "NVDA",
+      "signal": 0.991957,
+      "fwd_return_pct": 16.69,
+      "in_portfolio": true
+    },
+    {
+      "rank": 3,
+      "ticker": "CRM",
+      "signal": 0.986595,
+      "fwd_return_pct": -0.97,
+      "in_portfolio": true
+    },
+    {
+      "rank": 4,
+      "ticker": "CHRW",
+      "signal": 0.981233,
+      "fwd_return_pct": 1.5,
+      "in_portfolio": true
+    },
+    {
+      "rank": 5,
+      "ticker": "EXPD",
+      "signal": 0.978552,
+      "fwd_return_pct": 4.64,
+      "in_portfolio": true
+    },
+    {
+      "rank": 6,
+      "ticker": "TER",
+      "signal": 0.975871,
+      "fwd_return_pct": 19.35,
+      "in_portfolio": true
+    },
+    {
+      "rank": 7,
+      "ticker": "PWR",
+      "signal": 0.967828,
+      "fwd_return_pct": 41.34,
+      "in_portfolio": true
+    },
+    {
+      "rank": 8,
+      "ticker": "TPR",
+      "signal": 0.965147,
+      "fwd_return_pct": 6.16,
+      "in_portfolio": true
+    },
+    {
+      "rank": 9,
+      "ticker": "FSLR",
+      "signal": 0.962466,
+      "fwd_return_pct": 13.36,
+      "in_portfolio": true
+    },
+    {
+      "rank": 10,
+      "ticker": "NOW",
+      "signal": 0.959786,
+      "fwd_return_pct": -11.44,
+      "in_portfolio": true
+    },
+    {
+      "rank": 11,
+      "ticker": "ODFL",
+      "signal": 0.957105,
+      "fwd_return_pct": 0.85,
+      "in_portfolio": true
+    },
+    {
+      "rank": 12,
+      "ticker": "LLY",
+      "signal": 0.954424,
+      "fwd_return_pct": 6.01,
+      "in_portfolio": true
+    },
+    {
+      "rank": 13,
+      "ticker": "AVGO",
+      "signal": 0.951743,
+      "fwd_return_pct": 27.39,
+      "in_portfolio": true
+    },
+    {
+      "rank": 14,
+      "ticker": "INCY",
+      "signal": 0.949062,
+      "fwd_return_pct": 6.57,
+      "in_portfolio": true
+    },
+    {
+      "rank": 15,
+      "ticker": "FIX",
+      "signal": 0.946381,
+      "fwd_return_pct": 41.17,
+      "in_portfolio": true
+    },
+    {
+      "rank": 16,
+      "ticker": "EL",
+      "signal": 0.9437,
+      "fwd_return_pct": 25.3,
+      "in_portfolio": true
+    },
+    {
+      "rank": 17,
+      "ticker": "MPWR",
+      "signal": 0.941019,
+      "fwd_return_pct": 38.71,
+      "in_portfolio": true
+    },
+    {
+      "rank": 18,
+      "ticker": "EBAY",
+      "signal": 0.938338,
+      "fwd_return_pct": 12.64,
+      "in_portfolio": true
+    },
+    {
+      "rank": 19,
+      "ticker": "MCK",
+      "signal": 0.930295,
+      "fwd_return_pct": -13.19,
+      "in_portfolio": true
+    },
+    {
+      "rank": 20,
+      "ticker": "CAH",
+      "signal": 0.919571,
+      "fwd_return_pct": -10.0,
+      "in_portfolio": true
+    }
+  ],
+  "top20": [
+    {
+      "rank": 1,
+      "ticker": "MSFT",
+      "signal": 0.997319,
+      "fwd_return_pct": 11.19,
+      "in_portfolio": true
+    },
+    {
+      "rank": 2,
+      "ticker": "NVDA",
+      "signal": 0.991957,
+      "fwd_return_pct": 16.69,
+      "in_portfolio": true
+    },
+    {
+      "rank": 3,
+      "ticker": "CRM",
+      "signal": 0.986595,
+      "fwd_return_pct": -0.97,
+      "in_portfolio": true
+    },
+    {
+      "rank": 4,
+      "ticker": "CHRW",
+      "signal": 0.981233,
+      "fwd_return_pct": 1.5,
+      "in_portfolio": true
+    },
+    {
+      "rank": 5,
+      "ticker": "EXPD",
+      "signal": 0.978552,
+      "fwd_return_pct": 4.64,
+      "in_portfolio": true
+    },
+    {
+      "rank": 6,
+      "ticker": "TER",
+      "signal": 0.975871,
+      "fwd_return_pct": 19.35,
+      "in_portfolio": true
+    },
+    {
+      "rank": 7,
+      "ticker": "PWR",
+      "signal": 0.967828,
+      "fwd_return_pct": 41.34,
+      "in_portfolio": true
+    },
+    {
+      "rank": 8,
+      "ticker": "TPR",
+      "signal": 0.965147,
+      "fwd_return_pct": 6.16,
+      "in_portfolio": true
+    },
+    {
+      "rank": 9,
+      "ticker": "FSLR",
+      "signal": 0.962466,
+      "fwd_return_pct": 13.36,
+      "in_portfolio": true
+    },
+    {
+      "rank": 10,
+      "ticker": "NOW",
+      "signal": 0.959786,
+      "fwd_return_pct": -11.44,
+      "in_portfolio": true
+    },
+    {
+      "rank": 11,
+      "ticker": "ODFL",
+      "signal": 0.957105,
+      "fwd_return_pct": 0.85,
+      "in_portfolio": true
+    },
+    {
+      "rank": 12,
+      "ticker": "LLY",
+      "signal": 0.954424,
+      "fwd_return_pct": 6.01,
+      "in_portfolio": true
+    },
+    {
+      "rank": 13,
+      "ticker": "AVGO",
+      "signal": 0.951743,
+      "fwd_return_pct": 27.39,
+      "in_portfolio": true
+    },
+    {
+      "rank": 14,
+      "ticker": "INCY",
+      "signal": 0.949062,
+      "fwd_return_pct": 6.57,
+      "in_portfolio": true
+    },
+    {
+      "rank": 15,
+      "ticker": "FIX",
+      "signal": 0.946381,
+      "fwd_return_pct": 41.17,
+      "in_portfolio": true
+    },
+    {
+      "rank": 16,
+      "ticker": "EL",
+      "signal": 0.9437,
+      "fwd_return_pct": 25.3,
+      "in_portfolio": true
+    },
+    {
+      "rank": 17,
+      "ticker": "MPWR",
+      "signal": 0.941019,
+      "fwd_return_pct": 38.71,
+      "in_portfolio": true
+    },
+    {
+      "rank": 18,
+      "ticker": "EBAY",
+      "signal": 0.938338,
+      "fwd_return_pct": 12.64,
+      "in_portfolio": true
+    },
+    {
+      "rank": 19,
+      "ticker": "MCK",
+      "signal": 0.930295,
+      "fwd_return_pct": -13.19,
+      "in_portfolio": true
+    },
+    {
+      "rank": 20,
+      "ticker": "CAH",
+      "signal": 0.919571,
+      "fwd_return_pct": -10.0,
+      "in_portfolio": true
+    }
+  ],
+  "oof_scatter": [
+    {
+      "signal": 0.238411,
+      "actual": -0.004167
+    },
+    {
+      "signal": 0.668874,
+      "actual": 0.146885
+    },
+    {
+      "signal": 0.208609,
+      "actual": -0.034356
+    },
+    {
+      "signal": 0.102649,
+      "actual": -0.135075
+    },
+    {
+      "signal": 0.602649,
+      "actual": 0.044837
+    },
+    {
+      "signal": 0.611667,
+      "actual": 0.029798
+    },
+    {
+      "signal": 0.263333,
+      "actual": 0.076234
+    },
+    {
+      "signal": 0.84,
+      "actual": 0.151497
+    },
+    {
+      "signal": 0.21,
+      "actual": 0.112279
+    },
+    {
+      "signal": 0.15,
+      "actual": 0.199689
+    },
+    {
+      "signal": 0.966667,
+      "actual": 0.093764
+    },
+    {
+      "signal": 0.916667,
+      "actual": 0.118786
+    },
+    {
+      "signal": 0.343333,
+      "actual": -0.011392
+    },
+    {
+      "signal": 0.933333,
+      "actual": 0.097103
+    },
+    {
+      "signal": 0.206667,
+      "actual": 0.262304
+    },
+    {
+      "signal": 0.305369,
+      "actual": -0.049119
+    },
+    {
+      "signal": 0.661074,
+      "actual": 0.065666
+    },
+    {
+      "signal": 0.842282,
+      "actual": 0.101184
+    },
+    {
+      "signal": 0.729097,
+      "actual": 0.080715
+    },
+    {
+      "signal": 0.468227,
+      "actual": 0.179109
+    },
+    {
+      "signal": 0.295681,
+      "actual": -0.028171
+    },
+    {
+      "signal": 0.146179,
+      "actual": -0.104491
+    },
+    {
+      "signal": 0.488372,
+      "actual": 0.164104
+    },
+    {
+      "signal": 0.69103,
+      "actual": 0.024774
+    },
+    {
+      "signal": 0.893333,
+      "actual": 0.027572
+    },
+    {
+      "signal": 0.08,
+      "actual": 0.134959
+    },
+    {
+      "signal": 0.026667,
+      "actual": -0.03252
+    },
+    {
+      "signal": 0.253333,
+      "actual": 0.007004
+    },
+    {
+      "signal": 0.816054,
+      "actual": -0.006793
+    },
+    {
+      "signal": 0.884615,
+      "actual": -0.050193
+    },
+    {
+      "signal": 0.80602,
+      "actual": 0.132109
+    },
+    {
+      "signal": 0.414716,
+      "actual": 0.092668
+    },
+    {
+      "signal": 0.304348,
+      "actual": -0.003184
+    },
+    {
+      "signal": 0.204013,
+      "actual": 0.024096
+    },
+    {
+      "signal": 0.896321,
+      "actual": -0.002481
+    },
+    {
+      "signal": 0.561873,
+      "actual": 0.15058
+    },
+    {
+      "signal": 0.79932,
+      "actual": 0.03309
+    },
+    {
+      "signal": 0.420339,
+      "actual": 0.075665
+    },
+    {
+      "signal": 0.183051,
+      "actual": 0.00835
+    },
+    {
+      "signal": 0.064407,
+      "actual": -0.053533
+    },
+    {
+      "signal": 0.713087,
+      "actual": 0.123398
+    },
+    {
+      "signal": 0.573826,
+      "actual": 0.039683
+    },
+    {
+      "signal": 0.090604,
+      "actual": -0.080519
+    },
+    {
+      "signal": 0.902685,
+      "actual": 0.175588
+    },
+    {
+      "signal": 0.971477,
+      "actual": 0.018046
+    },
+    {
+      "signal": 0.97651,
+      "actual": 0.012155
+    },
+    {
+      "signal": 0.763423,
+      "actual": 0.04712
+    },
+    {
+      "signal": 0.23569,
+      "actual": 0.246562
+    },
+    {
+      "signal": 0.37037,
+      "actual": 0.078093
+    },
+    {
+      "signal": 0.478114,
+      "actual": 0.003464
+    },
+    {
+      "signal": 0.453333,
+      "actual": 0.054131
+    },
+    {
+      "signal": 0.41,
+      "actual": 0.156248
+    },
+    {
+      "signal": 0.143333,
+      "actual": -0.131104
+    },
+    {
+      "signal": 0.45,
+      "actual": 0.107337
+    },
+    {
+      "signal": 0.277409,
+      "actual": -0.017758
+    },
+    {
+      "signal": 0.302326,
+      "actual": -0.018957
+    },
+    {
+      "signal": 0.753333,
+      "actual": 0.058974
+    },
+    {
+      "signal": 0.016667,
+      "actual": -0.119195
+    },
+    {
+      "signal": 0.24,
+      "actual": 0.211747
+    },
+    {
+      "signal": 0.56,
+      "actual": 0.073507
+    },
+    {
+      "signal": 0.745,
+      "actual": 0.071347
+    },
+    {
+      "signal": 0.448276,
+      "actual": 0.006847
+    },
+    {
+      "signal": 0.852349,
+      "actual": 0.060418
+    },
+    {
+      "signal": 0.590604,
+      "actual": 0.122562
+    },
+    {
+      "signal": 0.312081,
+      "actual": 0.029083
+    },
+    {
+      "signal": 0.939597,
+      "actual": 0.074985
+    },
+    {
+      "signal": 0.073826,
+      "actual": -0.06538
+    },
+    {
+      "signal": 0.068792,
+      "actual": -0.721469
+    },
+    {
+      "signal": 0.362416,
+      "actual": 0.177263
+    },
+    {
+      "signal": 0.112416,
+      "actual": 0.013423
+    },
+    {
+      "signal": 0.050336,
+      "actual": -0.1
+    },
+    {
+      "signal": 0.869128,
+      "actual": 0.153649
+    },
+    {
+      "signal": 0.473333,
+      "actual": 0.073853
+    },
+    {
+      "signal": 0.5,
+      "actual": 0.082909
+    },
+    {
+      "signal": 0.278333,
+      "actual": -0.029968
+    },
+    {
+      "signal": 0.03,
+      "actual": -0.074013
+    },
+    {
+      "signal": 0.114094,
+      "actual": 0.036737
+    },
+    {
+      "signal": 0.902685,
+      "actual": 0.021871
+    },
+    {
+      "signal": 0.721477,
+      "actual": 0.098554
+    },
+    {
+      "signal": 0.22651,
+      "actual": 0.120513
+    },
+    {
+      "signal": 0.990034,
+      "actual": 0.077778
+    },
+    {
+      "signal": 0.013333,
+      "actual": 0.007843
+    },
+    {
+      "signal": 0.814815,
+      "actual": -0.004428
+    },
+    {
+      "signal": 0.740741,
+      "actual": 0.071874
+    },
+    {
+      "signal": 0.119529,
+      "actual": 0.019934
+    },
+    {
+      "signal": 0.548822,
+      "actual": 0.040545
+    },
+    {
+      "signal": 0.194631,
+      "actual": -0.144187
+    },
+    {
+      "signal": 0.293624,
+      "actual": 0.053441
+    },
+    {
+      "signal": 0.07047,
+      "actual": 0.237778
+    },
+    {
+      "signal": 0.25,
+      "actual": -0.079364
+    },
+    {
+      "signal": 0.325503,
+      "actual": 0.046595
+    },
+    {
+      "signal": 0.714765,
+      "actual": 0.143437
+    },
+    {
+      "signal": 0.496644,
+      "actual": 0.040441
+    },
+    {
+      "signal": 0.087248,
+      "actual": 0.015207
+    },
+    {
+      "signal": 0.243289,
+      "actual": 0.065506
+    },
+    {
+      "signal": 0.242424,
+      "actual": 0.015981
+    },
+    {
+      "signal": 0.037037,
+      "actual": -0.064038
+    },
+    {
+      "signal": 0.828283,
+      "actual": 0.136378
+    },
+    {
+      "signal": 0.53367,
+      "actual": 0.041225
+    },
+    {
+      "signal": 0.493243,
+      "actual": 0.014597
+    },
+    {
+      "signal": 0.510135,
+      "actual": 0.034079
+    },
+    {
+      "signal": 0.680743,
+      "actual": 0.11599
+    },
+    {
+      "signal": 0.807432,
+      "actual": 0.030758
+    },
+    {
+      "signal": 0.192568,
+      "actual": 0.103386
+    },
+    {
+      "signal": 0.608108,
+      "actual": 0.004191
+    },
+    {
+      "signal": 0.72973,
+      "actual": -0.028941
+    },
+    {
+      "signal": 0.64527,
+      "actual": 0.04372
+    },
+    {
+      "signal": 0.791246,
+      "actual": -0.007674
+    },
+    {
+      "signal": 0.329966,
+      "actual": 0.091955
+    },
+    {
+      "signal": 0.323232,
+      "actual": 0.060522
+    },
+    {
+      "signal": 0.218855,
+      "actual": -0.01195
+    },
+    {
+      "signal": 0.16835,
+      "actual": -0.151166
+    },
+    {
+      "signal": 0.939597,
+      "actual": -0.052881
+    },
+    {
+      "signal": 0.174497,
+      "actual": -0.06383
+    },
+    {
+      "signal": 0.89094,
+      "actual": -0.00993
+    },
+    {
+      "signal": 0.652685,
+      "actual": -0.007641
+    },
+    {
+      "signal": 0.432886,
+      "actual": -0.060633
+    },
+    {
+      "signal": 0.791946,
+      "actual": -0.152208
+    },
+    {
+      "signal": 0.281879,
+      "actual": 0.040057
+    },
+    {
+      "signal": 0.610738,
+      "actual": -0.058598
+    },
+    {
+      "signal": 0.055184,
+      "actual": -0.006405
+    },
+    {
+      "signal": 0.9699,
+      "actual": -0.033818
+    },
+    {
+      "signal": 0.206667,
+      "actual": 0.040724
+    },
+    {
+      "signal": 0.02,
+      "actual": -0.045161
+    },
+    {
+      "signal": 0.213333,
+      "actual": -0.083671
+    },
+    {
+      "signal": 0.703333,
+      "actual": 0.011527
+    },
+    {
+      "signal": 0.513333,
+      "actual": -0.018686
+    },
+    {
+      "signal": 0.22,
+      "actual": -0.024294
+    },
+    {
+      "signal": 0.87,
+      "actual": -0.016574
+    },
+    {
+      "signal": 0.588629,
+      "actual": 0.135874
+    },
+    {
+      "signal": 0.505017,
+      "actual": 7.7e-05
+    },
+    {
+      "signal": 0.441472,
+      "actual": -0.0211
+    },
+    {
+      "signal": 0.896321,
+      "actual": 0.128894
+    },
+    {
+      "signal": 0.073579,
+      "actual": 0.014879
+    },
+    {
+      "signal": 0.668896,
+      "actual": -0.00369
+    },
+    {
+      "signal": 0.650502,
+      "actual": 0.087279
+    },
+    {
+      "signal": 0.478261,
+      "actual": -0.041989
+    },
+    {
+      "signal": 0.110368,
+      "actual": -0.153846
+    },
+    {
+      "signal": 0.687291,
+      "actual": 0.083754
+    },
+    {
+      "signal": 0.397993,
+      "actual": 0.018953
+    },
+    {
+      "signal": 0.505017,
+      "actual": -0.003261
+    },
+    {
+      "signal": 0.571906,
+      "actual": -0.007959
+    },
+    {
+      "signal": 0.067114,
+      "actual": 0.291762
+    },
+    {
+      "signal": 0.013322,
+      "actual": -0.065359
+    },
+    {
+      "signal": 0.912752,
+      "actual": 0.059228
+    },
+    {
+      "signal": 0.182222,
+      "actual": 0.1258
+    },
+    {
+      "signal": 0.768889,
+      "actual": 0.012626
+    },
+    {
+      "signal": 0.222222,
+      "actual": -0.010825
+    },
+    {
+      "signal": 0.084444,
+      "actual": -0.097993
+    },
+    {
+      "signal": 0.986667,
+      "actual": -0.005922
+    },
+    {
+      "signal": 0.328889,
+      "actual": 0.051536
+    },
+    {
+      "signal": 0.254181,
+      "actual": 0.019304
+    },
+    {
+      "signal": 0.909699,
+      "actual": -0.013852
+    },
+    {
+      "signal": 0.809365,
+      "actual": 0.01572
+    },
+    {
+      "signal": 0.214765,
+      "actual": -0.144068
+    },
+    {
+      "signal": 0.063545,
+      "actual": -0.331322
+    },
+    {
+      "signal": 0.742475,
+      "actual": -0.056904
+    },
+    {
+      "signal": 0.270903,
+      "actual": 0.036801
+    },
+    {
+      "signal": 0.468227,
+      "actual": 0.013676
+    },
+    {
+      "signal": 0.123746,
+      "actual": -0.178885
+    },
+    {
+      "signal": 0.779264,
+      "actual": 0.013004
+    },
+    {
+      "signal": 0.428094,
+      "actual": 0.02164
+    },
+    {
+      "signal": 0.723333,
+      "actual": -0.135957
+    },
+    {
+      "signal": 0.413333,
+      "actual": 0.157247
+    },
+    {
+      "signal": 0.953333,
+      "actual": 0.069003
+    },
+    {
+      "signal": 0.263333,
+      "actual": 0.020311
+    },
+    {
+      "signal": 0.963333,
+      "actual": -0.012111
+    },
+    {
+      "signal": 0.986667,
+      "actual": 0.055556
+    },
+    {
+      "signal": 0.733333,
+      "actual": -0.027164
+    },
+    {
+      "signal": 0.586667,
+      "actual": -0.119863
+    },
+    {
+      "signal": 0.604651,
+      "actual": -0.169574
+    },
+    {
+      "signal": 0.111296,
+      "actual": -0.123314
+    },
+    {
+      "signal": 0.181063,
+      "actual": 0.050549
+    },
+    {
+      "signal": 0.188742,
+      "actual": 0.013781
+    },
+    {
+      "signal": 0.470199,
+      "actual": -0.052328
+    },
+    {
+      "signal": 0.746689,
+      "actual": 0.092596
+    },
+    {
+      "signal": 0.751656,
+      "actual": -0.066538
+    },
+    {
+      "signal": 0.672185,
+      "actual": -0.041455
+    },
+    {
+      "signal": 0.525084,
+      "actual": 0.020189
+    },
+    {
+      "signal": 0.765886,
+      "actual": 0.006815
+    },
+    {
+      "signal": 0.434783,
+      "actual": 0.005229
+    },
+    {
+      "signal": 0.919732,
+      "actual": 0.020748
+    },
+    {
+      "signal": 0.301003,
+      "actual": -0.067703
+    },
+    {
+      "signal": 0.768212,
+      "actual": 0.002157
+    },
+    {
+      "signal": 0.639073,
+      "actual": 0.125163
+    },
+    {
+      "signal": 0.433775,
+      "actual": -0.193224
+    },
+    {
+      "signal": 0.47351,
+      "actual": -0.075154
+    },
+    {
+      "signal": 0.940397,
+      "actual": -0.138055
+    },
+    {
+      "signal": 0.986755,
+      "actual": 0.041326
+    },
+    {
+      "signal": 0.990033,
+      "actual": 0.07074
+    },
+    {
+      "signal": 0.539735,
+      "actual": 0.116789
+    },
+    {
+      "signal": 0.907285,
+      "actual": 0.030637
+    },
+    {
+      "signal": 0.854305,
+      "actual": 0.166668
+    },
+    {
+      "signal": 0.688742,
+      "actual": 0.024358
+    },
+    {
+      "signal": 0.448845,
+      "actual": -0.066537
+    },
+    {
+      "signal": 0.990033,
+      "actual": 0.085635
+    },
+    {
+      "signal": 0.980198,
+      "actual": -0.219113
+    },
+    {
+      "signal": 0.047855,
+      "actual": -0.062131
+    },
+    {
+      "signal": 0.650165,
+      "actual": 0.005559
+    },
+    {
+      "signal": 0.158416,
+      "actual": -0.198741
+    },
+    {
+      "signal": 0.70297,
+      "actual": 0.026009
+    },
+    {
+      "signal": 0.848185,
+      "actual": -0.017279
+    },
+    {
+      "signal": 0.036304,
+      "actual": -0.369457
+    },
+    {
+      "signal": 0.132013,
+      "actual": 0.126761
+    },
+    {
+      "signal": 0.326733,
+      "actual": -0.015557
+    },
+    {
+      "signal": 0.969072,
+      "actual": -0.029778
+    },
+    {
+      "signal": 0.824742,
+      "actual": 0.008124
+    },
+    {
+      "signal": 0.458763,
+      "actual": 0.054056
+    },
+    {
+      "signal": 0.340206,
+      "actual": 0.187424
+    },
+    {
+      "signal": 0.817869,
+      "actual": -0.021286
+    },
+    {
+      "signal": 0.80756,
+      "actual": 0.030329
+    },
+    {
+      "signal": 0.979592,
+      "actual": 0.079542
+    },
+    {
+      "signal": 0.241497,
+      "actual": 0.186395
+    },
+    {
+      "signal": 0.442177,
+      "actual": 0.091828
+    },
+    {
+      "signal": 0.761905,
+      "actual": 0.159023
+    },
+    {
+      "signal": 0.457912,
+      "actual": 0.024955
+    },
+    {
+      "signal": 0.030303,
+      "actual": -0.046512
+    },
+    {
+      "signal": 0.617845,
+      "actual": 0.027769
+    },
+    {
+      "signal": 0.466216,
+      "actual": 0.00796
+    },
+    {
+      "signal": 0.013345,
+      "actual": 0.158192
+    },
+    {
+      "signal": 0.307432,
+      "actual": 0.089698
+    },
+    {
+      "signal": 0.748311,
+      "actual": 0.036062
+    },
+    {
+      "signal": 0.577703,
+      "actual": 0.010676
+    },
+    {
+      "signal": 0.190878,
+      "actual": -0.233333
+    },
+    {
+      "signal": 0.780405,
+      "actual": 0.151595
+    },
+    {
+      "signal": 0.283784,
+      "actual": 0.206644
+    },
+    {
+      "signal": 0.094595,
+      "actual": 0.142876
+    },
+    {
+      "signal": 0.898649,
+      "actual": 0.050044
+    },
+    {
+      "signal": 0.050676,
+      "actual": -0.066176
+    },
+    {
+      "signal": 0.375,
+      "actual": 0.079952
+    },
+    {
+      "signal": 0.118243,
+      "actual": -0.02078
+    },
+    {
+      "signal": 0.739865,
+      "actual": 0.006898
+    },
+    {
+      "signal": 0.136824,
+      "actual": 0.078014
+    },
+    {
+      "signal": 0.523649,
+      "actual": 0.045194
+    },
+    {
+      "signal": 0.297297,
+      "actual": -0.058473
+    },
+    {
+      "signal": 0.79322,
+      "actual": -0.003446
+    },
+    {
+      "signal": 0.522034,
+      "actual": 0.102006
+    },
+    {
+      "signal": 0.722034,
+      "actual": 0.095957
+    },
+    {
+      "signal": 0.545763,
+      "actual": 0.170291
+    },
+    {
+      "signal": 0.854237,
+      "actual": 0.057678
+    },
+    {
+      "signal": 0.562069,
+      "actual": 0.05878
+    },
+    {
+      "signal": 0.894558,
+      "actual": 0.202137
+    },
+    {
+      "signal": 0.234694,
+      "actual": -0.028436
+    },
+    {
+      "signal": 0.849315,
+      "actual": -0.101605
+    },
+    {
+      "signal": 0.034247,
+      "actual": -0.174455
+    },
+    {
+      "signal": 0.669521,
+      "actual": 0.106278
+    },
+    {
+      "signal": 0.410959,
+      "actual": 0.18688
+    },
+    {
+      "signal": 0.940068,
+      "actual": 0.020779
+    },
+    {
+      "signal": 0.625862,
+      "actual": 0.023998
+    },
+    {
+      "signal": 0.651724,
+      "actual": 0.031012
+    },
+    {
+      "signal": 0.413793,
+      "actual": -0.051803
+    },
+    {
+      "signal": 0.358621,
+      "actual": 0.043991
+    },
+    {
+      "signal": 0.52226,
+      "actual": 0.004919
+    },
+    {
+      "signal": 0.952218,
+      "actual": -0.025943
+    },
+    {
+      "signal": 0.431741,
+      "actual": -0.045837
+    },
+    {
+      "signal": 0.846416,
+      "actual": 0.053801
+    },
+    {
+      "signal": 0.368601,
+      "actual": -0.133541
+    },
+    {
+      "signal": 0.118151,
+      "actual": -0.054147
+    },
+    {
+      "signal": 0.924658,
+      "actual": 0.001882
+    },
+    {
+      "signal": 0.782534,
+      "actual": 0.02418
+    },
+    {
+      "signal": 0.368151,
+      "actual": 0.004635
+    },
+    {
+      "signal": 0.313356,
+      "actual": -0.010115
+    },
+    {
+      "signal": 0.816781,
+      "actual": -0.004295
+    },
+    {
+      "signal": 0.991438,
+      "actual": -0.007801
+    },
+    {
+      "signal": 0.816781,
+      "actual": 0.035335
+    },
+    {
+      "signal": 0.929795,
+      "actual": -0.004542
+    },
+    {
+      "signal": 0.273973,
+      "actual": 0.004871
+    },
+    {
+      "signal": 0.375,
+      "actual": -0.019768
+    },
+    {
+      "signal": 0.385274,
+      "actual": -0.089308
+    },
+    {
+      "signal": 0.684932,
+      "actual": -0.025365
+    },
+    {
+      "signal": 0.325342,
+      "actual": -0.074781
+    },
+    {
+      "signal": 0.445205,
+      "actual": 0.011254
+    },
+    {
+      "signal": 0.172414,
+      "actual": 0.24677
+    },
+    {
+      "signal": 0.358621,
+      "actual": 0.037575
+    },
+    {
+      "signal": 0.563793,
+      "actual": 0.007487
+    },
+    {
+      "signal": 0.717241,
+      "actual": 0.006323
+    },
+    {
+      "signal": 0.282759,
+      "actual": -0.069139
+    },
+    {
+      "signal": 0.481034,
+      "actual": -0.026814
+    },
+    {
+      "signal": 0.065517,
+      "actual": -0.000975
+    },
+    {
+      "signal": 0.317726,
+      "actual": -0.218648
+    },
+    {
+      "signal": 0.370432,
+      "actual": -0.023537
+    },
+    {
+      "signal": 0.541528,
+      "actual": -0.084714
+    },
+    {
+      "signal": 0.568106,
+      "actual": 0.063658
+    },
+    {
+      "signal": 0.202658,
+      "actual": 0.090895
+    },
+    {
+      "signal": 0.317276,
+      "actual": 0.022297
+    },
+    {
+      "signal": 0.596346,
+      "actual": 0.005736
+    },
+    {
+      "signal": 0.335548,
+      "actual": -0.059287
+    },
+    {
+      "signal": 0.938333,
+      "actual": -0.024653
+    },
+    {
+      "signal": 0.578333,
+      "actual": -0.146505
+    },
+    {
+      "signal": 0.361667,
+      "actual": -0.033649
+    },
+    {
+      "signal": 0.643333,
+      "actual": -0.060869
+    },
+    {
+      "signal": 0.246667,
+      "actual": -0.044367
+    },
+    {
+      "signal": 0.471667,
+      "actual": 0.01015
+    },
+    {
+      "signal": 0.69103,
+      "actual": 0.047451
+    },
+    {
+      "signal": 0.305648,
+      "actual": -0.232281
+    },
+    {
+      "signal": 0.079734,
+      "actual": -0.090909
+    },
+    {
+      "signal": 0.86745,
+      "actual": -0.195882
+    },
+    {
+      "signal": 0.837248,
+      "actual": -0.045737
+    },
+    {
+      "signal": 0.531879,
+      "actual": -0.108243
+    },
+    {
+      "signal": 0.738255,
+      "actual": -0.042852
+    },
+    {
+      "signal": 0.44,
+      "actual": -0.087273
+    },
+    {
+      "signal": 0.816667,
+      "actual": -0.104876
+    },
+    {
+      "signal": 0.478333,
+      "actual": 0.02026
+    },
+    {
+      "signal": 0.345,
+      "actual": -0.040642
+    },
+    {
+      "signal": 0.33,
+      "actual": -0.023832
+    },
+    {
+      "signal": 0.662207,
+      "actual": -0.1113
+    },
+    {
+      "signal": 0.88796,
+      "actual": -0.002412
+    },
+    {
+      "signal": 0.486622,
+      "actual": -0.027701
+    },
+    {
+      "signal": 0.083612,
+      "actual": 0.078826
+    },
+    {
+      "signal": 0.662207,
+      "actual": 0.143877
+    },
+    {
+      "signal": 0.734114,
+      "actual": 0.057695
+    },
+    {
+      "signal": 0.180602,
+      "actual": 0.317165
+    },
+    {
+      "signal": 0.555184,
+      "actual": -0.017673
+    },
+    {
+      "signal": 0.483278,
+      "actual": 0.066307
+    },
+    {
+      "signal": 0.772881,
+      "actual": -0.038994
+    },
+    {
+      "signal": 0.986441,
+      "actual": -0.12197
+    },
+    {
+      "signal": 0.833898,
+      "actual": -0.054092
+    },
+    {
+      "signal": 0.410314,
+      "actual": -0.016255
+    },
+    {
+      "signal": 0.843049,
+      "actual": -0.003241
+    },
+    {
+      "signal": 0.489967,
+      "actual": -0.040517
+    },
+    {
+      "signal": 0.650502,
+      "actual": 0.029836
+    },
+    {
+      "signal": 0.424749,
+      "actual": -0.076794
+    },
+    {
+      "signal": 0.351171,
+      "actual": -0.057023
+    },
+    {
+      "signal": 0.817726,
+      "actual": -0.091276
+    },
+    {
+      "signal": 0.190635,
+      "actual": -0.004464
+    },
+    {
+      "signal": 0.70903,
+      "actual": -0.056801
+    },
+    {
+      "signal": 0.867893,
+      "actual": 0.024196
+    },
+    {
+      "signal": 0.543189,
+      "actual": -0.109923
+    },
+    {
+      "signal": 0.800664,
+      "actual": 0.014977
+    },
+    {
+      "signal": 0.833887,
+      "actual": -0.147861
+    },
+    {
+      "signal": 0.724252,
+      "actual": -0.024394
+    },
+    {
+      "signal": 0.290909,
+      "actual": 0.450855
+    },
+    {
+      "signal": 0.888636,
+      "actual": 0.130747
+    },
+    {
+      "signal": 0.387205,
+      "actual": 0.089888
+    },
+    {
+      "signal": 0.3367,
+      "actual": 0.02766
+    },
+    {
+      "signal": 0.023569,
+      "actual": 0.380976
+    },
+    {
+      "signal": 0.374172,
+      "actual": -0.041319
+    },
+    {
+      "signal": 0.764901,
+      "actual": -0.03549
+    },
+    {
+      "signal": 0.40894,
+      "actual": 0.034149
+    },
+    {
+      "signal": 0.932119,
+      "actual": -0.130549
+    },
+    {
+      "signal": 0.048173,
+      "actual": -0.026991
+    },
+    {
+      "signal": 0.38206,
+      "actual": -0.070151
+    },
+    {
+      "signal": 0.83887,
+      "actual": 0.060487
+    },
+    {
+      "signal": 0.990033,
+      "actual": -0.036761
+    },
+    {
+      "signal": 0.249169,
+      "actual": -0.171385
+    },
+    {
+      "signal": 0.460133,
+      "actual": 0.011905
+    },
+    {
+      "signal": 0.880068,
+      "actual": 0.135009
+    },
+    {
+      "signal": 0.625,
+      "actual": -0.040411
+    },
+    {
+      "signal": 0.972973,
+      "actual": -0.0089
+    },
+    {
+      "signal": 0.322635,
+      "actual": -0.024856
+    },
+    {
+      "signal": 0.214527,
+      "actual": -0.026795
+    },
+    {
+      "signal": 0.817568,
+      "actual": 0.046641
+    },
+    {
+      "signal": 0.361486,
+      "actual": -0.025538
+    },
+    {
+      "signal": 0.663851,
+      "actual": -0.039612
+    },
+    {
+      "signal": 0.013514,
+      "actual": 0.062857
+    },
+    {
+      "signal": 0.644295,
+      "actual": 0.146499
+    },
+    {
+      "signal": 0.189597,
+      "actual": 0.281727
+    },
+    {
+      "signal": 0.672819,
+      "actual": -0.005017
+    },
+    {
+      "signal": 0.607383,
+      "actual": 0.024746
+    },
+    {
+      "signal": 0.607383,
+      "actual": -0.0225
+    },
+    {
+      "signal": 0.533557,
+      "actual": -0.005723
+    },
+    {
+      "signal": 0.271812,
+      "actual": 0.190383
+    },
+    {
+      "signal": 0.808581,
+      "actual": -0.018701
+    },
+    {
+      "signal": 0.257426,
+      "actual": 0.016668
+    },
+    {
+      "signal": 0.69637,
+      "actual": -0.120981
+    },
+    {
+      "signal": 0.066007,
+      "actual": 0.391304
+    },
+    {
+      "signal": 0.59571,
+      "actual": 0.042169
+    },
+    {
+      "signal": 0.174917,
+      "actual": -0.126061
+    },
+    {
+      "signal": 0.49835,
+      "actual": -0.089694
+    },
+    {
+      "signal": 0.765677,
+      "actual": 0.100334
+    },
+    {
+      "signal": 0.651815,
+      "actual": 0.07548
+    },
+    {
+      "signal": 0.30198,
+      "actual": 0.1065
+    },
+    {
+      "signal": 0.716172,
+      "actual": -0.050228
+    },
+    {
+      "signal": 0.29703,
+      "actual": 0.097033
+    },
+    {
+      "signal": 0.975248,
+      "actual": 0.014291
+    },
+    {
+      "signal": 0.554455,
+      "actual": 0.000255
+    },
+    {
+      "signal": 0.10066,
+      "actual": 0.106991
+    },
+    {
+      "signal": 0.40264,
+      "actual": 0.122667
+    },
+    {
+      "signal": 0.694719,
+      "actual": -0.014567
+    },
+    {
+      "signal": 0.367987,
+      "actual": 0.058773
+    },
+    {
+      "signal": 0.826733,
+      "actual": 0.185125
+    },
+    {
+      "signal": 0.544554,
+      "actual": -0.053383
+    },
+    {
+      "signal": 0.786184,
+      "actual": 0.098771
+    },
+    {
+      "signal": 0.840461,
+      "actual": -0.03585
+    },
+    {
+      "signal": 0.590461,
+      "actual": -0.097762
+    },
+    {
+      "signal": 0.013267,
+      "actual": -0.074701
+    },
+    {
+      "signal": 0.130363,
+      "actual": 0.563925
+    },
+    {
+      "signal": 0.056106,
+      "actual": 0.179702
+    },
+    {
+      "signal": 0.862583,
+      "actual": 0.042425
+    },
+    {
+      "signal": 0.374172,
+      "actual": 0.125455
+    },
+    {
+      "signal": 0.319536,
+      "actual": 0.156262
+    },
+    {
+      "signal": 0.281457,
+      "actual": 0.015259
+    },
+    {
+      "signal": 0.943709,
+      "actual": 0.291359
+    },
+    {
+      "signal": 0.339404,
+      "actual": 0.160163
+    },
+    {
+      "signal": 0.741722,
+      "actual": 0.105258
+    },
+    {
+      "signal": 0.601329,
+      "actual": 0.068779
+    },
+    {
+      "signal": 0.727575,
+      "actual": 0.354806
+    },
+    {
+      "signal": 0.104651,
+      "actual": -0.009138
+    },
+    {
+      "signal": 0.189369,
+      "actual": 0.501433
+    },
+    {
+      "signal": 0.079734,
+      "actual": -0.025223
+    },
+    {
+      "signal": 0.212625,
+      "actual": 0.267857
+    },
+    {
+      "signal": 0.593023,
+      "actual": 0.104433
+    },
+    {
+      "signal": 0.385382,
+      "actual": 0.329267
+    },
+    {
+      "signal": 0.096346,
+      "actual": 0.023194
+    },
+    {
+      "signal": 0.749169,
+      "actual": -0.009409
+    },
+    {
+      "signal": 0.913621,
+      "actual": 0.021924
+    },
+    {
+      "signal": 0.380399,
+      "actual": 0.097935
+    },
+    {
+      "signal": 0.888704,
+      "actual": -0.071477
+    },
+    {
+      "signal": 0.435644,
+      "actual": 0.068473
+    },
+    {
+      "signal": 0.20132,
+      "actual": 0.25
+    },
+    {
+      "signal": 0.556106,
+      "actual": 0.078088
+    },
+    {
+      "signal": 0.508251,
+      "actual": -0.026073
+    },
+    {
+      "signal": 0.013333,
+      "actual": -0.022422
+    },
+    {
+      "signal": 0.1,
+      "actual": -0.074056
+    },
+    {
+      "signal": 0.438333,
+      "actual": -0.033223
+    },
+    {
+      "signal": 0.865,
+      "actual": -0.065785
+    },
+    {
+      "signal": 0.091667,
+      "actual": -0.095612
+    },
+    {
+      "signal": 0.46,
+      "actual": -0.041334
+    },
+    {
+      "signal": 0.701667,
+      "actual": 0.012565
+    },
+    {
+      "signal": 0.139073,
+      "actual": 0.424658
+    },
+    {
+      "signal": 0.287037,
+      "actual": 0.049186
+    },
+    {
+      "signal": 0.496656,
+      "actual": 0.090963
+    },
+    {
+      "signal": 0.762542,
+      "actual": 0.200165
+    },
+    {
+      "signal": 0.541806,
+      "actual": -0.044531
+    },
+    {
+      "signal": 0.944816,
+      "actual": -0.033943
+    },
+    {
+      "signal": 0.026756,
+      "actual": -0.112245
+    },
+    {
+      "signal": 0.067797,
+      "actual": 0.09739
+    },
+    {
+      "signal": 0.915254,
+      "actual": -0.279242
+    },
+    {
+      "signal": 0.566102,
+      "actual": 0.05095
+    },
+    {
+      "signal": 0.176271,
+      "actual": 0.093295
+    },
+    {
+      "signal": 0.442373,
+      "actual": -0.0803
+    },
+    {
+      "signal": 0.677966,
+      "actual": -0.015314
+    },
+    {
+      "signal": 0.413559,
+      "actual": 0.0813
+    },
+    {
+      "signal": 0.222034,
+      "actual": 0.06984
+    },
+    {
+      "signal": 0.763333,
+      "actual": 0.19543
+    },
+    {
+      "signal": 0.95,
+      "actual": 0.086735
+    },
+    {
+      "signal": 0.11,
+      "actual": -0.033516
+    },
+    {
+      "signal": 0.88206,
+      "actual": 0.047232
+    },
+    {
+      "signal": 0.438538,
+      "actual": -0.023584
+    },
+    {
+      "signal": 0.385382,
+      "actual": 0.090277
+    },
+    {
+      "signal": 0.745847,
+      "actual": 0.001705
+    },
+    {
+      "signal": 0.104305,
+      "actual": -0.146655
+    },
+    {
+      "signal": 0.562914,
+      "actual": 0.206278
+    },
+    {
+      "signal": 0.390728,
+      "actual": -0.101061
+    },
+    {
+      "signal": 0.756623,
+      "actual": 0.11028
+    },
+    {
+      "signal": 0.122517,
+      "actual": -0.140754
+    },
+    {
+      "signal": 0.80298,
+      "actual": -0.103837
+    },
+    {
+      "signal": 0.350993,
+      "actual": 0.049957
+    },
+    {
+      "signal": 0.783113,
+      "actual": -0.045855
+    },
+    {
+      "signal": 0.900662,
+      "actual": 0.045138
+    },
+    {
+      "signal": 0.690397,
+      "actual": -0.060907
+    },
+    {
+      "signal": 0.316667,
+      "actual": -0.0774
+    },
+    {
+      "signal": 0.473333,
+      "actual": -0.138342
+    },
+    {
+      "signal": 0.983333,
+      "actual": -0.150332
+    },
+    {
+      "signal": 0.79,
+      "actual": 0.148087
+    },
+    {
+      "signal": 0.7,
+      "actual": -0.061124
+    },
+    {
+      "signal": 0.194631,
+      "actual": -0.027255
+    },
+    {
+      "signal": 0.655556,
+      "actual": 0.052066
+    },
+    {
+      "signal": 0.286667,
+      "actual": -0.120254
+    },
+    {
+      "signal": 0.702222,
+      "actual": 0.059609
+    },
+    {
+      "signal": 0.035556,
+      "actual": -0.160326
+    },
+    {
+      "signal": 0.28,
+      "actual": -0.066171
+    },
+    {
+      "signal": 0.990034,
+      "actual": 0.018736
+    },
+    {
+      "signal": 0.350168,
+      "actual": -0.043496
+    },
+    {
+      "signal": 0.464646,
+      "actual": -0.015563
+    },
+    {
+      "signal": 0.12963,
+      "actual": -0.156997
+    },
+    {
+      "signal": 0.218855,
+      "actual": 0.001077
+    },
+    {
+      "signal": 0.218855,
+      "actual": -0.110607
+    },
+    {
+      "signal": 0.518519,
+      "actual": 0.134859
+    },
+    {
+      "signal": 0.698653,
+      "actual": 0.146165
+    },
+    {
+      "signal": 0.73569,
+      "actual": -0.043856
+    },
+    {
+      "signal": 0.525253,
+      "actual": -0.143079
+    },
+    {
+      "signal": 0.868687,
+      "actual": -0.094393
+    },
+    {
+      "signal": 0.508446,
+      "actual": -0.062695
+    },
+    {
+      "signal": 0.618243,
+      "actual": 0.056415
+    },
+    {
+      "signal": 0.199324,
+      "actual": 0.003715
+    },
+    {
+      "signal": 0.064189,
+      "actual": -0.223958
+    },
+    {
+      "signal": 0.043919,
+      "actual": 0.011261
+    },
+    {
+      "signal": 0.531879,
+      "actual": 0.089631
+    },
+    {
+      "signal": 0.144295,
+      "actual": -0.064835
+    },
+    {
+      "signal": 0.308725,
+      "actual": 0.021537
+    },
+    {
+      "signal": 0.196309,
+      "actual": 0.072263
+    },
+    {
+      "signal": 0.745763,
+      "actual": 0.038481
+    },
+    {
+      "signal": 0.044068,
+      "actual": -0.252155
+    },
+    {
+      "signal": 0.855,
+      "actual": -0.092187
+    },
+    {
+      "signal": 0.216667,
+      "actual": -0.091282
+    },
+    {
+      "signal": 0.106667,
+      "actual": -0.005915
+    },
+    {
+      "signal": 0.206667,
+      "actual": -0.046422
+    },
+    {
+      "signal": 0.01,
+      "actual": -0.1
+    },
+    {
+      "signal": 0.078333,
+      "actual": -0.109127
+    },
+    {
+      "signal": 0.229508,
+      "actual": -0.002515
+    },
+    {
+      "signal": 0.377049,
+      "actual": -0.043468
+    },
+    {
+      "signal": 0.604918,
+      "actual": -0.001504
+    },
+    {
+      "signal": 0.865574,
+      "actual": 0.144235
+    },
+    {
+      "signal": 0.868852,
+      "actual": -0.006904
+    },
+    {
+      "signal": 0.580328,
+      "actual": -0.059491
+    },
+    {
+      "signal": 0.114754,
+      "actual": -0.063594
+    },
+    {
+      "signal": 0.268852,
+      "actual": 0.044024
+    },
+    {
+      "signal": 0.816993,
+      "actual": 0.116063
+    },
+    {
+      "signal": 0.931373,
+      "actual": -0.318807
+    },
+    {
+      "signal": 0.946078,
+      "actual": 0.190662
+    },
+    {
+      "signal": 0.398693,
+      "actual": 0.087733
+    },
+    {
+      "signal": 0.921311,
+      "actual": -0.111381
+    },
+    {
+      "signal": 0.95082,
+      "actual": -0.159812
+    },
+    {
+      "signal": 0.788525,
+      "actual": 0.083591
+    },
+    {
+      "signal": 0.736928,
+      "actual": 0.024603
+    },
+    {
+      "signal": 0.691176,
+      "actual": -0.017685
+    },
+    {
+      "signal": 0.704248,
+      "actual": -0.100883
+    },
+    {
+      "signal": 0.589869,
+      "actual": 0.122696
+    },
+    {
+      "signal": 0.846405,
+      "actual": 0.163119
+    },
+    {
+      "signal": 0.76652,
+      "actual": 0.20306
+    },
+    {
+      "signal": 0.548458,
+      "actual": 0.055883
+    },
+    {
+      "signal": 0.325991,
+      "actual": 0.052325
+    },
+    {
+      "signal": 0.731278,
+      "actual": 0.028306
+    },
+    {
+      "signal": 0.654185,
+      "actual": 0.009036
+    },
+    {
+      "signal": 0.345815,
+      "actual": -0.095385
+    },
+    {
+      "signal": 0.39207,
+      "actual": 0.060041
+    },
+    {
+      "signal": 0.444934,
+      "actual": -0.047433
+    },
+    {
+      "signal": 0.169604,
+      "actual": -0.091854
+    },
+    {
+      "signal": 0.832237,
+      "actual": 0.080193
+    },
+    {
+      "signal": 0.865132,
+      "actual": 0.041346
+    },
+    {
+      "signal": 0.016447,
+      "actual": 0.018868
+    },
+    {
+      "signal": 0.407895,
+      "actual": -0.064356
+    },
+    {
+      "signal": 0.123355,
+      "actual": 0.034246
+    },
+    {
+      "signal": 0.348684,
+      "actual": 0.017017
+    },
+    {
+      "signal": 0.496711,
+      "actual": 0.005724
+    },
+    {
+      "signal": 0.625,
+      "actual": 0.040721
+    },
+    {
+      "signal": 0.460227,
+      "actual": -0.101382
+    },
+    {
+      "signal": 0.052805,
+      "actual": -0.043285
+    },
+    {
+      "signal": 0.158416,
+      "actual": -0.115754
+    },
+    {
+      "signal": 0.389439,
+      "actual": 0.14152
+    },
+    {
+      "signal": 0.919463,
+      "actual": 0.039918
+    },
+    {
+      "signal": 0.932886,
+      "actual": 0.041014
+    },
+    {
+      "signal": 0.627517,
+      "actual": -0.029686
+    },
+    {
+      "signal": 0.340604,
+      "actual": -0.122002
+    },
+    {
+      "signal": 0.894737,
+      "actual": -0.02065
+    },
+    {
+      "signal": 0.164474,
+      "actual": 0.150448
+    },
+    {
+      "signal": 0.026316,
+      "actual": 0.131944
+    },
+    {
+      "signal": 0.411184,
+      "actual": 0.09209
+    },
+    {
+      "signal": 0.30363,
+      "actual": -0.011201
+    },
+    {
+      "signal": 0.132013,
+      "actual": 0.058927
+    },
+    {
+      "signal": 0.273927,
+      "actual": 0.069121
+    },
+    {
+      "signal": 0.712871,
+      "actual": 0.065409
+    },
+    {
+      "signal": 0.105611,
+      "actual": -0.094192
+    },
+    {
+      "signal": 0.328383,
+      "actual": -0.105106
+    },
+    {
+      "signal": 0.348185,
+      "actual": -0.149171
+    },
+    {
+      "signal": 0.785479,
+      "actual": 0.048725
+    },
+    {
+      "signal": 0.181518,
+      "actual": -0.061523
+    },
+    {
+      "signal": 0.735974,
+      "actual": 0.004908
+    },
+    {
+      "signal": 0.359736,
+      "actual": -0.095961
+    },
+    {
+      "signal": 0.026403,
+      "actual": -0.128731
+    },
+    {
+      "signal": 0.924092,
+      "actual": -0.08694
+    },
+    {
+      "signal": 0.930921,
+      "actual": -0.067503
+    },
+    {
+      "signal": 0.25,
+      "actual": -0.045876
+    },
+    {
+      "signal": 0.118421,
+      "actual": 0.009614
+    },
+    {
+      "signal": 0.894737,
+      "actual": -0.05534
+    },
+    {
+      "signal": 0.480263,
+      "actual": -0.103054
+    },
+    {
+      "signal": 0.275748,
+      "actual": -0.045306
+    },
+    {
+      "signal": 0.664452,
+      "actual": -0.258659
+    },
+    {
+      "signal": 0.097039,
+      "actual": -0.10951
+    },
+    {
+      "signal": 0.108553,
+      "actual": -0.20357
+    },
+    {
+      "signal": 0.608553,
+      "actual": 0.171803
+    },
+    {
+      "signal": 0.246711,
+      "actual": -0.0202
+    },
+    {
+      "signal": 0.901316,
+      "actual": 0.001084
+    },
+    {
+      "signal": 0.828947,
+      "actual": -0.065824
+    },
+    {
+      "signal": 0.967105,
+      "actual": -0.111134
+    },
+    {
+      "signal": 0.990033,
+      "actual": -0.202681
+    },
+    {
+      "signal": 0.629508,
+      "actual": 0.102229
+    },
+    {
+      "signal": 0.6,
+      "actual": -0.108938
+    },
+    {
+      "signal": 0.12623,
+      "actual": 0.003459
+    },
+    {
+      "signal": 0.684211,
+      "actual": -0.014312
+    },
+    {
+      "signal": 0.825658,
+      "actual": -0.045115
+    },
+    {
+      "signal": 0.641447,
+      "actual": 0.019807
+    },
+    {
+      "signal": 0.177632,
+      "actual": -0.215579
+    },
+    {
+      "signal": 0.200658,
+      "actual": 0.084401
+    },
+    {
+      "signal": 0.3125,
+      "actual": 0.015905
+    },
+    {
+      "signal": 0.784053,
+      "actual": 0.061491
+    },
+    {
+      "signal": 0.707641,
+      "actual": -0.010887
+    },
+    {
+      "signal": 0.511628,
+      "actual": -0.001184
+    },
+    {
+      "signal": 0.868771,
+      "actual": -0.035455
+    },
+    {
+      "signal": 0.013333,
+      "actual": 0.244444
+    },
+    {
+      "signal": 0.953333,
+      "actual": -0.058802
+    },
+    {
+      "signal": 0.346667,
+      "actual": -0.09328
+    },
+    {
+      "signal": 0.623333,
+      "actual": -0.015344
+    },
+    {
+      "signal": 0.806667,
+      "actual": 0.005607
+    },
+    {
+      "signal": 0.5,
+      "actual": -0.044836
+    },
+    {
+      "signal": 0.796667,
+      "actual": -0.090473
+    },
+    {
+      "signal": 0.236667,
+      "actual": 0.142857
+    },
+    {
+      "signal": 0.558333,
+      "actual": 0.147701
+    },
+    {
+      "signal": 0.146667,
+      "actual": -0.118265
+    },
+    {
+      "signal": 0.673333,
+      "actual": 0.128658
+    },
+    {
+      "signal": 0.813333,
+      "actual": 0.06119
+    },
+    {
+      "signal": 0.278333,
+      "actual": 0.060593
+    },
+    {
+      "signal": 0.34,
+      "actual": -0.100473
+    },
+    {
+      "signal": 0.783333,
+      "actual": 0.098287
+    },
+    {
+      "signal": 0.090301,
+      "actual": -0.35
+    },
+    {
+      "signal": 0.600334,
+      "actual": 0.019785
+    },
+    {
+      "signal": 0.319398,
+      "actual": -0.092161
+    },
+    {
+      "signal": 0.478261,
+      "actual": 0.080009
+    },
+    {
+      "signal": 0.043478,
+      "actual": -0.055901
+    },
+    {
+      "signal": 0.120401,
+      "actual": 0.185771
+    },
+    {
+      "signal": 0.013378,
+      "actual": -0.25618
+    },
+    {
+      "signal": 0.818333,
+      "actual": 0.030572
+    },
+    {
+      "signal": 0.185,
+      "actual": 0.003431
+    },
+    {
+      "signal": 0.33612,
+      "actual": 0.010097
+    },
+    {
+      "signal": 0.59699,
+      "actual": -0.069798
+    },
+    {
+      "signal": 0.147157,
+      "actual": 0.126993
+    },
+    {
+      "signal": 0.829431,
+      "actual": 0.02101
+    },
+    {
+      "signal": 0.625418,
+      "actual": 0.047366
+    },
+    {
+      "signal": 0.416388,
+      "actual": 0.043403
+    },
+    {
+      "signal": 0.80602,
+      "actual": -0.01447
+    },
+    {
+      "signal": 0.849498,
+      "actual": 0.076201
+    },
+    {
+      "signal": 0.889632,
+      "actual": -0.024954
+    },
+    {
+      "signal": 0.673913,
+      "actual": 0.009135
+    },
+    {
+      "signal": 0.297659,
+      "actual": -0.197032
+    },
+    {
+      "signal": 0.280936,
+      "actual": 0.042071
+    },
+    {
+      "signal": 0.761745,
+      "actual": -0.026078
+    },
+    {
+      "signal": 0.187919,
+      "actual": 0.142225
+    },
+    {
+      "signal": 0.775168,
+      "actual": 0.032841
+    },
+    {
+      "signal": 0.855705,
+      "actual": 0.013859
+    },
+    {
+      "signal": 0.265101,
+      "actual": -0.043275
+    },
+    {
+      "signal": 0.808725,
+      "actual": -0.10087
+    },
+    {
+      "signal": 0.177852,
+      "actual": 0.00083
+    },
+    {
+      "signal": 0.736577,
+      "actual": 0.080661
+    },
+    {
+      "signal": 0.043624,
+      "actual": 0.014109
+    },
+    {
+      "signal": 0.100671,
+      "actual": 0.087723
+    },
+    {
+      "signal": 0.463211,
+      "actual": 0.07397
+    },
+    {
+      "signal": 0.70903,
+      "actual": 0.067685
+    },
+    {
+      "signal": 0.784281,
+      "actual": 0.104812
+    },
+    {
+      "signal": 0.421405,
+      "actual": 0.078096
+    },
+    {
+      "signal": 0.929766,
+      "actual": -0.046777
+    },
+    {
+      "signal": 0.451505,
+      "actual": -0.009597
+    },
+    {
+      "signal": 0.518395,
+      "actual": -0.012818
+    },
+    {
+      "signal": 0.305369,
+      "actual": 0.0345
+    },
+    {
+      "signal": 0.013322,
+      "actual": -0.20202
+    },
+    {
+      "signal": 0.107383,
+      "actual": -0.109091
+    },
+    {
+      "signal": 0.278523,
+      "actual": -0.04186
+    },
+    {
+      "signal": 0.401007,
+      "actual": -0.022498
+    },
+    {
+      "signal": 0.842282,
+      "actual": 0.04756
+    },
+    {
+      "signal": 0.332215,
+      "actual": -0.041848
+    },
+    {
+      "signal": 0.275168,
+      "actual": 0.013424
+    },
+    {
+      "signal": 0.513423,
+      "actual": 0.024
+    },
+    {
+      "signal": 0.409396,
+      "actual": 0.047516
+    },
+    {
+      "signal": 0.611667,
+      "actual": 0.056526
+    },
+    {
+      "signal": 0.378333,
+      "actual": 0.071411
+    },
+    {
+      "signal": 0.598333,
+      "actual": -0.008103
+    },
+    {
+      "signal": 0.335,
+      "actual": 0.014567
+    },
+    {
+      "signal": 0.706667,
+      "actual": -0.005584
+    },
+    {
+      "signal": 0.8,
+      "actual": 0.03218
+    },
+    {
+      "signal": 0.886667,
+      "actual": 0.003852
+    },
+    {
+      "signal": 0.673333,
+      "actual": -0.003093
+    },
+    {
+      "signal": 0.244108,
+      "actual": -0.003705
+    },
+    {
+      "signal": 0.1633,
+      "actual": 0.096085
+    },
+    {
+      "signal": 0.060606,
+      "actual": 0.305896
+    },
+    {
+      "signal": 0.818182,
+      "actual": 0.019065
+    },
+    {
+      "signal": 0.962963,
+      "actual": -0.151163
+    },
+    {
+      "signal": 0.087542,
+      "actual": 0.001661
+    },
+    {
+      "signal": 0.013311,
+      "actual": 0.055556
+    },
+    {
+      "signal": 0.990033,
+      "actual": 0.056128
+    },
+    {
+      "signal": 0.923077,
+      "actual": 0.03128
+    },
+    {
+      "signal": 0.264214,
+      "actual": 0.144991
+    },
+    {
+      "signal": 0.285235,
+      "actual": 0.054732
+    },
+    {
+      "signal": 0.971477,
+      "actual": -0.015563
+    },
+    {
+      "signal": 0.936242,
+      "actual": -0.050703
+    },
+    {
+      "signal": 0.807047,
+      "actual": 0.08673
+    },
+    {
+      "signal": 0.687919,
+      "actual": 0.018068
+    },
+    {
+      "signal": 0.250836,
+      "actual": 0.08043
+    },
+    {
+      "signal": 0.61204,
+      "actual": 0.065698
+    },
+    {
+      "signal": 0.341137,
+      "actual": 0.050334
+    },
+    {
+      "signal": 0.722408,
+      "actual": -0.00232
+    },
+    {
+      "signal": 0.317726,
+      "actual": 0.01668
+    },
+    {
+      "signal": 0.553512,
+      "actual": -0.027609
+    },
+    {
+      "signal": 0.902685,
+      "actual": 0.032656
+    },
+    {
+      "signal": 0.956376,
+      "actual": -0.016062
+    },
+    {
+      "signal": 0.614094,
+      "actual": -0.141557
+    },
+    {
+      "signal": 0.974832,
+      "actual": -0.058924
+    },
+    {
+      "signal": 0.223154,
+      "actual": 0.004182
+    },
+    {
+      "signal": 0.635906,
+      "actual": 0.076393
+    },
+    {
+      "signal": 0.508361,
+      "actual": -0.13258
+    },
+    {
+      "signal": 0.846154,
+      "actual": -0.027437
+    },
+    {
+      "signal": 0.963211,
+      "actual": 0.097296
+    },
+    {
+      "signal": 0.615385,
+      "actual": -0.102766
+    },
+    {
+      "signal": 0.160535,
+      "actual": 0.175275
+    },
+    {
+      "signal": 0.687291,
+      "actual": -0.017963
+    },
+    {
+      "signal": 0.548495,
+      "actual": 0.012619
+    },
+    {
+      "signal": 0.033445,
+      "actual": 0.1728
+    },
+    {
+      "signal": 0.705686,
+      "actual": -0.073469
+    },
+    {
+      "signal": 0.617057,
+      "actual": 0.06128
+    },
+    {
+      "signal": 0.665552,
+      "actual": 0.012119
+    },
+    {
+      "signal": 0.881271,
+      "actual": -0.011628
+    },
+    {
+      "signal": 0.327703,
+      "actual": -0.026138
+    },
+    {
+      "signal": 0.422297,
+      "actual": 0.061271
+    },
+    {
+      "signal": 0.782095,
+      "actual": 0.031892
+    },
+    {
+      "signal": 0.060811,
+      "actual": 0.1801
+    },
+    {
+      "signal": 0.347458,
+      "actual": 0.04017
+    },
+    {
+      "signal": 0.266102,
+      "actual": -0.015245
+    },
+    {
+      "signal": 0.8,
+      "actual": 0.007407
+    },
+    {
+      "signal": 0.591525,
+      "actual": 0.021089
+    },
+    {
+      "signal": 0.60678,
+      "actual": -0.012258
+    },
+    {
+      "signal": 0.381356,
+      "actual": 0.010131
+    },
+    {
+      "signal": 0.962712,
+      "actual": 0.045031
+    },
+    {
+      "signal": 0.633898,
+      "actual": -0.142418
+    },
+    {
+      "signal": 0.410169,
+      "actual": -0.020518
+    },
+    {
+      "signal": 0.938983,
+      "actual": 0.085974
+    },
+    {
+      "signal": 0.369492,
+      "actual": 0.034899
+    },
+    {
+      "signal": 0.691525,
+      "actual": 0.10113
+    },
+    {
+      "signal": 0.688136,
+      "actual": 0.026558
+    },
+    {
+      "signal": 0.871186,
+      "actual": 0.103659
+    },
+    {
+      "signal": 0.956081,
+      "actual": 0.01155
+    },
+    {
+      "signal": 0.564189,
+      "actual": 0.066587
+    },
+    {
+      "signal": 0.375,
+      "actual": 0.035319
+    },
+    {
+      "signal": 0.434122,
+      "actual": 0.075932
+    },
+    {
+      "signal": 0.197987,
+      "actual": 0.117702
+    },
+    {
+      "signal": 0.72619,
+      "actual": 0.2175
+    },
+    {
+      "signal": 0.15,
+      "actual": 0.003379
+    },
+    {
+      "signal": 0.326667,
+      "actual": 0.002519
+    },
+    {
+      "signal": 0.46,
+      "actual": 0.044317
+    },
+    {
+      "signal": 0.326667,
+      "actual": 0.080711
+    },
+    {
+      "signal": 0.165,
+      "actual": 0.235849
+    },
+    {
+      "signal": 0.61204,
+      "actual": 0.138143
+    },
+    {
+      "signal": 0.533445,
+      "actual": 0.025935
+    },
+    {
+      "signal": 0.439799,
+      "actual": 0.018861
+    },
+    {
+      "signal": 0.406355,
+      "actual": -0.004067
+    },
+    {
+      "signal": 0.276786,
+      "actual": -0.017947
+    },
+    {
+      "signal": 0.046667,
+      "actual": 0.196262
+    },
+    {
+      "signal": 0.733333,
+      "actual": -0.038358
+    },
+    {
+      "signal": 0.766667,
+      "actual": 0.016139
+    },
+    {
+      "signal": 0.99005,
+      "actual": 0.232318
+    },
+    {
+      "signal": 0.703333,
+      "actual": -0.05542
+    },
+    {
+      "signal": 0.023333,
+      "actual": -0.015152
+    },
+    {
+      "signal": 0.446667,
+      "actual": 0.053105
+    },
+    {
+      "signal": 0.483333,
+      "actual": 0.230076
+    },
+    {
+      "signal": 0.54,
+      "actual": 0.042256
+    },
+    {
+      "signal": 0.736667,
+      "actual": 0.127759
+    },
+    {
+      "signal": 0.55,
+      "actual": 0.094032
+    },
+    {
+      "signal": 0.033333,
+      "actual": 0.194138
+    },
+    {
+      "signal": 0.46,
+      "actual": 0.005721
+    },
+    {
+      "signal": 0.706667,
+      "actual": -0.075835
+    },
+    {
+      "signal": 0.355,
+      "actual": 0.142121
+    },
+    {
+      "signal": 0.68,
+      "actual": 0.027294
+    },
+    {
+      "signal": 0.295302,
+      "actual": 0.045174
+    },
+    {
+      "signal": 0.706376,
+      "actual": 0.130382
+    },
+    {
+      "signal": 0.869128,
+      "actual": 0.095911
+    },
+    {
+      "signal": 0.214765,
+      "actual": 0.011319
+    },
+    {
+      "signal": 0.39094,
+      "actual": 0.132471
+    },
+    {
+      "signal": 0.934564,
+      "actual": 0.011499
+    },
+    {
+      "signal": 0.636364,
+      "actual": 0.033523
+    },
+    {
+      "signal": 0.676768,
+      "actual": 0.018364
+    },
+    {
+      "signal": 0.893939,
+      "actual": 0.06825
+    },
+    {
+      "signal": 0.946128,
+      "actual": 0.028019
+    },
+    {
+      "signal": 0.590909,
+      "actual": 0.05928
+    },
+    {
+      "signal": 0.33165,
+      "actual": 0.04685
+    },
+    {
+      "signal": 0.232323,
+      "actual": -0.019219
+    },
+    {
+      "signal": 0.680412,
+      "actual": -0.005248
+    },
+    {
+      "signal": 0.316151,
+      "actual": 0.074005
+    },
+    {
+      "signal": 0.457045,
+      "actual": 0.097442
+    },
+    {
+      "signal": 0.123711,
+      "actual": -0.033924
+    },
+    {
+      "signal": 0.522337,
+      "actual": -0.008737
+    },
+    {
+      "signal": 0.845361,
+      "actual": 0.069961
+    },
+    {
+      "signal": 0.443299,
+      "actual": 0.05047
+    },
+    {
+      "signal": 0.291809,
+      "actual": 0.02168
+    },
+    {
+      "signal": 0.62628,
+      "actual": 0.059312
+    },
+    {
+      "signal": 0.911263,
+      "actual": 0.001459
+    },
+    {
+      "signal": 0.638225,
+      "actual": -0.016897
+    },
+    {
+      "signal": 0.757679,
+      "actual": -0.005799
+    },
+    {
+      "signal": 0.040179,
+      "actual": -0.061536
+    },
+    {
+      "signal": 0.834821,
+      "actual": -0.001985
+    },
+    {
+      "signal": 0.44186,
+      "actual": 0.053685
+    },
+    {
+      "signal": 0.124585,
+      "actual": -0.097564
+    },
+    {
+      "signal": 0.387417,
+      "actual": -0.091978
+    },
+    {
+      "signal": 0.862583,
+      "actual": 0.069427
+    },
+    {
+      "signal": 0.238411,
+      "actual": -0.10983
+    },
+    {
+      "signal": 0.321192,
+      "actual": -0.066241
+    },
+    {
+      "signal": 0.326159,
+      "actual": 0.046555
+    },
+    {
+      "signal": 0.60596,
+      "actual": -0.107055
+    },
+    {
+      "signal": 0.386513,
+      "actual": 0.092868
+    },
+    {
+      "signal": 0.453947,
+      "actual": 0.051386
+    },
+    {
+      "signal": 0.970395,
+      "actual": -0.089637
+    },
+    {
+      "signal": 0.299342,
+      "actual": 0.033683
+    },
+    {
+      "signal": 0.293729,
+      "actual": 0.09896
+    },
+    {
+      "signal": 0.458746,
+      "actual": 0.055851
+    },
+    {
+      "signal": 0.871287,
+      "actual": -0.042589
+    },
+    {
+      "signal": 0.653465,
+      "actual": 0.004578
+    },
+    {
+      "signal": 0.554455,
+      "actual": 0.02637
+    },
+    {
+      "signal": 0.320132,
+      "actual": 0.088235
+    },
+    {
+      "signal": 0.399671,
+      "actual": 0.021187
+    },
+    {
+      "signal": 0.384868,
+      "actual": 0.192705
+    },
+    {
+      "signal": 0.889803,
+      "actual": 0.078191
+    },
+    {
+      "signal": 0.983553,
+      "actual": 0.188588
+    },
+    {
+      "signal": 0.011661,
+      "actual": -0.167568
+    },
+    {
+      "signal": 0.605263,
+      "actual": -0.159394
+    },
+    {
+      "signal": 0.602649,
+      "actual": 0.055373
+    },
+    {
+      "signal": 0.784768,
+      "actual": 0.06289
+    },
+    {
+      "signal": 0.907285,
+      "actual": 0.04552
+    },
+    {
+      "signal": 0.842715,
+      "actual": -0.027211
+    },
+    {
+      "signal": 0.798013,
+      "actual": -0.008564
+    },
+    {
+      "signal": 0.506623,
+      "actual": 0.010928
+    },
+    {
+      "signal": 0.237624,
+      "actual": -0.005391
+    },
+    {
+      "signal": 0.151815,
+      "actual": -0.109272
+    },
+    {
+      "signal": 0.231023,
+      "actual": 0.060208
+    },
+    {
+      "signal": 0.496711,
+      "actual": 0.117227
+    },
+    {
+      "signal": 0.651316,
+      "actual": 0.078599
+    },
+    {
+      "signal": 0.365132,
+      "actual": 0.104119
+    },
+    {
+      "signal": 0.026316,
+      "actual": -0.060602
+    },
+    {
+      "signal": 0.241776,
+      "actual": 0.118833
+    },
+    {
+      "signal": 0.963816,
+      "actual": -0.004466
+    },
+    {
+      "signal": 0.430464,
+      "actual": 0.068111
+    },
+    {
+      "signal": 0.930464,
+      "actual": 0.060101
+    },
+    {
+      "signal": 0.847682,
+      "actual": -0.014292
+    },
+    {
+      "signal": 0.36755,
+      "actual": 0.207137
+    },
+    {
+      "signal": 0.013278,
+      "actual": 0.120448
+    },
+    {
+      "signal": 0.937086,
+      "actual": 0.069702
+    },
+    {
+      "signal": 0.266779,
+      "actual": 0.179255
+    },
+    {
+      "signal": 0.746644,
+      "actual": 0.011681
+    },
+    {
+      "signal": 0.90604,
+      "actual": 0.442803
+    },
+    {
+      "signal": 0.026846,
+      "actual": -0.075949
+    },
+    {
+      "signal": 0.940397,
+      "actual": 0.54357
+    },
+    {
+      "signal": 0.764901,
+      "actual": -0.006651
+    },
+    {
+      "signal": 0.142857,
+      "actual": 0.462295
+    },
+    {
+      "signal": 0.744186,
+      "actual": 0.38296
+    },
+    {
+      "signal": 0.503311,
+      "actual": 0.038664
+    },
+    {
+      "signal": 0.155629,
+      "actual": -0.102261
+    },
+    {
+      "signal": 0.410596,
+      "actual": -0.004116
+    },
+    {
+      "signal": 0.801325,
+      "actual": 0.028777
+    },
+    {
+      "signal": 0.761589,
+      "actual": 0.026833
+    },
+    {
+      "signal": 0.240924,
+      "actual": 0.136956
+    },
+    {
+      "signal": 0.894389,
+      "actual": 0.011438
+    },
+    {
+      "signal": 0.663366,
+      "actual": -0.058267
+    },
+    {
+      "signal": 0.613861,
+      "actual": 0.014543
+    },
+    {
+      "signal": 0.684818,
+      "actual": 0.10934
+    },
+    {
+      "signal": 0.171617,
+      "actual": -0.0982
+    },
+    {
+      "signal": 0.537954,
+      "actual": 0.034872
+    },
+    {
+      "signal": 0.480132,
+      "actual": -0.030306
+    },
+    {
+      "signal": 0.639073,
+      "actual": 0.01247
+    },
+    {
+      "signal": 0.594371,
+      "actual": 0.027875
+    },
+    {
+      "signal": 0.844371,
+      "actual": 0.010594
+    },
+    {
+      "signal": 0.549669,
+      "actual": 0.03352
+    },
+    {
+      "signal": 0.370861,
+      "actual": -0.218022
+    },
+    {
+      "signal": 0.832781,
+      "actual": -0.630893
+    },
+    {
+      "signal": 0.741722,
+      "actual": -0.043731
+    },
+    {
+      "signal": 0.298013,
+      "actual": -0.060259
+    },
+    {
+      "signal": 0.483444,
+      "actual": 0.019018
+    },
+    {
+      "signal": 0.516556,
+      "actual": -0.122192
+    },
+    {
+      "signal": 0.609272,
+      "actual": -0.095062
+    },
+    {
+      "signal": 0.019868,
+      "actual": 0.016225
+    },
+    {
+      "signal": 0.34106,
+      "actual": -0.024079
+    },
+    {
+      "signal": 0.425497,
+      "actual": 0.07081
+    },
+    {
+      "signal": 0.990033,
+      "actual": 0.012708
+    },
+    {
+      "signal": 0.102649,
+      "actual": 0.02193
+    },
+    {
+      "signal": 0.250825,
+      "actual": -0.061964
+    },
+    {
+      "signal": 0.719472,
+      "actual": -0.061061
+    },
+    {
+      "signal": 0.544554,
+      "actual": -0.044425
+    },
+    {
+      "signal": 0.825083,
+      "actual": 0.014692
+    },
+    {
+      "signal": 0.534653,
+      "actual": 0.004415
+    },
+    {
+      "signal": 0.561056,
+      "actual": 0.067084
+    },
+    {
+      "signal": 0.438944,
+      "actual": -0.003812
+    },
+    {
+      "signal": 0.357377,
+      "actual": 0.016618
+    },
+    {
+      "signal": 0.072131,
+      "actual": 0.452191
+    },
+    {
+      "signal": 0.111475,
+      "actual": -0.089744
+    },
+    {
+      "signal": 0.367213,
+      "actual": 0.006325
+    },
+    {
+      "signal": 0.703947,
+      "actual": 0.063764
+    },
+    {
+      "signal": 0.638158,
+      "actual": -0.091672
+    },
+    {
+      "signal": 0.516447,
+      "actual": 0.026958
+    },
+    {
+      "signal": 0.549342,
+      "actual": 0.010254
+    },
+    {
+      "signal": 0.055921,
+      "actual": -0.090252
+    },
+    {
+      "signal": 0.931894,
+      "actual": -0.192629
+    },
+    {
+      "signal": 0.519934,
+      "actual": -0.026755
+    },
+    {
+      "signal": 0.468439,
+      "actual": -0.094801
+    },
+    {
+      "signal": 0.465116,
+      "actual": -0.053274
+    },
+    {
+      "signal": 0.717608,
+      "actual": 0.075637
+    },
+    {
+      "signal": 0.342193,
+      "actual": 0.051448
+    },
+    {
+      "signal": 0.27907,
+      "actual": 0.002464
+    },
+    {
+      "signal": 0.275748,
+      "actual": 0.217318
+    },
+    {
+      "signal": 0.023256,
+      "actual": -0.104396
+    },
+    {
+      "signal": 0.427152,
+      "actual": 0.020585
+    },
+    {
+      "signal": 0.665563,
+      "actual": -0.073466
+    },
+    {
+      "signal": 0.826159,
+      "actual": -0.028939
+    },
+    {
+      "signal": 0.171053,
+      "actual": -0.056238
+    },
+    {
+      "signal": 0.118421,
+      "actual": -0.037415
+    },
+    {
+      "signal": 0.802632,
+      "actual": -0.02056
+    },
+    {
+      "signal": 0.085526,
+      "actual": 0.026247
+    },
+    {
+      "signal": 0.976974,
+      "actual": 0.026005
+    },
+    {
+      "signal": 0.789474,
+      "actual": -0.058516
+    },
+    {
+      "signal": 0.157895,
+      "actual": 0.00542
+    },
+    {
+      "signal": 0.332237,
+      "actual": -0.112465
+    },
+    {
+      "signal": 0.540984,
+      "actual": -0.084309
+    },
+    {
+      "signal": 0.763934,
+      "actual": -0.073608
+    },
+    {
+      "signal": 0.014754,
+      "actual": -0.034834
+    },
+    {
+      "signal": 0.698361,
+      "actual": 0.08822
+    },
+    {
+      "signal": 0.623596,
+      "actual": 0.093753
+    },
+    {
+      "signal": 0.196013,
+      "actual": -0.071686
+    },
+    {
+      "signal": 0.099668,
+      "actual": 0.421233
+    },
+    {
+      "signal": 0.541528,
+      "actual": -0.083491
+    },
+    {
+      "signal": 0.528239,
+      "actual": -0.161757
+    },
+    {
+      "signal": 0.960133,
+      "actual": -0.161724
+    },
+    {
+      "signal": 0.973422,
+      "actual": -0.008724
+    },
+    {
+      "signal": 0.18,
+      "actual": 0.460591
+    },
+    {
+      "signal": 0.603333,
+      "actual": -0.040705
+    },
+    {
+      "signal": 0.163333,
+      "actual": -0.003262
+    },
+    {
+      "signal": 0.916667,
+      "actual": -0.019422
+    },
+    {
+      "signal": 0.975,
+      "actual": 0.035304
+    },
+    {
+      "signal": 0.38,
+      "actual": 0.787473
+    },
+    {
+      "signal": 0.990033,
+      "actual": 0.405312
+    },
+    {
+      "signal": 0.216667,
+      "actual": -0.042537
+    },
+    {
+      "signal": 0.69,
+      "actual": -0.073095
+    },
+    {
+      "signal": 0.53,
+      "actual": -0.031066
+    },
+    {
+      "signal": 0.405,
+      "actual": -0.114015
+    },
+    {
+      "signal": 0.876667,
+      "actual": 0.022391
+    },
+    {
+      "signal": 0.66,
+      "actual": -0.010325
+    },
+    {
+      "signal": 0.86,
+      "actual": -0.016729
+    },
+    {
+      "signal": 0.12,
+      "actual": 0.20501
+    },
+    {
+      "signal": 0.188333,
+      "actual": -0.049294
+    },
+    {
+      "signal": 0.90301,
+      "actual": -0.039796
+    },
+    {
+      "signal": 0.844482,
+      "actual": -0.043428
+    },
+    {
+      "signal": 0.956522,
+      "actual": 0.053438
+    },
+    {
+      "signal": 0.976589,
+      "actual": -0.039379
+    },
+    {
+      "signal": 0.344482,
+      "actual": 0.109384
+    },
+    {
+      "signal": 0.304348,
+      "actual": 22.19161
+    },
+    {
+      "signal": 0.906355,
+      "actual": 0.039253
+    },
+    {
+      "signal": 0.852843,
+      "actual": 0.015088
+    },
+    {
+      "signal": 0.100334,
+      "actual": -0.103409
+    },
+    {
+      "signal": 0.250836,
+      "actual": 0.130931
+    },
+    {
+      "signal": 0.923077,
+      "actual": 0.015241
+    },
+    {
+      "signal": 0.702341,
+      "actual": -0.053551
+    },
+    {
+      "signal": 0.444816,
+      "actual": 0.057419
+    },
+    {
+      "signal": 0.956522,
+      "actual": -0.056187
+    },
+    {
+      "signal": 0.688963,
+      "actual": 13.224085
+    },
+    {
+      "signal": 0.566667,
+      "actual": 0.016028
+    },
+    {
+      "signal": 0.82,
+      "actual": 0.016169
+    },
+    {
+      "signal": 0.586667,
+      "actual": -0.188607
+    },
+    {
+      "signal": 0.443333,
+      "actual": 0.014754
+    },
+    {
+      "signal": 0.393333,
+      "actual": 0.031431
+    },
+    {
+      "signal": 0.176667,
+      "actual": -0.231788
+    },
+    {
+      "signal": 0.846667,
+      "actual": 0.029349
+    },
+    {
+      "signal": 0.756667,
+      "actual": 0.061496
+    },
+    {
+      "signal": 0.218333,
+      "actual": 117.548387
+    },
+    {
+      "signal": 0.862876,
+      "actual": -0.010973
+    },
+    {
+      "signal": 0.040134,
+      "actual": -0.115044
+    },
+    {
+      "signal": 0.784281,
+      "actual": 0.003581
+    },
+    {
+      "signal": 0.424749,
+      "actual": 0.253795
+    },
+    {
+      "signal": 0.133779,
+      "actual": -0.013435
+    },
+    {
+      "signal": 0.906355,
+      "actual": 0.055346
+    },
+    {
+      "signal": 0.523411,
+      "actual": 0.038078
+    },
+    {
+      "signal": 0.257475,
+      "actual": 0.13709
+    },
+    {
+      "signal": 0.059801,
+      "actual": 0.007826
+    },
+    {
+      "signal": 0.714286,
+      "actual": 0.165548
+    },
+    {
+      "signal": 0.903654,
+      "actual": 0.056988
+    },
+    {
+      "signal": 0.843854,
+      "actual": -0.000251
+    },
+    {
+      "signal": 0.232558,
+      "actual": -0.010064
+    },
+    {
+      "signal": 0.709302,
+      "actual": 0.070566
+    },
+    {
+      "signal": 0.79402,
+      "actual": 0.013851
+    },
+    {
+      "signal": 0.407285,
+      "actual": 0.066719
+    },
+    {
+      "signal": 0.251656,
+      "actual": 0.098592
+    },
+    {
+      "signal": 0.490066,
+      "actual": 0.104149
+    },
+    {
+      "signal": 0.165563,
+      "actual": 0.056082
+    },
+    {
+      "signal": 0.417219,
+      "actual": 0.00909
+    },
+    {
+      "signal": 0.096026,
+      "actual": 0.0
+    },
+    {
+      "signal": 0.850515,
+      "actual": 0.051893
+    },
+    {
+      "signal": 0.917526,
+      "actual": 0.088641
+    },
+    {
+      "signal": 0.400344,
+      "actual": 0.032694
+    },
+    {
+      "signal": 0.989691,
+      "actual": -0.043027
+    },
+    {
+      "signal": 0.264605,
+      "actual": -0.09597
+    },
+    {
+      "signal": 0.859107,
+      "actual": 0.052921
+    },
+    {
+      "signal": 0.333333,
+      "actual": -0.068396
+    },
+    {
+      "signal": 0.061404,
+      "actual": 0.059804
+    },
+    {
+      "signal": 0.828947,
+      "actual": 0.045307
+    },
+    {
+      "signal": 0.17931,
+      "actual": -0.007319
+    },
+    {
+      "signal": 0.8,
+      "actual": -0.001847
+    },
+    {
+      "signal": 0.851724,
+      "actual": 0.100862
+    },
+    {
+      "signal": 0.462069,
+      "actual": 0.073467
+    },
+    {
+      "signal": 0.903448,
+      "actual": 0.045493
+    },
+    {
+      "signal": 0.930556,
+      "actual": 0.067951
+    },
+    {
+      "signal": 0.46875,
+      "actual": 0.089517
+    },
+    {
+      "signal": 0.885417,
+      "actual": 0.013767
+    },
+    {
+      "signal": 0.288194,
+      "actual": -0.040359
+    },
+    {
+      "signal": 0.704861,
+      "actual": -0.01159
+    },
+    {
+      "signal": 0.060976,
+      "actual": 0.0
+    },
+    {
+      "signal": 0.512195,
+      "actual": 0.057978
+    },
+    {
+      "signal": 0.733449,
+      "actual": 0.032351
+    },
+    {
+      "signal": 0.501742,
+      "actual": 0.157459
+    },
+    {
+      "signal": 0.344948,
+      "actual": -0.009748
+    },
+    {
+      "signal": 0.15331,
+      "actual": -0.043887
+    },
+    {
+      "signal": 0.522648,
+      "actual": 0.028287
+    },
+    {
+      "signal": 0.124138,
+      "actual": -0.052632
+    },
+    {
+      "signal": 0.348276,
+      "actual": 0.071756
+    },
+    {
+      "signal": 0.482759,
+      "actual": 0.077505
+    },
+    {
+      "signal": 0.444828,
+      "actual": 0.033286
+    },
+    {
+      "signal": 0.670103,
+      "actual": -0.032221
+    },
+    {
+      "signal": 0.639175,
+      "actual": -0.117329
+    },
+    {
+      "signal": 0.786942,
+      "actual": 0.020076
+    },
+    {
+      "signal": 0.931271,
+      "actual": -0.070882
+    },
+    {
+      "signal": 0.589041,
+      "actual": 0.026525
+    },
+    {
+      "signal": 0.818493,
+      "actual": 0.13243
+    },
+    {
+      "signal": 0.945205,
+      "actual": -0.069264
+    },
+    {
+      "signal": 0.839041,
+      "actual": -0.032432
+    },
+    {
+      "signal": 0.75,
+      "actual": -0.00939
+    },
+    {
+      "signal": 0.178082,
+      "actual": 0.082488
+    },
+    {
+      "signal": 0.061644,
+      "actual": 0.091743
+    },
+    {
+      "signal": 0.554795,
+      "actual": -0.034101
+    },
+    {
+      "signal": 0.294521,
+      "actual": 0.215103
+    },
+    {
+      "signal": 0.589041,
+      "actual": 0.082214
+    },
+    {
+      "signal": 0.167808,
+      "actual": -0.143925
+    },
+    {
+      "signal": 0.203767,
+      "actual": 0.169754
+    },
+    {
+      "signal": 0.056897,
+      "actual": 0.114754
+    },
+    {
+      "signal": 0.275862,
+      "actual": 0.012544
+    },
+    {
+      "signal": 0.175862,
+      "actual": 0.042553
+    },
+    {
+      "signal": 0.988055,
+      "actual": 0.075078
+    },
+    {
+      "signal": 0.182594,
+      "actual": 0.092105
+    },
+    {
+      "signal": 0.365188,
+      "actual": -0.042424
+    },
+    {
+      "signal": 0.648464,
+      "actual": 0.047587
+    },
+    {
+      "signal": 0.649485,
+      "actual": 0.103023
+    },
+    {
+      "signal": 0.443299,
+      "actual": 0.066242
+    },
+    {
+      "signal": 0.57732,
+      "actual": 0.038138
+    },
+    {
+      "signal": 0.757732,
+      "actual": -0.047295
+    },
+    {
+      "signal": 0.323129,
+      "actual": -0.197256
+    },
+    {
+      "signal": 0.758503,
+      "actual": 0.022106
+    },
+    {
+      "signal": 0.353741,
+      "actual": -0.188786
+    },
+    {
+      "signal": 0.078231,
+      "actual": 0.001089
+    },
+    {
+      "signal": 0.370748,
+      "actual": 0.008443
+    },
+    {
+      "signal": 0.772109,
+      "actual": -0.036675
+    },
+    {
+      "signal": 0.487179,
+      "actual": 0.11499
+    },
+    {
+      "signal": 0.474359,
+      "actual": 0.046154
+    },
+    {
+      "signal": 0.945763,
+      "actual": 0.021523
+    },
+    {
+      "signal": 0.950847,
+      "actual": -0.156958
+    },
+    {
+      "signal": 0.345763,
+      "actual": -0.045451
+    },
+    {
+      "signal": 0.915254,
+      "actual": 0.028324
+    },
+    {
+      "signal": 0.2,
+      "actual": 0.057407
+    },
+    {
+      "signal": 0.979661,
+      "actual": -0.236278
+    },
+    {
+      "signal": 0.6,
+      "actual": -0.059773
+    },
+    {
+      "signal": 0.233898,
+      "actual": 0.031606
+    },
+    {
+      "signal": 0.453925,
+      "actual": -0.076108
+    },
+    {
+      "signal": 0.098976,
+      "actual": 0.034387
+    },
+    {
+      "signal": 0.871186,
+      "actual": -0.05298
+    },
+    {
+      "signal": 0.681356,
+      "actual": 0.031002
+    },
+    {
+      "signal": 0.59661,
+      "actual": 0.03125
+    },
+    {
+      "signal": 0.505085,
+      "actual": -0.072006
+    },
+    {
+      "signal": 0.482993,
+      "actual": 0.05679
+    },
+    {
+      "signal": 0.590136,
+      "actual": -0.032665
+    },
+    {
+      "signal": 0.14966,
+      "actual": -0.008373
+    },
+    {
+      "signal": 0.204082,
+      "actual": 0.025126
+    },
+    {
+      "signal": 0.119048,
+      "actual": 0.78211
+    },
+    {
+      "signal": 0.380952,
+      "actual": -0.057901
+    },
+    {
+      "signal": 0.921233,
+      "actual": -0.042698
+    },
+    {
+      "signal": 0.585616,
+      "actual": -0.06553
+    },
+    {
+      "signal": 0.675768,
+      "actual": 0.054419
+    },
+    {
+      "signal": 0.389078,
+      "actual": -0.023309
+    },
+    {
+      "signal": 0.356655,
+      "actual": 0.018158
+    },
+    {
+      "signal": 0.990034,
+      "actual": -0.060948
+    },
+    {
+      "signal": 0.723549,
+      "actual": -0.057007
+    },
+    {
+      "signal": 0.095563,
+      "actual": -0.095731
+    },
+    {
+      "signal": 0.171233,
+      "actual": 0.020833
+    },
+    {
+      "signal": 0.181507,
+      "actual": -0.050496
+    },
+    {
+      "signal": 0.222603,
+      "actual": -0.048393
+    },
+    {
+      "signal": 0.039249,
+      "actual": 0.006135
+    },
+    {
+      "signal": 0.361775,
+      "actual": -0.05111
+    },
+    {
+      "signal": 0.658703,
+      "actual": -0.066718
+    },
+    {
+      "signal": 0.747525,
+      "actual": 0.034994
+    },
+    {
+      "signal": 0.726073,
+      "actual": 0.031418
+    },
+    {
+      "signal": 0.447195,
+      "actual": -0.155107
+    },
+    {
+      "signal": 0.937294,
+      "actual": -0.020212
+    },
+    {
+      "signal": 0.894389,
+      "actual": -0.025767
+    },
+    {
+      "signal": 0.043046,
+      "actual": -0.019164
+    },
+    {
+      "signal": 0.211921,
+      "actual": 0.098259
+    },
+    {
+      "signal": 0.215232,
+      "actual": 0.004228
+    },
+    {
+      "signal": 0.622517,
+      "actual": 0.010417
+    },
+    {
+      "signal": 0.360927,
+      "actual": -0.057617
+    },
+    {
+      "signal": 0.059603,
+      "actual": 0.325339
+    },
+    {
+      "signal": 0.519868,
+      "actual": -0.110119
+    },
+    {
+      "signal": 0.889073,
+      "actual": -0.215185
+    },
+    {
+      "signal": 0.65894,
+      "actual": -0.018837
+    },
+    {
+      "signal": 0.902318,
+      "actual": -0.143646
+    },
+    {
+      "signal": 0.504967,
+      "actual": -0.100917
+    },
+    {
+      "signal": 0.125828,
+      "actual": -0.138537
+    },
+    {
+      "signal": 0.874172,
+      "actual": -0.062098
+    },
+    {
+      "signal": 0.748344,
+      "actual": -0.105936
+    },
+    {
+      "signal": 0.195364,
+      "actual": 0.018421
+    },
+    {
+      "signal": 0.043046,
+      "actual": -0.092784
+    },
+    {
+      "signal": 0.531457,
+      "actual": -0.11795
+    },
+    {
+      "signal": 0.30897,
+      "actual": -0.055225
+    },
+    {
+      "signal": 0.578073,
+      "actual": -0.108708
+    },
+    {
+      "signal": 0.305648,
+      "actual": -0.116751
+    },
+    {
+      "signal": 0.490066,
+      "actual": -0.062881
+    },
+    {
+      "signal": 0.129139,
+      "actual": -0.112028
+    },
+    {
+      "signal": 0.63245,
+      "actual": 0.046095
+    },
+    {
+      "signal": 0.043189,
+      "actual": -0.214608
+    },
+    {
+      "signal": 0.174419,
+      "actual": -0.058824
+    },
+    {
+      "signal": 0.990033,
+      "actual": -0.098257
+    },
+    {
+      "signal": 0.425249,
+      "actual": -0.144431
+    },
+    {
+      "signal": 0.19637,
+      "actual": 0.010749
+    },
+    {
+      "signal": 0.013267,
+      "actual": -0.017544
+    },
+    {
+      "signal": 0.062914,
+      "actual": -0.316338
+    },
+    {
+      "signal": 0.155629,
+      "actual": -0.049229
+    },
+    {
+      "signal": 0.137417,
+      "actual": -0.058252
+    },
+    {
+      "signal": 0.5,
+      "actual": -0.069925
+    },
+    {
+      "signal": 0.488411,
+      "actual": -0.019324
+    },
+    {
+      "signal": 0.362583,
+      "actual": -0.062953
+    },
+    {
+      "signal": 0.463576,
+      "actual": -0.178984
+    },
+    {
+      "signal": 0.410596,
+      "actual": -0.184971
+    },
+    {
+      "signal": 0.152318,
+      "actual": -0.063084
+    },
+    {
+      "signal": 0.622517,
+      "actual": -0.063155
+    },
+    {
+      "signal": 0.347826,
+      "actual": -0.001159
+    },
+    {
+      "signal": 0.464883,
+      "actual": 0.033749
+    },
+    {
+      "signal": 0.574751,
+      "actual": -0.097087
+    },
+    {
+      "signal": 0.166113,
+      "actual": -0.125338
+    },
+    {
+      "signal": 0.27907,
+      "actual": -0.268548
+    },
+    {
+      "signal": 0.906667,
+      "actual": -0.047548
+    },
+    {
+      "signal": 0.88,
+      "actual": 0.067431
+    },
+    {
+      "signal": 0.83,
+      "actual": -0.143198
+    },
+    {
+      "signal": 0.436667,
+      "actual": -0.02861
+    },
+    {
+      "signal": 0.963333,
+      "actual": -0.099602
+    },
+    {
+      "signal": 0.676667,
+      "actual": -0.178647
+    },
+    {
+      "signal": 0.476744,
+      "actual": 0.059283
+    },
+    {
+      "signal": 0.946844,
+      "actual": -0.12113
+    },
+    {
+      "signal": 0.112957,
+      "actual": -0.096718
+    },
+    {
+      "signal": 0.55814,
+      "actual": 0.055835
+    },
+    {
+      "signal": 0.561462,
+      "actual": 0.047218
+    },
+    {
+      "signal": 0.880399,
+      "actual": -0.171967
+    },
+    {
+      "signal": 0.750831,
+      "actual": -0.113595
+    },
+    {
+      "signal": 0.486711,
+      "actual": 0.00813
+    },
+    {
+      "signal": 0.026578,
+      "actual": -0.098182
+    },
+    {
+      "signal": 0.862126,
+      "actual": -0.00472
+    },
+    {
+      "signal": 0.578073,
+      "actual": -0.108097
+    },
+    {
+      "signal": 0.378738,
+      "actual": 0.111611
+    },
+    {
+      "signal": 0.116279,
+      "actual": -0.091211
+    },
+    {
+      "signal": 0.707641,
+      "actual": -0.052898
+    },
+    {
+      "signal": 0.684385,
+      "actual": -0.043361
+    },
+    {
+      "signal": 0.448505,
+      "actual": -0.05731
+    },
+    {
+      "signal": 0.011628,
+      "actual": -0.121813
+    },
+    {
+      "signal": 0.238333,
+      "actual": -0.00188
+    },
+    {
+      "signal": 0.741667,
+      "actual": -0.108978
+    },
+    {
+      "signal": 0.355,
+      "actual": -0.11791
+    },
+    {
+      "signal": 0.126667,
+      "actual": -0.006617
+    },
+    {
+      "signal": 0.373333,
+      "actual": 0.004975
+    },
+    {
+      "signal": 0.983389,
+      "actual": -0.039298
+    },
+    {
+      "signal": 0.760797,
+      "actual": 0.004982
+    },
+    {
+      "signal": 0.431894,
+      "actual": -0.101942
+    },
+    {
+      "signal": 0.275748,
+      "actual": 0.238411
+    },
+    {
+      "signal": 0.518272,
+      "actual": 0.035533
+    },
+    {
+      "signal": 0.528239,
+      "actual": 0.019726
+    },
+    {
+      "signal": 0.083056,
+      "actual": 0.093264
+    },
+    {
+      "signal": 0.644518,
+      "actual": -0.03257
+    },
+    {
+      "signal": 0.724252,
+      "actual": -0.007839
+    },
+    {
+      "signal": 0.425249,
+      "actual": 0.356789
+    },
+    {
+      "signal": 0.551155,
+      "actual": 0.034259
+    },
+    {
+      "signal": 0.105611,
+      "actual": 0.186073
+    },
+    {
+      "signal": 0.980198,
+      "actual": 0.120252
+    },
+    {
+      "signal": 0.19802,
+      "actual": 0.109505
+    },
+    {
+      "signal": 0.490099,
+      "actual": 0.008143
+    },
+    {
+      "signal": 0.937294,
+      "actual": -0.00501
+    },
+    {
+      "signal": 0.692053,
+      "actual": 0.063205
+    },
+    {
+      "signal": 0.471854,
+      "actual": 0.156563
+    },
+    {
+      "signal": 0.192053,
+      "actual": -0.036439
+    },
+    {
+      "signal": 0.695364,
+      "actual": 0.131795
+    },
+    {
+      "signal": 0.06422,
+      "actual": 0.088401
+    },
+    {
+      "signal": 0.711009,
+      "actual": 0.054824
+    },
+    {
+      "signal": 0.087156,
+      "actual": 0.084351
+    },
+    {
+      "signal": 0.609272,
+      "actual": 0.112396
+    },
+    {
+      "signal": 0.539735,
+      "actual": -0.108654
+    },
+    {
+      "signal": 0.864238,
+      "actual": 0.080785
+    },
+    {
+      "signal": 0.324503,
+      "actual": 0.112121
+    },
+    {
+      "signal": 0.70297,
+      "actual": 0.055639
+    },
+    {
+      "signal": 0.872937,
+      "actual": 0.077755
+    },
+    {
+      "signal": 0.089109,
+      "actual": 0.397436
+    },
+    {
+      "signal": 0.716172,
+      "actual": 0.112222
+    },
+    {
+      "signal": 0.794702,
+      "actual": 0.269324
+    },
+    {
+      "signal": 0.486755,
+      "actual": 0.275549
+    },
+    {
+      "signal": 0.864238,
+      "actual": 0.131096
+    },
+    {
+      "signal": 0.649007,
+      "actual": 0.141211
+    },
+    {
+      "signal": 0.07,
+      "actual": 0.052941
+    },
+    {
+      "signal": 0.263333,
+      "actual": 0.020008
+    },
+    {
+      "signal": 0.47,
+      "actual": 0.147364
+    },
+    {
+      "signal": 0.603333,
+      "actual": 0.158187
+    },
+    {
+      "signal": 0.583333,
+      "actual": 0.176661
+    },
+    {
+      "signal": 0.887043,
+      "actual": 0.058589
+    },
+    {
+      "signal": 0.116279,
+      "actual": 0.291237
+    },
+    {
+      "signal": 0.076159,
+      "actual": 0.253333
+    },
+    {
+      "signal": 0.317881,
+      "actual": 0.108535
+    },
+    {
+      "signal": 0.950331,
+      "actual": 0.300834
+    },
+    {
+      "signal": 0.149007,
+      "actual": 0.367953
+    },
+    {
+      "signal": 0.25,
+      "actual": 0.573924
+    },
+    {
+      "signal": 0.734219,
+      "actual": 0.119527
+    },
+    {
+      "signal": 0.325581,
+      "actual": 0.231987
+    },
+    {
+      "signal": 0.614618,
+      "actual": 0.115958
+    },
+    {
+      "signal": 0.72093,
+      "actual": 0.119734
+    },
+    {
+      "signal": 0.916944,
+      "actual": 0.015496
+    },
+    {
+      "signal": 0.508306,
+      "actual": 0.145214
+    },
+    {
+      "signal": 0.30897,
+      "actual": 0.041139
+    },
+    {
+      "signal": 0.816964,
+      "actual": 0.069258
+    },
+    {
+      "signal": 0.428571,
+      "actual": 0.131647
+    },
+    {
+      "signal": 0.321429,
+      "actual": 0.295996
+    },
+    {
+      "signal": 0.540179,
+      "actual": 0.053774
+    },
+    {
+      "signal": 0.098214,
+      "actual": 0.091248
+    },
+    {
+      "signal": 0.112957,
+      "actual": 0.077904
+    },
+    {
+      "signal": 0.990033,
+      "actual": 0.389364
+    },
+    {
+      "signal": 0.438538,
+      "actual": -0.00325
+    },
+    {
+      "signal": 0.355482,
+      "actual": 0.186486
+    },
+    {
+      "signal": 0.900332,
+      "actual": 0.251022
+    },
+    {
+      "signal": 0.023256,
+      "actual": 0.049587
+    },
+    {
+      "signal": 0.433775,
+      "actual": 0.039679
+    },
+    {
+      "signal": 0.698675,
+      "actual": 0.049085
+    },
+    {
+      "signal": 0.261589,
+      "actual": 0.041667
+    },
+    {
+      "signal": 0.504983,
+      "actual": -0.011841
+    },
+    {
+      "signal": 0.48505,
+      "actual": 0.1146
+    },
+    {
+      "signal": 0.425249,
+      "actual": 0.280188
+    },
+    {
+      "signal": 0.290698,
+      "actual": 0.006243
+    },
+    {
+      "signal": 0.335548,
+      "actual": -0.009536
+    },
+    {
+      "signal": 0.039867,
+      "actual": 0.019231
+    },
+    {
+      "signal": 0.0133,
+      "actual": 0.054348
+    },
+    {
+      "signal": 0.056667,
+      "actual": -0.084691
+    },
+    {
+      "signal": 0.036667,
+      "actual": 0.092767
+    },
+    {
+      "signal": 0.860465,
+      "actual": -0.057707
+    },
+    {
+      "signal": 0.712625,
+      "actual": 0.151741
+    },
+    {
+      "signal": 0.953488,
+      "actual": 0.101075
+    },
+    {
+      "signal": 0.744186,
+      "actual": 0.014041
+    },
+    {
+      "signal": 0.784053,
+      "actual": 0.000759
+    },
+    {
+      "signal": 0.950166,
+      "actual": 0.099098
+    },
+    {
+      "signal": 0.268519,
+      "actual": -0.049454
+    },
+    {
+      "signal": 0.347222,
+      "actual": 0.092113
+    },
+    {
+      "signal": 0.121622,
+      "actual": -0.022691
+    },
+    {
+      "signal": 0.014949,
+      "actual": 0.281222
+    },
+    {
+      "signal": 0.769585,
+      "actual": 0.145528
+    },
+    {
+      "signal": 0.281106,
+      "actual": -0.014664
+    },
+    {
+      "signal": 0.129032,
+      "actual": -0.005951
+    },
+    {
+      "signal": 0.073333,
+      "actual": 0.012364
+    },
+    {
+      "signal": 0.273333,
+      "actual": 0.041896
+    },
+    {
+      "signal": 0.446667,
+      "actual": 0.019524
+    },
+    {
+      "signal": 0.046667,
+      "actual": -0.075829
+    },
+    {
+      "signal": 0.86711,
+      "actual": 0.051467
+    },
+    {
+      "signal": 0.10299,
+      "actual": 0.009569
+    },
+    {
+      "signal": 0.054817,
+      "actual": -0.009346
+    },
+    {
+      "signal": 0.410299,
+      "actual": 0.035294
+    },
+    {
+      "signal": 0.215232,
+      "actual": 0.017016
+    },
+    {
+      "signal": 0.498344,
+      "actual": 0.01153
+    },
+    {
+      "signal": 0.784768,
+      "actual": -0.03209
+    },
+    {
+      "signal": 0.895695,
+      "actual": -0.091435
+    },
+    {
+      "signal": 0.350993,
+      "actual": 0.031097
+    },
+    {
+      "signal": 0.336667,
+      "actual": 0.056159
+    },
+    {
+      "signal": 0.78,
+      "actual": -0.056236
+    },
+    {
+      "signal": 0.106667,
+      "actual": 1.685714
+    },
+    {
+      "signal": 0.441667,
+      "actual": -0.18758
+    },
+    {
+      "signal": 0.36,
+      "actual": 0.032776
+    },
+    {
+      "signal": 0.145,
+      "actual": 0.023283
+    },
+    {
+      "signal": 0.360465,
+      "actual": 0.018413
+    },
+    {
+      "signal": 0.094684,
+      "actual": 0.400966
+    },
+    {
+      "signal": 0.076412,
+      "actual": 0.561069
+    },
+    {
+      "signal": 0.989984,
+      "actual": -0.114949
+    },
+    {
+      "signal": 0.356908,
+      "actual": 0.088906
+    },
+    {
+      "signal": 0.039474,
+      "actual": 0.039103
+    },
+    {
+      "signal": 0.411184,
+      "actual": 0.114394
+    },
+    {
+      "signal": 0.620066,
+      "actual": 0.033652
+    },
+    {
+      "signal": 0.735099,
+      "actual": 0.048785
+    },
+    {
+      "signal": 0.826733,
+      "actual": -0.002336
+    },
+    {
+      "signal": 0.415842,
+      "actual": 0.041522
+    },
+    {
+      "signal": 0.308581,
+      "actual": 0.007007
+    },
+    {
+      "signal": 0.463696,
+      "actual": -0.038183
+    },
+    {
+      "signal": 0.958746,
+      "actual": 0.178351
+    },
+    {
+      "signal": 0.587459,
+      "actual": -0.060085
+    },
+    {
+      "signal": 0.195,
+      "actual": -0.018817
+    },
+    {
+      "signal": 0.06,
+      "actual": -0.02638
+    },
+    {
+      "signal": 0.658333,
+      "actual": -0.010859
+    },
+    {
+      "signal": 0.86,
+      "actual": 0.095756
+    },
+    {
+      "signal": 0.990033,
+      "actual": 0.040594
+    },
+    {
+      "signal": 0.61,
+      "actual": 0.106068
+    },
+    {
+      "signal": 0.63,
+      "actual": 0.15493
+    },
+    {
+      "signal": 0.361667,
+      "actual": 0.015359
+    },
+    {
+      "signal": 0.58,
+      "actual": 0.059037
+    },
+    {
+      "signal": 0.047619,
+      "actual": 0.0
+    },
+    {
+      "signal": 0.793046,
+      "actual": 0.325
+    },
+    {
+      "signal": 0.82947,
+      "actual": 0.061931
+    },
+    {
+      "signal": 0.372517,
+      "actual": 0.06812
+    },
+    {
+      "signal": 0.147351,
+      "actual": 0.104331
+    },
+    {
+      "signal": 0.672185,
+      "actual": 0.102144
+    },
+    {
+      "signal": 0.887417,
+      "actual": 0.03631
+    },
+    {
+      "signal": 0.706954,
+      "actual": 0.099832
+    },
+    {
+      "signal": 0.596026,
+      "actual": 0.103448
+    },
+    {
+      "signal": 0.890728,
+      "actual": 0.027042
+    },
+    {
+      "signal": 0.779801,
+      "actual": -0.013507
+    },
+    {
+      "signal": 0.165563,
+      "actual": 0.581197
+    },
+    {
+      "signal": 0.43543,
+      "actual": -0.000659
+    },
+    {
+      "signal": 0.923841,
+      "actual": 0.057569
+    },
+    {
+      "signal": 0.32947,
+      "actual": 0.05789
+    },
+    {
+      "signal": 0.390728,
+      "actual": 0.105621
+    },
+    {
+      "signal": 0.815789,
+      "actual": 0.037252
+    },
+    {
+      "signal": 0.0625,
+      "actual": 0.539095
+    },
+    {
+      "signal": 0.029605,
+      "actual": 0.148148
+    },
+    {
+      "signal": 0.388158,
+      "actual": -0.010244
+    },
+    {
+      "signal": 0.799342,
+      "actual": 0.040956
+    },
+    {
+      "signal": 0.597039,
+      "actual": 0.00429
+    },
+    {
+      "signal": 0.847039,
+      "actual": 0.038647
+    },
+    {
+      "signal": 0.878289,
+      "actual": -0.056676
+    },
+    {
+      "signal": 0.679276,
+      "actual": 0.010675
+    },
+    {
+      "signal": 0.615132,
+      "actual": 0.01808
+    },
+    {
+      "signal": 0.654605,
+      "actual": 0.246377
+    },
+    {
+      "signal": 0.396382,
+      "actual": 0.13462
+    },
+    {
+      "signal": 0.831126,
+      "actual": -0.075816
+    },
+    {
+      "signal": 0.751656,
+      "actual": 0.126927
+    },
+    {
+      "signal": 0.380795,
+      "actual": 0.005622
+    },
+    {
+      "signal": 0.751656,
+      "actual": 0.038818
+    },
+    {
+      "signal": 0.099338,
+      "actual": 0.00703
+    },
+    {
+      "signal": 0.516556,
+      "actual": 0.115216
+    },
+    {
+      "signal": 0.07947,
+      "actual": 0.082095
+    },
+    {
+      "signal": 0.667219,
+      "actual": -0.036915
+    },
+    {
+      "signal": 0.211921,
+      "actual": 0.052958
+    },
+    {
+      "signal": 0.625828,
+      "actual": 0.095477
+    },
+    {
+      "signal": 0.716814,
+      "actual": -0.082593
+    },
+    {
+      "signal": 0.565789,
+      "actual": 0.082476
+    },
+    {
+      "signal": 0.465461,
+      "actual": 0.059813
+    },
+    {
+      "signal": 0.958882,
+      "actual": 0.024576
+    },
+    {
+      "signal": 0.628289,
+      "actual": -0.049499
+    },
+    {
+      "signal": 0.503289,
+      "actual": 0.182638
+    },
+    {
+      "signal": 0.957237,
+      "actual": -0.0172
+    },
+    {
+      "signal": 0.557566,
+      "actual": 0.289165
+    },
+    {
+      "signal": 0.180921,
+      "actual": -0.017316
+    },
+    {
+      "signal": 0.498355,
+      "actual": 0.248204
+    },
+    {
+      "signal": 0.151163,
+      "actual": -0.015924
+    },
+    {
+      "signal": 0.616279,
+      "actual": 0.070175
+    },
+    {
+      "signal": 0.617162,
+      "actual": 0.205688
+    },
+    {
+      "signal": 0.80363,
+      "actual": -0.017268
+    },
+    {
+      "signal": 0.69802,
+      "actual": -0.089264
+    },
+    {
+      "signal": 0.910891,
+      "actual": 0.044693
+    },
+    {
+      "signal": 0.90264,
+      "actual": 0.00731
+    },
+    {
+      "signal": 0.536304,
+      "actual": -0.064222
+    },
+    {
+      "signal": 0.141914,
+      "actual": -0.174568
+    },
+    {
+      "signal": 0.069307,
+      "actual": -0.012713
+    },
+    {
+      "signal": 0.892739,
+      "actual": -0.183925
+    },
+    {
+      "signal": 0.625413,
+      "actual": -0.027978
+    },
+    {
+      "signal": 0.478548,
+      "actual": -0.001512
+    },
+    {
+      "signal": 0.816832,
+      "actual": 0.088379
+    },
+    {
+      "signal": 0.805281,
+      "actual": 0.309108
+    },
+    {
+      "signal": 0.440397,
+      "actual": 0.14539
+    },
+    {
+      "signal": 0.235099,
+      "actual": 0.069621
+    },
+    {
+      "signal": 0.576159,
+      "actual": -0.026437
+    },
+    {
+      "signal": 0.165563,
+      "actual": -0.063602
+    },
+    {
+      "signal": 0.062914,
+      "actual": 0.286777
+    },
+    {
+      "signal": 0.259934,
+      "actual": 0.080446
+    },
+    {
+      "signal": 0.801325,
+      "actual": -0.005763
+    },
+    {
+      "signal": 0.139073,
+      "actual": -0.031447
+    },
+    {
+      "signal": 0.705298,
+      "actual": 0.042518
+    },
+    {
+      "signal": 0.675497,
+      "actual": -0.056999
+    },
+    {
+      "signal": 0.413907,
+      "actual": -0.076911
+    },
+    {
+      "signal": 0.294702,
+      "actual": 0.044066
+    },
+    {
+      "signal": 0.506623,
+      "actual": 0.041176
+    },
+    {
+      "signal": 0.69702,
+      "actual": 0.094014
+    },
+    {
+      "signal": 0.049669,
+      "actual": 0.121214
+    },
+    {
+      "signal": 0.157285,
+      "actual": -0.064837
+    },
+    {
+      "signal": 0.066225,
+      "actual": 0.15194
+    },
+    {
+      "signal": 0.584437,
+      "actual": -0.044904
+    },
+    {
+      "signal": 0.890365,
+      "actual": 0.044444
+    },
+    {
+      "signal": 0.229236,
+      "actual": 0.089604
+    },
+    {
+      "signal": 0.310631,
+      "actual": 0.162821
+    },
+    {
+      "signal": 0.9701,
+      "actual": 0.133344
+    },
+    {
+      "signal": 0.013267,
+      "actual": -0.013678
+    },
+    {
+      "signal": 0.359736,
+      "actual": 0.147124
+    },
+    {
+      "signal": 0.646865,
+      "actual": 0.137363
+    },
+    {
+      "signal": 0.679402,
+      "actual": -0.029837
+    },
+    {
+      "signal": 0.679402,
+      "actual": 0.171398
+    },
+    {
+      "signal": 0.461794,
+      "actual": 0.0
+    },
+    {
+      "signal": 0.39604,
+      "actual": -0.009646
+    },
+    {
+      "signal": 0.184818,
+      "actual": 0.020636
+    },
+    {
+      "signal": 0.422442,
+      "actual": 0.090745
+    },
+    {
+      "signal": 0.265677,
+      "actual": -0.014142
+    },
+    {
+      "signal": 0.60396,
+      "actual": 0.100639
+    },
+    {
+      "signal": 0.405941,
+      "actual": 0.017878
+    },
+    {
+      "signal": 0.986667,
+      "actual": 0.036012
+    },
+    {
+      "signal": 0.683333,
+      "actual": 0.099643
+    },
+    {
+      "signal": 0.783333,
+      "actual": 0.002641
+    },
+    {
+      "signal": 0.138333,
+      "actual": -0.055571
+    },
+    {
+      "signal": 0.761667,
+      "actual": -0.113809
+    },
+    {
+      "signal": 0.428333,
+      "actual": 0.109336
+    },
+    {
+      "signal": 0.556667,
+      "actual": -0.132324
+    },
+    {
+      "signal": 0.456667,
+      "actual": 0.021309
+    },
+    {
+      "signal": 0.203333,
+      "actual": 0.006579
+    },
+    {
+      "signal": 0.626667,
+      "actual": -0.163121
+    },
+    {
+      "signal": 0.02,
+      "actual": -0.053191
+    },
+    {
+      "signal": 0.936667,
+      "actual": -0.121346
+    },
+    {
+      "signal": 0.248333,
+      "actual": -0.038881
+    },
+    {
+      "signal": 0.793333,
+      "actual": -0.027197
+    },
+    {
+      "signal": 0.269103,
+      "actual": -0.046083
+    },
+    {
+      "signal": 0.940199,
+      "actual": -0.011265
+    },
+    {
+      "signal": 0.526578,
+      "actual": -0.036069
+    },
+    {
+      "signal": 0.448505,
+      "actual": -0.4375
+    },
+    {
+      "signal": 0.614618,
+      "actual": -0.110477
+    },
+    {
+      "signal": 0.361386,
+      "actual": -0.076737
+    },
+    {
+      "signal": 0.255776,
+      "actual": -0.146552
+    },
+    {
+      "signal": 0.757426,
+      "actual": 0.061602
+    },
+    {
+      "signal": 0.448845,
+      "actual": -0.107146
+    },
+    {
+      "signal": 0.495033,
+      "actual": 0.044932
+    },
+    {
+      "signal": 0.557947,
+      "actual": 0.114105
+    },
+    {
+      "signal": 0.853135,
+      "actual": 0.038023
+    },
+    {
+      "signal": 0.442244,
+      "actual": -0.007634
+    },
+    {
+      "signal": 0.36711,
+      "actual": -0.042032
+    },
+    {
+      "signal": 0.056478,
+      "actual": -0.015652
+    },
+    {
+      "signal": 0.697674,
+      "actual": -0.25963
+    },
+    {
+      "signal": 0.036545,
+      "actual": -0.172414
+    },
+    {
+      "signal": 0.320132,
+      "actual": -0.029254
+    },
+    {
+      "signal": 0.557756,
+      "actual": -0.01838
+    },
+    {
+      "signal": 0.688119,
+      "actual": -0.015873
+    },
+    {
+      "signal": 0.306931,
+      "actual": 0.056933
+    },
+    {
+      "signal": 0.367987,
+      "actual": -0.026731
+    },
+    {
+      "signal": 0.273927,
+      "actual": -0.073849
+    },
+    {
+      "signal": 0.767327,
+      "actual": -0.002714
+    },
+    {
+      "signal": 0.294702,
+      "actual": 0.06383
+    },
+    {
+      "signal": 0.139073,
+      "actual": 0.082051
+    },
+    {
+      "signal": 0.278146,
+      "actual": 0.001032
+    },
+    {
+      "signal": 0.31457,
+      "actual": 0.159757
+    },
+    {
+      "signal": 0.819536,
+      "actual": -0.044118
+    },
+    {
+      "signal": 0.056291,
+      "actual": 0.016
+    },
+    {
+      "signal": 0.187086,
+      "actual": 0.055154
+    },
+    {
+      "signal": 0.327815,
+      "actual": -0.030568
+    },
+    {
+      "signal": 0.950331,
+      "actual": 0.017317
+    },
+    {
+      "signal": 0.311258,
+      "actual": -0.071938
+    },
+    {
+      "signal": 0.653465,
+      "actual": 0.037889
+    },
+    {
+      "signal": 0.145215,
+      "actual": -0.022427
+    },
+    {
+      "signal": 0.711221,
+      "actual": 0.065792
+    },
+    {
+      "signal": 0.188742,
+      "actual": 0.026168
+    },
+    {
+      "signal": 0.465232,
+      "actual": 0.030728
+    },
+    {
+      "signal": 0.013278,
+      "actual": -0.131761
+    },
+    {
+      "signal": 0.309603,
+      "actual": 0.015877
+    },
+    {
+      "signal": 0.917219,
+      "actual": -0.112701
+    },
+    {
+      "signal": 0.092715,
+      "actual": -0.838755
+    },
+    {
+      "signal": 0.971854,
+      "actual": 0.250263
+    },
+    {
+      "signal": 0.781457,
+      "actual": -0.023355
+    },
+    {
+      "signal": 0.556291,
+      "actual": 0.052455
+    },
+    {
+      "signal": 0.380795,
+      "actual": -0.037037
+    },
+    {
+      "signal": 0.228477,
+      "actual": 0.021801
+    },
+    {
+      "signal": 0.988456,
+      "actual": 0.014575
+    },
+    {
+      "signal": 0.758389,
+      "actual": 0.216216
+    },
+    {
+      "signal": 0.41443,
+      "actual": 0.03736
+    },
+    {
+      "signal": 0.699664,
+      "actual": -0.018142
+    },
+    {
+      "signal": 0.026846,
+      "actual": -0.087248
+    },
+    {
+      "signal": 0.285235,
+      "actual": -0.010547
+    },
+    {
+      "signal": 0.640728,
+      "actual": 0.014039
+    },
+    {
+      "signal": 0.192053,
+      "actual": 0.505376
+    },
+    {
+      "signal": 0.836093,
+      "actual": -0.052014
+    },
+    {
+      "signal": 0.145695,
+      "actual": 0.005411
+    },
+    {
+      "signal": 0.102649,
+      "actual": 0.048011
+    },
+    {
+      "signal": 0.503311,
+      "actual": 0.029254
+    },
+    {
+      "signal": 0.059801,
+      "actual": 0.162393
+    },
+    {
+      "signal": 0.421927,
+      "actual": 6.4e-05
+    },
+    {
+      "signal": 0.767442,
+      "actual": -0.03471
+    },
+    {
+      "signal": 0.078073,
+      "actual": -0.013627
+    },
+    {
+      "signal": 0.72093,
+      "actual": 0.111406
+    },
+    {
+      "signal": 0.890365,
+      "actual": 0.024445
+    },
+    {
+      "signal": 0.980066,
+      "actual": 0.008469
+    },
+    {
+      "signal": 0.212625,
+      "actual": 0.035082
+    },
+    {
+      "signal": 0.991672,
+      "actual": 0.040217
+    },
+    {
+      "signal": 0.228477,
+      "actual": -0.04549
+    },
+    {
+      "signal": 0.609272,
+      "actual": 0.083695
+    },
+    {
+      "signal": 0.209571,
+      "actual": 0.017713
+    },
+    {
+      "signal": 0.90099,
+      "actual": 0.053117
+    },
+    {
+      "signal": 0.975248,
+      "actual": 0.032386
+    },
+    {
+      "signal": 0.062706,
+      "actual": -0.153846
+    },
+    {
+      "signal": 0.760726,
+      "actual": 0.019271
+    },
+    {
+      "signal": 0.153465,
+      "actual": -0.059916
+    },
+    {
+      "signal": 0.552805,
+      "actual": -0.058595
+    },
+    {
+      "signal": 0.285479,
+      "actual": 0.02684
+    },
+    {
+      "signal": 0.884488,
+      "actual": 0.056165
+    },
+    {
+      "signal": 0.325083,
+      "actual": 0.011956
+    },
+    {
+      "signal": 0.325083,
+      "actual": 0.054098
+    },
+    {
+      "signal": 0.167213,
+      "actual": -0.089644
+    },
+    {
+      "signal": 0.593443,
+      "actual": -0.03922
+    },
+    {
+      "signal": 0.305281,
+      "actual": 0.011734
+    },
+    {
+      "signal": 0.207921,
+      "actual": 0.032026
+    },
+    {
+      "signal": 0.577558,
+      "actual": 0.401639
+    },
+    {
+      "signal": 0.013267,
+      "actual": -0.25783
+    },
+    {
+      "signal": 0.359736,
+      "actual": -0.089773
+    },
+    {
+      "signal": 0.346535,
+      "actual": -0.007067
+    },
+    {
+      "signal": 0.356436,
+      "actual": -0.165447
+    },
+    {
+      "signal": 0.623762,
+      "actual": -0.046296
+    },
+    {
+      "signal": 0.551155,
+      "actual": -0.020668
+    },
+    {
+      "signal": 0.273927,
+      "actual": -0.054622
+    },
+    {
+      "signal": 0.731023,
+      "actual": 0.033049
+    },
+    {
+      "signal": 0.811881,
+      "actual": 0.133546
+    },
+    {
+      "signal": 0.313531,
+      "actual": -0.007878
+    },
+    {
+      "signal": 0.14918,
+      "actual": -0.039634
+    },
+    {
+      "signal": 0.613115,
+      "actual": 0.139159
+    },
+    {
+      "signal": 0.770492,
+      "actual": 0.04849
+    },
+    {
+      "signal": 0.667213,
+      "actual": -0.055438
+    },
+    {
+      "signal": 0.970395,
+      "actual": -0.10221
+    },
+    {
+      "signal": 0.881579,
+      "actual": -0.041864
+    },
+    {
+      "signal": 0.898026,
+      "actual": 0.070362
+    },
+    {
+      "signal": 0.684211,
+      "actual": 0.10509
+    },
+    {
+      "signal": 0.355263,
+      "actual": -0.043428
+    },
+    {
+      "signal": 0.847039,
+      "actual": 0.032768
+    },
+    {
+      "signal": 0.639535,
+      "actual": 0.109032
+    },
+    {
+      "signal": 0.269103,
+      "actual": -0.041353
+    },
+    {
+      "signal": 0.631757,
+      "actual": -0.023542
+    },
+    {
+      "signal": 0.248311,
+      "actual": 0.112006
+    },
+    {
+      "signal": 0.253378,
+      "actual": -0.045887
+    },
+    {
+      "signal": 0.314189,
+      "actual": 0.044873
+    },
+    {
+      "signal": 0.432203,
+      "actual": -0.043323
+    },
+    {
+      "signal": 0.230508,
+      "actual": 0.029491
+    },
+    {
+      "signal": 0.571186,
+      "actual": -0.005498
+    },
+    {
+      "signal": 0.057432,
+      "actual": 0.255744
+    },
+    {
+      "signal": 0.540541,
+      "actual": -0.053044
+    },
+    {
+      "signal": 0.587838,
+      "actual": -0.047606
+    },
+    {
+      "signal": 0.552365,
+      "actual": 0.012981
+    },
+    {
+      "signal": 0.131757,
+      "actual": 0.104072
+    },
+    {
+      "signal": 0.020202,
+      "actual": 0.070175
+    },
+    {
+      "signal": 0.40404,
+      "actual": -0.0532
+    },
+    {
+      "signal": 0.767677,
+      "actual": -0.058738
+    },
+    {
+      "signal": 0.636364,
+      "actual": -0.022099
+    },
+    {
+      "signal": 0.10101,
+      "actual": 0.050289
+    },
+    {
+      "signal": 0.686869,
+      "actual": -0.142857
+    },
+    {
+      "signal": 0.767677,
+      "actual": -0.127947
+    },
+    {
+      "signal": 0.786195,
+      "actual": -0.044642
+    },
+    {
+      "signal": 0.1633,
+      "actual": 0.121451
+    },
+    {
+      "signal": 0.957912,
+      "actual": -0.040689
+    },
+    {
+      "signal": 0.281879,
+      "actual": -0.071221
+    },
+    {
+      "signal": 0.662752,
+      "actual": 0.043466
+    },
+    {
+      "signal": 0.379195,
+      "actual": 0.069058
+    },
+    {
+      "signal": 0.662752,
+      "actual": -0.014931
+    },
+    {
+      "signal": 0.281879,
+      "actual": 0.021557
+    },
+    {
+      "signal": 0.04698,
+      "actual": 0.152174
+    },
+    {
+      "signal": 0.285235,
+      "actual": 0.182499
+    },
+    {
+      "signal": 0.67953,
+      "actual": -0.012992
+    },
+    {
+      "signal": 0.350671,
+      "actual": -0.04998
+    },
+    {
+      "signal": 0.911074,
+      "actual": -0.12763
+    },
+    {
+      "signal": 0.157718,
+      "actual": 0.119493
+    },
+    {
+      "signal": 0.072148,
+      "actual": 0.152682
+    },
+    {
+      "signal": 0.989933,
+      "actual": 0.007207
+    },
+    {
+      "signal": 0.33557,
+      "actual": 0.242604
+    },
+    {
+      "signal": 0.689597,
+      "actual": 0.007842
+    },
+    {
+      "signal": 0.911074,
+      "actual": -0.0235
+    },
+    {
+      "signal": 0.268456,
+      "actual": 0.018758
+    },
+    {
+      "signal": 0.026846,
+      "actual": -0.009217
+    },
+    {
+      "signal": 0.251678,
+      "actual": 0.129622
+    },
+    {
+      "signal": 0.986577,
+      "actual": -0.255116
+    },
+    {
+      "signal": 0.689597,
+      "actual": 0.100503
+    },
+    {
+      "signal": 0.689597,
+      "actual": 0.066504
+    },
+    {
+      "signal": 0.919463,
+      "actual": -0.03591
+    },
+    {
+      "signal": 0.989933,
+      "actual": -0.013408
+    },
+    {
+      "signal": 0.692953,
+      "actual": 0.013675
+    },
+    {
+      "signal": 0.191275,
+      "actual": -0.051586
+    },
+    {
+      "signal": 0.088926,
+      "actual": 0.267729
+    },
+    {
+      "signal": 0.692953,
+      "actual": 0.19794
+    },
+    {
+      "signal": 0.267677,
+      "actual": -0.012027
+    },
+    {
+      "signal": 0.469697,
+      "actual": -0.031128
+    },
+    {
+      "signal": 0.914141,
+      "actual": -0.103854
+    },
+    {
+      "signal": 0.116162,
+      "actual": -0.0297
+    },
+    {
+      "signal": 0.560606,
+      "actual": -0.119048
+    },
+    {
+      "signal": 0.914141,
+      "actual": -0.007509
+    },
+    {
+      "signal": 0.43771,
+      "actual": -0.097959
+    },
+    {
+      "signal": 0.420875,
+      "actual": -0.011858
+    },
+    {
+      "signal": 0.920875,
+      "actual": -0.145763
+    },
+    {
+      "signal": 0.278716,
+      "actual": 0.023891
+    },
+    {
+      "signal": 0.685811,
+      "actual": -0.064511
+    },
+    {
+      "signal": 0.685811,
+      "actual": -0.051047
+    },
+    {
+      "signal": 0.435811,
+      "actual": -0.029819
+    },
+    {
+      "signal": 0.912162,
+      "actual": 0.052
+    },
+    {
+      "signal": 0.265203,
+      "actual": 0.053613
+    },
+    {
+      "signal": 0.912162,
+      "actual": 0.033019
+    },
+    {
+      "signal": 0.064407,
+      "actual": -0.14958
+    },
+    {
+      "signal": 0.101695,
+      "actual": -0.091453
+    },
+    {
+      "signal": 0.094915,
+      "actual": -0.328255
+    },
+    {
+      "signal": 0.69661,
+      "actual": 0.193004
+    },
+    {
+      "signal": 0.69661,
+      "actual": -0.074677
+    },
+    {
+      "signal": 0.69661,
+      "actual": -0.098737
+    },
+    {
+      "signal": 0.911864,
+      "actual": 0.042631
+    },
+    {
+      "signal": 0.583051,
+      "actual": 0.232911
+    },
+    {
+      "signal": 0.454237,
+      "actual": 0.087406
+    },
+    {
+      "signal": 0.990034,
+      "actual": -0.079813
+    },
+    {
+      "signal": 0.437288,
+      "actual": -0.02935
+    },
+    {
+      "signal": 0.188136,
+      "actual": 0.095928
+    },
+    {
+      "signal": 0.427119,
+      "actual": -0.088769
+    },
+    {
+      "signal": 0.427119,
+      "actual": 0.006841
+    },
+    {
+      "signal": 0.90339,
+      "actual": 0.120833
+    },
+    {
+      "signal": 0.70339,
+      "actual": -0.0586
+    },
+    {
+      "signal": 0.018644,
+      "actual": 0.229323
+    },
+    {
+      "signal": 0.700935,
+      "actual": -0.110605
+    },
+    {
+      "signal": 0.37372,
+      "actual": 0.021442
+    },
+    {
+      "signal": 0.05802,
+      "actual": 0.106944
+    },
+    {
+      "signal": 0.090444,
+      "actual": -0.121976
+    },
+    {
+      "signal": 0.808874,
+      "actual": 0.180078
+    },
+    {
+      "signal": 0.663823,
+      "actual": 0.019228
+    },
+    {
+      "signal": 0.494881,
+      "actual": -0.00885
+    },
+    {
+      "signal": 0.083333,
+      "actual": 0.14981
+    },
+    {
+      "signal": 0.908163,
+      "actual": 0.008409
+    },
+    {
+      "signal": 0.137755,
+      "actual": 0.043825
+    },
+    {
+      "signal": 0.061224,
+      "actual": 0.009512
+    },
+    {
+      "signal": 0.673469,
+      "actual": -0.082962
+    },
+    {
+      "signal": 0.906463,
+      "actual": -0.008484
+    },
+    {
+      "signal": 0.243197,
+      "actual": 0.045349
+    },
+    {
+      "signal": 0.370748,
+      "actual": 0.093051
+    },
+    {
+      "signal": 0.384354,
+      "actual": 0.027746
+    },
+    {
+      "signal": 0.181973,
+      "actual": -0.034275
+    },
+    {
+      "signal": 0.37372,
+      "actual": 0.033845
+    },
+    {
+      "signal": 0.990034,
+      "actual": -0.014196
+    },
+    {
+      "signal": 0.505119,
+      "actual": -0.022889
+    },
+    {
+      "signal": 0.474403,
+      "actual": 0.053925
+    },
+    {
+      "signal": 0.464164,
+      "actual": -0.042497
+    },
+    {
+      "signal": 0.552901,
+      "actual": -0.131098
+    },
+    {
+      "signal": 0.670648,
+      "actual": 0.168767
+    },
+    {
+      "signal": 0.784983,
+      "actual": -0.05914
+    },
+    {
+      "signal": 0.81058,
+      "actual": 0.053127
+    },
+    {
+      "signal": 0.253425,
+      "actual": -0.05361
+    },
+    {
+      "signal": 0.077055,
+      "actual": 0.052738
+    },
+    {
+      "signal": 0.556507,
+      "actual": 0.038511
+    },
+    {
+      "signal": 0.486301,
+      "actual": 0.066011
+    },
+    {
+      "signal": 0.518836,
+      "actual": -0.003436
+    },
+    {
+      "signal": 0.902397,
+      "actual": 0.018669
+    },
+    {
+      "signal": 0.479452,
+      "actual": 0.206421
+    },
+    {
+      "signal": 0.421233,
+      "actual": 0.10307
+    },
+    {
+      "signal": 0.902397,
+      "actual": -0.070196
+    },
+    {
+      "signal": 0.457192,
+      "actual": 0.115486
+    },
+    {
+      "signal": 0.130137,
+      "actual": -0.035848
+    },
+    {
+      "signal": 0.106164,
+      "actual": -0.065606
+    },
+    {
+      "signal": 0.142123,
+      "actual": -0.025621
+    },
+    {
+      "signal": 0.67637,
+      "actual": -0.02768
+    },
+    {
+      "signal": 0.67637,
+      "actual": 0.024339
+    },
+    {
+      "signal": 0.261986,
+      "actual": 0.016469
+    },
+    {
+      "signal": 0.188356,
+      "actual": -0.067797
+    },
+    {
+      "signal": 0.188356,
+      "actual": -0.004834
+    },
+    {
+      "signal": 0.678082,
+      "actual": -0.116359
+    },
+    {
+      "signal": 0.363014,
+      "actual": 0.106226
+    },
+    {
+      "signal": 0.921233,
+      "actual": -0.055491
+    },
+    {
+      "signal": 0.125,
+      "actual": -0.028373
+    },
+    {
+      "signal": 0.065068,
+      "actual": 0.106128
+    },
+    {
+      "signal": 0.058219,
+      "actual": 0.126791
+    },
+    {
+      "signal": 0.018836,
+      "actual": -0.066511
+    },
+    {
+      "signal": 0.083904,
+      "actual": 0.099645
+    },
+    {
+      "signal": 0.464164,
+      "actual": 0.011005
+    },
+    {
+      "signal": 0.909556,
+      "actual": 0.081986
+    },
+    {
+      "signal": 0.697952,
+      "actual": 0.062542
+    },
+    {
+      "signal": 0.697952,
+      "actual": 0.061907
+    },
+    {
+      "signal": 0.257679,
+      "actual": -0.004232
+    },
+    {
+      "signal": 0.319113,
+      "actual": -0.054889
+    },
+    {
+      "signal": 0.909556,
+      "actual": -0.163818
+    },
+    {
+      "signal": 0.438567,
+      "actual": 0.183267
+    },
+    {
+      "signal": 0.457338,
+      "actual": 0.083969
+    },
+    {
+      "signal": 0.706485,
+      "actual": -0.028006
+    },
+    {
+      "signal": 0.706485,
+      "actual": -0.068139
+    },
+    {
+      "signal": 0.706485,
+      "actual": -0.009674
+    },
+    {
+      "signal": 0.691126,
+      "actual": -0.089863
+    },
+    {
+      "signal": 0.691126,
+      "actual": 0.022659
+    },
+    {
+      "signal": 0.479522,
+      "actual": 0.301731
+    },
+    {
+      "signal": 0.540816,
+      "actual": -0.102687
+    },
+    {
+      "signal": 0.411565,
+      "actual": -0.016941
+    },
+    {
+      "signal": 0.916667,
+      "actual": 0.077058
+    },
+    {
+      "signal": 0.243197,
+      "actual": 0.047957
+    },
+    {
+      "signal": 0.511905,
+      "actual": 0.005301
+    },
+    {
+      "signal": 0.69898,
+      "actual": -0.032396
+    },
+    {
+      "signal": 0.348639,
+      "actual": 0.000346
+    },
+    {
+      "signal": 0.69898,
+      "actual": -0.053129
+    },
+    {
+      "signal": 0.438776,
+      "actual": -0.100346
+    },
+    {
+      "signal": 0.914966,
+      "actual": -0.027653
+    },
+    {
+      "signal": 0.460884,
+      "actual": -0.014233
+    },
+    {
+      "signal": 0.3625,
+      "actual": 1.747748
+    },
+    {
+      "signal": 0.518707,
+      "actual": -0.047942
+    },
+    {
+      "signal": 0.673469,
+      "actual": -0.024467
+    },
+    {
+      "signal": 0.465986,
+      "actual": -0.080549
+    },
+    {
+      "signal": 0.913559,
+      "actual": 0.017598
+    },
+    {
+      "signal": 0.913559,
+      "actual": 0.008793
+    },
+    {
+      "signal": 0.013356,
+      "actual": -0.099072
+    },
+    {
+      "signal": 0.913559,
+      "actual": -0.071937
+    },
+    {
+      "signal": 0.538983,
+      "actual": 0.015871
+    },
+    {
+      "signal": 0.664407,
+      "actual": -0.055453
+    },
+    {
+      "signal": 0.083333,
+      "actual": -0.110448
+    },
+    {
+      "signal": 0.668367,
+      "actual": 0.023846
+    },
+    {
+      "signal": 0.916667,
+      "actual": 0.181311
+    },
+    {
+      "signal": 0.287415,
+      "actual": 0.029115
+    },
+    {
+      "signal": 0.236395,
+      "actual": 0.024329
+    },
+    {
+      "signal": 0.911565,
+      "actual": 0.047045
+    },
+    {
+      "signal": 0.088435,
+      "actual": -0.191601
+    },
+    {
+      "signal": 0.027211,
+      "actual": 0.023747
+    },
+    {
+      "signal": 0.173469,
+      "actual": 0.002262
+    },
+    {
+      "signal": 0.352041,
+      "actual": -0.020408
+    },
+    {
+      "signal": 0.909864,
+      "actual": 0.003462
+    },
+    {
+      "signal": 0.353741,
+      "actual": 0.000816
+    },
+    {
+      "signal": 0.333333,
+      "actual": -0.028169
+    },
+    {
+      "signal": 0.668367,
+      "actual": 0.004591
+    },
+    {
+      "signal": 0.75,
+      "actual": 0.012712
+    },
+    {
+      "signal": 0.89527,
+      "actual": -0.006388
+    },
+    {
+      "signal": 0.233108,
+      "actual": 0.025139
+    },
+    {
+      "signal": 0.972973,
+      "actual": -0.015424
+    },
+    {
+      "signal": 0.636824,
+      "actual": -0.03999
+    },
+    {
+      "signal": 0.425676,
+      "actual": 0.024533
+    },
+    {
+      "signal": 0.452703,
+      "actual": 0.060765
+    },
+    {
+      "signal": 0.072635,
+      "actual": -0.018181
+    },
+    {
+      "signal": 0.242424,
+      "actual": 0.089312
+    },
+    {
+      "signal": 0.350168,
+      "actual": -0.013474
+    },
+    {
+      "signal": 0.909091,
+      "actual": 0.187752
+    },
+    {
+      "signal": 0.242424,
+      "actual": 0.033018
+    },
+    {
+      "signal": 0.649832,
+      "actual": 0.105175
+    },
+    {
+      "signal": 0.094276,
+      "actual": 0.008497
+    },
+    {
+      "signal": 0.644781,
+      "actual": 0.044458
+    },
+    {
+      "signal": 0.077441,
+      "actual": -0.025773
+    },
+    {
+      "signal": 0.190236,
+      "actual": -0.029206
+    },
+    {
+      "signal": 0.047297,
+      "actual": 0.087969
+    },
+    {
+      "signal": 0.643581,
+      "actual": 0.087968
+    },
+    {
+      "signal": 0.640203,
+      "actual": 0.028951
+    },
+    {
+      "signal": 0.467905,
+      "actual": 0.068456
+    },
+    {
+      "signal": 0.048986,
+      "actual": -0.005093
+    },
+    {
+      "signal": 0.232323,
+      "actual": 0.029804
+    },
+    {
+      "signal": 0.363636,
+      "actual": 0.427083
+    },
+    {
+      "signal": 0.292929,
+      "actual": 0.037563
+    },
+    {
+      "signal": 0.383838,
+      "actual": 0.047884
+    },
+    {
+      "signal": 0.656566,
+      "actual": 0.052796
+    },
+    {
+      "signal": 0.306397,
+      "actual": 0.037121
+    },
+    {
+      "signal": 0.902357,
+      "actual": 0.103486
+    },
+    {
+      "signal": 0.902357,
+      "actual": 0.15057
+    },
+    {
+      "signal": 0.03367,
+      "actual": 0.5
+    },
+    {
+      "signal": 0.468013,
+      "actual": 0.241758
+    },
+    {
+      "signal": 0.013468,
+      "actual": 0.062235
+    },
+    {
+      "signal": 0.664983,
+      "actual": -0.095541
+    },
+    {
+      "signal": 0.912458,
+      "actual": 0.003503
+    },
+    {
+      "signal": 0.826599,
+      "actual": 0.184186
+    },
+    {
+      "signal": 0.072391,
+      "actual": -0.191474
+    },
+    {
+      "signal": 0.664983,
+      "actual": -0.003901
+    },
+    {
+      "signal": 0.212121,
+      "actual": -0.014242
+    },
+    {
+      "signal": 0.838384,
+      "actual": -0.002269
+    },
+    {
+      "signal": 0.367797,
+      "actual": 0.082622
+    },
+    {
+      "signal": 0.513559,
+      "actual": 0.017065
+    },
+    {
+      "signal": 0.279661,
+      "actual": -0.021306
+    },
+    {
+      "signal": 0.071186,
+      "actual": 0.097385
+    },
+    {
+      "signal": 0.250847,
+      "actual": 0.039435
+    },
+    {
+      "signal": 0.915254,
+      "actual": -0.036494
+    },
+    {
+      "signal": 0.913146,
+      "actual": 0.199661
+    },
+    {
+      "signal": 0.535211,
+      "actual": 0.056552
+    },
+    {
+      "signal": 0.795775,
+      "actual": 0.034233
+    },
+    {
+      "signal": 0.286385,
+      "actual": 0.018797
+    },
+    {
+      "signal": 0.049296,
+      "actual": 0.345426
+    },
+    {
+      "signal": 0.683099,
+      "actual": 0.07296
+    },
+    {
+      "signal": 0.406143,
+      "actual": 0.195122
+    },
+    {
+      "signal": 0.168942,
+      "actual": 0.017585
+    },
+    {
+      "signal": 0.496587,
+      "actual": 0.036868
+    },
+    {
+      "signal": 0.90273,
+      "actual": -0.023857
+    },
+    {
+      "signal": 0.257679,
+      "actual": 0.060778
+    },
+    {
+      "signal": 0.257679,
+      "actual": 0.065193
+    },
+    {
+      "signal": 0.131399,
+      "actual": 0.031983
+    },
+    {
+      "signal": 0.496587,
+      "actual": -0.1904
+    },
+    {
+      "signal": 0.349829,
+      "actual": 0.062392
+    },
+    {
+      "signal": 0.892491,
+      "actual": 0.078398
+    },
+    {
+      "signal": 0.331058,
+      "actual": -0.056148
+    },
+    {
+      "signal": 0.668942,
+      "actual": 0.198443
+    },
+    {
+      "signal": 0.899317,
+      "actual": 0.097015
+    },
+    {
+      "signal": 0.824232,
+      "actual": 0.165552
+    },
+    {
+      "signal": 0.027304,
+      "actual": 0.372549
+    },
+    {
+      "signal": 0.899317,
+      "actual": -0.02183
+    },
+    {
+      "signal": 0.390785,
+      "actual": -0.015917
+    },
+    {
+      "signal": 0.168367,
+      "actual": 0.155613
+    },
+    {
+      "signal": 0.671769,
+      "actual": -0.098931
+    },
+    {
+      "signal": 0.168367,
+      "actual": 0.087754
+    },
+    {
+      "signal": 0.671769,
+      "actual": -0.060377
+    },
+    {
+      "signal": 0.909864,
+      "actual": -0.177375
+    },
+    {
+      "signal": 0.54932,
+      "actual": -0.247493
+    },
+    {
+      "signal": 0.909864,
+      "actual": -0.057591
+    },
+    {
+      "signal": 0.671769,
+      "actual": -0.094537
+    },
+    {
+      "signal": 0.671769,
+      "actual": 0.128475
+    },
+    {
+      "signal": 0.897959,
+      "actual": -0.067617
+    },
+    {
+      "signal": 0.661565,
+      "actual": -0.19327
+    },
+    {
+      "signal": 0.897959,
+      "actual": 0.095894
+    },
+    {
+      "signal": 0.121212,
+      "actual": -0.19878
+    },
+    {
+      "signal": 0.838384,
+      "actual": 0.004301
+    },
+    {
+      "signal": 0.1633,
+      "actual": -0.058065
+    },
+    {
+      "signal": 0.875421,
+      "actual": -0.036796
+    },
+    {
+      "signal": 0.804714,
+      "actual": -0.052916
+    },
+    {
+      "signal": 0.718855,
+      "actual": 0.001636
+    },
+    {
+      "signal": 0.572391,
+      "actual": -0.247066
+    },
+    {
+      "signal": 0.436242,
+      "actual": -0.024764
+    },
+    {
+      "signal": 0.912752,
+      "actual": -0.03948
+    },
+    {
+      "signal": 0.258389,
+      "actual": -0.052632
+    },
+    {
+      "signal": 0.543624,
+      "actual": -0.172894
+    },
+    {
+      "signal": 0.916107,
+      "actual": 0.024103
+    },
+    {
+      "signal": 0.307047,
+      "actual": -0.139734
+    },
+    {
+      "signal": 0.619128,
+      "actual": -0.014851
+    },
+    {
+      "signal": 0.530201,
+      "actual": 0.020946
+    },
+    {
+      "signal": 0.153846,
+      "actual": -0.128663
+    },
+    {
+      "signal": 0.727425,
+      "actual": -0.106439
+    },
+    {
+      "signal": 0.81,
+      "actual": -0.136703
+    },
+    {
+      "signal": 0.935,
+      "actual": 0.011764
+    },
+    {
+      "signal": 0.726667,
+      "actual": -0.014901
+    },
+    {
+      "signal": 0.678333,
+      "actual": 0.061192
+    },
+    {
+      "signal": 0.673333,
+      "actual": 0.141366
+    },
+    {
+      "signal": 0.919732,
+      "actual": -0.057144
+    },
+    {
+      "signal": 0.548495,
+      "actual": -0.058347
+    },
+    {
+      "signal": 0.787625,
+      "actual": -0.064748
+    },
+    {
+      "signal": 0.220657,
+      "actual": -0.232923
+    },
+    {
+      "signal": 0.516432,
+      "actual": -0.136043
+    },
+    {
+      "signal": 0.784038,
+      "actual": -0.078333
+    },
+    {
+      "signal": 0.751174,
+      "actual": -0.016218
+    },
+    {
+      "signal": 0.924883,
+      "actual": -0.097485
+    },
+    {
+      "signal": 0.248826,
+      "actual": -0.127097
+    },
+    {
+      "signal": 0.962441,
+      "actual": -0.067023
+    },
+    {
+      "signal": 0.020134,
+      "actual": -0.004792
+    },
+    {
+      "signal": 0.988406,
+      "actual": 0.057634
+    },
+    {
+      "signal": 0.466443,
+      "actual": -0.074749
+    },
+    {
+      "signal": 0.171141,
+      "actual": -0.096774
+    },
+    {
+      "signal": 0.552013,
+      "actual": -0.007289
+    },
+    {
+      "signal": 0.717172,
+      "actual": -0.083612
+    },
+    {
+      "signal": 0.441077,
+      "actual": 0.072425
+    },
+    {
+      "signal": 0.185185,
+      "actual": -0.16609
+    },
+    {
+      "signal": 0.872054,
+      "actual": -0.054625
+    },
+    {
+      "signal": 0.082492,
+      "actual": 0.257175
+    },
+    {
+      "signal": 0.338384,
+      "actual": -0.078894
+    },
+    {
+      "signal": 0.175084,
+      "actual": -0.120227
+    },
+    {
+      "signal": 0.167785,
+      "actual": -0.022569
+    },
+    {
+      "signal": 0.939597,
+      "actual": -0.030492
+    },
+    {
+      "signal": 0.597315,
+      "actual": 0.052071
+    },
+    {
+      "signal": 0.676174,
+      "actual": -0.140988
+    },
+    {
+      "signal": 0.701342,
+      "actual": -0.171329
+    },
+    {
+      "signal": 0.695652,
+      "actual": -0.13018
+    },
+    {
+      "signal": 0.32107,
+      "actual": 0.000968
+    },
+    {
+      "signal": 0.565217,
+      "actual": -0.252789
+    },
+    {
+      "signal": 0.204013,
+      "actual": -0.068377
+    },
+    {
+      "signal": 0.602007,
+      "actual": -0.133714
+    },
+    {
+      "signal": 0.14214,
+      "actual": -0.170735
+    },
+    {
+      "signal": 0.026756,
+      "actual": 0.024194
+    },
+    {
+      "signal": 0.22408,
+      "actual": -0.083871
+    },
+    {
+      "signal": 0.013378,
+      "actual": -0.247619
+    },
+    {
+      "signal": 0.779264,
+      "actual": -0.111936
+    },
+    {
+      "signal": 0.177258,
+      "actual": -0.153355
+    },
+    {
+      "signal": 0.386288,
+      "actual": -0.150294
+    },
+    {
+      "signal": 0.023411,
+      "actual": 0.383085
+    },
+    {
+      "signal": 0.922819,
+      "actual": 0.033898
+    },
+    {
+      "signal": 0.979866,
+      "actual": -0.029201
+    },
+    {
+      "signal": 0.137584,
+      "actual": -0.067114
+    },
+    {
+      "signal": 0.795302,
+      "actual": -0.001501
+    },
+    {
+      "signal": 0.951342,
+      "actual": -0.090139
+    },
+    {
+      "signal": 0.735786,
+      "actual": -0.089669
+    },
+    {
+      "signal": 0.339465,
+      "actual": -0.139495
+    },
+    {
+      "signal": 0.986756,
+      "actual": 0.062684
+    },
+    {
+      "signal": 0.463211,
+      "actual": -0.096964
+    },
+    {
+      "signal": 0.635452,
+      "actual": -0.040525
+    },
+    {
+      "signal": 0.518395,
+      "actual": 0.144654
+    },
+    {
+      "signal": 0.531773,
+      "actual": 0.115944
+    },
+    {
+      "signal": 0.287625,
+      "actual": -0.110236
+    },
+    {
+      "signal": 0.59699,
+      "actual": -0.05755
+    },
+    {
+      "signal": 0.258389,
+      "actual": -0.010342
+    },
+    {
+      "signal": 0.59396,
+      "actual": -0.022754
+    },
+    {
+      "signal": 0.832215,
+      "actual": 0.173704
+    },
+    {
+      "signal": 0.97651,
+      "actual": 0.091057
+    },
+    {
+      "signal": 0.557047,
+      "actual": 0.024866
+    },
+    {
+      "signal": 0.231544,
+      "actual": -0.01765
+    },
+    {
+      "signal": 0.363636,
+      "actual": -0.018565
+    },
+    {
+      "signal": 0.659933,
+      "actual": -0.099068
+    },
+    {
+      "signal": 0.06734,
+      "actual": 0.006536
+    },
+    {
+      "signal": 0.047138,
+      "actual": -0.016383
+    },
+    {
+      "signal": 0.818182,
+      "actual": 0.179399
+    },
+    {
+      "signal": 0.744108,
+      "actual": 0.038397
+    },
+    {
+      "signal": 0.946128,
+      "actual": -0.059503
+    },
+    {
+      "signal": 0.956229,
+      "actual": -0.069408
+    },
+    {
+      "signal": 0.181818,
+      "actual": 0.030101
+    },
+    {
+      "signal": 0.225589,
+      "actual": -0.070828
+    },
+    {
+      "signal": 0.267677,
+      "actual": -0.082051
+    },
+    {
+      "signal": 0.584175,
+      "actual": -0.010101
+    },
+    {
+      "signal": 0.203704,
+      "actual": 0.058361
+    },
+    {
+      "signal": 0.818182,
+      "actual": -0.11991
+    },
+    {
+      "signal": 0.063973,
+      "actual": 0.303547
+    },
+    {
+      "signal": 0.760943,
+      "actual": 0.144866
+    },
+    {
+      "signal": 0.947811,
+      "actual": 0.108209
+    },
+    {
+      "signal": 0.082492,
+      "actual": -0.03753
+    },
+    {
+      "signal": 0.616162,
+      "actual": 0.000686
+    },
+    {
+      "signal": 0.171717,
+      "actual": 0.102908
+    },
+    {
+      "signal": 0.558923,
+      "actual": 0.020324
+    },
+    {
+      "signal": 0.474747,
+      "actual": -0.109563
+    },
+    {
+      "signal": 0.555556,
+      "actual": 0.09919
+    },
+    {
+      "signal": 0.850168,
+      "actual": 0.140229
+    },
+    {
+      "signal": 0.6633,
+      "actual": 0.167006
+    },
+    {
+      "signal": 0.245791,
+      "actual": -0.03666
+    },
+    {
+      "signal": 0.703704,
+      "actual": 0.068351
+    },
+    {
+      "signal": 0.020202,
+      "actual": -0.187234
+    },
+    {
+      "signal": 0.087542,
+      "actual": -0.06089
+    },
+    {
+      "signal": 0.703704,
+      "actual": 0.016971
+    },
+    {
+      "signal": 0.461279,
+      "actual": 0.049496
+    },
+    {
+      "signal": 0.922559,
+      "actual": 0.010006
+    },
+    {
+      "signal": 0.153199,
+      "actual": 0.012604
+    },
+    {
+      "signal": 0.47138,
+      "actual": 0.092836
+    },
+    {
+      "signal": 0.811448,
+      "actual": 0.203701
+    },
+    {
+      "signal": 0.281879,
+      "actual": 0.042842
+    },
+    {
+      "signal": 0.832215,
+      "actual": 0.249403
+    },
+    {
+      "signal": 0.013378,
+      "actual": 0.105212
+    },
+    {
+      "signal": 0.819398,
+      "actual": 0.105726
+    },
+    {
+      "signal": 0.551839,
+      "actual": 0.043572
+    },
+    {
+      "signal": 0.046823,
+      "actual": -0.052941
+    },
+    {
+      "signal": 0.990033,
+      "actual": 0.413053
+    },
+    {
+      "signal": 0.901338,
+      "actual": 0.044347
+    },
+    {
+      "signal": 0.95,
+      "actual": 0.118107
+    },
+    {
+      "signal": 0.201667,
+      "actual": 0.0
+    },
+    {
+      "signal": 0.406667,
+      "actual": 0.026315
+    },
+    {
+      "signal": 0.218333,
+      "actual": -0.116883
+    },
+    {
+      "signal": 0.20598,
+      "actual": -0.040816
+    },
+    {
+      "signal": 0.016611,
+      "actual": 0.018519
+    },
+    {
+      "signal": 0.129568,
+      "actual": 0.006781
+    },
+    {
+      "signal": 0.73588,
+      "actual": -0.078845
+    },
+    {
+      "signal": 0.847176,
+      "actual": 0.11238
+    },
+    {
+      "signal": 0.023256,
+      "actual": -0.228927
+    },
+    {
+      "signal": 0.789037,
+      "actual": 0.310347
+    },
+    {
+      "signal": 0.782392,
+      "actual": -0.03391
+    },
+    {
+      "signal": 0.496667,
+      "actual": 0.287186
+    },
+    {
+      "signal": 0.721667,
+      "actual": 0.090058
+    },
+    {
+      "signal": 0.990033,
+      "actual": 0.566222
+    },
+    {
+      "signal": 0.18,
+      "actual": -0.104213
+    },
+    {
+      "signal": 0.533333,
+      "actual": 0.001595
+    },
+    {
+      "signal": 0.93,
+      "actual": -0.077103
+    },
+    {
+      "signal": 0.796667,
+      "actual": 0.11474
+    },
+    {
+      "signal": 0.216667,
+      "actual": 0.014526
+    },
+    {
+      "signal": 0.835,
+      "actual": 0.035028
+    },
+    {
+      "signal": 0.702341,
+      "actual": 0.089311
+    },
+    {
+      "signal": 0.309365,
+      "actual": 0.076451
+    },
+    {
+      "signal": 0.076923,
+      "actual": 0.249763
+    },
+    {
+      "signal": 0.354515,
+      "actual": -0.00058
+    },
+    {
+      "signal": 0.494983,
+      "actual": -0.960013
+    },
+    {
+      "signal": 0.62709,
+      "actual": 0.031694
+    },
+    {
+      "signal": 0.424749,
+      "actual": 0.456739
+    },
+    {
+      "signal": 0.782609,
+      "actual": 0.051624
+    },
+    {
+      "signal": 0.327759,
+      "actual": 0.064667
+    },
+    {
+      "signal": 0.076923,
+      "actual": 0.159615
+    },
+    {
+      "signal": 0.598662,
+      "actual": 0.006027
+    },
+    {
+      "signal": 0.351171,
+      "actual": 0.002877
+    },
+    {
+      "signal": 0.541806,
+      "actual": -0.144
+    },
+    {
+      "signal": 0.697987,
+      "actual": -0.035037
+    },
+    {
+      "signal": 0.516779,
+      "actual": -0.12264
+    },
+    {
+      "signal": 0.659396,
+      "actual": -0.087438
+    },
+    {
+      "signal": 0.864094,
+      "actual": 0.09668
+    },
+    {
+      "signal": 0.752358,
+      "actual": -0.033568
+    },
+    {
+      "signal": 0.419811,
+      "actual": -0.048584
+    },
+    {
+      "signal": 0.518868,
+      "actual": 0.051045
+    },
+    {
+      "signal": 0.334906,
+      "actual": 0.014919
+    },
+    {
+      "signal": 0.582547,
+      "actual": 0.318054
+    },
+    {
+      "signal": 0.139151,
+      "actual": -0.036595
+    },
+    {
+      "signal": 0.5,
+      "actual": -0.03381
+    },
+    {
+      "signal": 0.603774,
+      "actual": -0.10206
+    },
+    {
+      "signal": 0.479866,
+      "actual": -0.009583
+    },
+    {
+      "signal": 0.02349,
+      "actual": -0.187545
+    },
+    {
+      "signal": 0.260067,
+      "actual": -0.06068
+    },
+    {
+      "signal": 0.329966,
+      "actual": 0.003573
+    },
+    {
+      "signal": 0.683502,
+      "actual": -0.077192
+    },
+    {
+      "signal": 0.612795,
+      "actual": -0.217133
+    },
+    {
+      "signal": 0.589226,
+      "actual": -0.15518
+    },
+    {
+      "signal": 0.794613,
+      "actual": -0.150225
+    },
+    {
+      "signal": 0.094276,
+      "actual": 0.575311
+    },
+    {
+      "signal": 0.610738,
+      "actual": -0.112663
+    },
+    {
+      "signal": 0.644295,
+      "actual": 0.409679
+    },
+    {
+      "signal": 0.657718,
+      "actual": -0.04039
+    },
+    {
+      "signal": 0.026846,
+      "actual": 0.705426
+    },
+    {
+      "signal": 0.268456,
+      "actual": -0.067542
+    },
+    {
+      "signal": 0.322148,
+      "actual": -0.070881
+    },
+    {
+      "signal": 0.464883,
+      "actual": -0.135675
+    },
+    {
+      "signal": 0.443144,
+      "actual": -0.033514
+    },
+    {
+      "signal": 0.846154,
+      "actual": -0.056419
+    },
+    {
+      "signal": 0.280936,
+      "actual": -0.004673
+    },
+    {
+      "signal": 0.494983,
+      "actual": -0.064742
+    },
+    {
+      "signal": 0.571906,
+      "actual": -0.266462
+    },
+    {
+      "signal": 0.468227,
+      "actual": -0.055391
+    },
+    {
+      "signal": 0.892977,
+      "actual": 0.072481
+    },
+    {
+      "signal": 0.618729,
+      "actual": 0.142857
+    },
+    {
+      "signal": 0.637124,
+      "actual": 0.008174
+    },
+    {
+      "signal": 0.187291,
+      "actual": 0.00514
+    },
+    {
+      "signal": 0.113712,
+      "actual": 0.066482
+    },
+    {
+      "signal": 0.210702,
+      "actual": -0.126489
+    },
+    {
+      "signal": 0.063545,
+      "actual": 0.055925
+    },
+    {
+      "signal": 0.745819,
+      "actual": -0.013619
+    },
+    {
+      "signal": 0.90301,
+      "actual": 0.142057
+    },
+    {
+      "signal": 0.391304,
+      "actual": -0.052957
+    },
+    {
+      "signal": 0.294314,
+      "actual": 0.049614
+    },
+    {
+      "signal": 0.157191,
+      "actual": -0.111828
+    },
+    {
+      "signal": 0.302676,
+      "actual": -0.060131
+    },
+    {
+      "signal": 0.745819,
+      "actual": -0.220049
+    },
+    {
+      "signal": 0.637124,
+      "actual": -0.051913
+    },
+    {
+      "signal": 0.725753,
+      "actual": -0.109691
+    },
+    {
+      "signal": 0.110368,
+      "actual": 0.092655
+    },
+    {
+      "signal": 0.862876,
+      "actual": 0.060703
+    },
+    {
+      "signal": 0.779264,
+      "actual": 0.307656
+    },
+    {
+      "signal": 0.122074,
+      "actual": -0.14997
+    },
+    {
+      "signal": 0.247492,
+      "actual": -0.089881
+    },
+    {
+      "signal": 0.38796,
+      "actual": -0.019506
+    },
+    {
+      "signal": 0.990033,
+      "actual": -0.031946
+    },
+    {
+      "signal": 0.948161,
+      "actual": -0.114412
+    },
+    {
+      "signal": 0.784281,
+      "actual": 0.006926
+    },
+    {
+      "signal": 0.369565,
+      "actual": 0.0249
+    },
+    {
+      "signal": 0.110368,
+      "actual": 0.505921
+    },
+    {
+      "signal": 0.221477,
+      "actual": -0.007552
+    },
+    {
+      "signal": 0.889262,
+      "actual": 0.330093
+    },
+    {
+      "signal": 0.197987,
+      "actual": -0.088769
+    },
+    {
+      "signal": 0.699664,
+      "actual": -0.071077
+    },
+    {
+      "signal": 0.486577,
+      "actual": 0.169563
+    },
+    {
+      "signal": 0.10906,
+      "actual": 0.55601
+    },
+    {
+      "signal": 0.086957,
+      "actual": 0.465839
+    },
+    {
+      "signal": 0.846154,
+      "actual": -0.128012
+    },
+    {
+      "signal": 0.558528,
+      "actual": 0.182409
+    },
+    {
+      "signal": 0.035117,
+      "actual": 0.014839
+    },
+    {
+      "signal": 0.464883,
+      "actual": -0.162319
+    },
+    {
+      "signal": 0.244147,
+      "actual": -0.065868
+    },
+    {
+      "signal": 0.866221,
+      "actual": -0.129369
+    },
+    {
+      "signal": 0.187291,
+      "actual": 0.012251
+    },
+    {
+      "signal": 0.595318,
+      "actual": 0.221918
+    },
+    {
+      "signal": 0.959866,
+      "actual": 0.037779
+    },
+    {
+      "signal": 0.103679,
+      "actual": -0.01931
+    },
+    {
+      "signal": 0.043478,
+      "actual": -0.089727
+    },
+    {
+      "signal": 0.576667,
+      "actual": -0.045699
+    },
+    {
+      "signal": 0.26,
+      "actual": -0.01036
+    },
+    {
+      "signal": 0.806667,
+      "actual": -0.042954
+    },
+    {
+      "signal": 0.592417,
+      "actual": -0.001661
+    },
+    {
+      "signal": 0.618483,
+      "actual": -0.114387
+    },
+    {
+      "signal": 0.521327,
+      "actual": 0.00276
+    },
+    {
+      "signal": 0.943522,
+      "actual": 0.098615
+    },
+    {
+      "signal": 0.681063,
+      "actual": -0.099103
+    },
+    {
+      "signal": 0.920266,
+      "actual": 0.519452
+    },
+    {
+      "signal": 0.637874,
+      "actual": -0.004784
+    }
+  ],
+  "rebal_details": [
+    {
+      "date": "2023-10-31",
+      "n_stocks": 61,
+      "n_universe": 302,
+      "tickers": [
+        "ALGN",
+        "RMD",
+        "TMO",
+        "TXN",
+        "UPS",
+        "MCHP",
+        "CLX",
+        "SWKS",
+        "XOM",
+        "MKC",
+        "CPT",
+        "IDXX",
+        "WAT",
+        "TER",
+        "GPC",
+        "MTD",
+        "LLY",
+        "PG",
+        "PLD",
+        "ADI",
+        "AAPL",
+        "EL",
+        "AVGO",
+        "1839.HK",
+        "ZBRA",
+        "ON",
+        "EXPE",
+        "JNJ",
+        "MDT",
+        "CRL",
+        "NXPI",
+        "JCI",
+        "EW",
+        "HUBB",
+        "DHR",
+        "FCX",
+        "PWR",
+        "GLW",
+        "PEP",
+        "MAA",
+        "WST",
+        "BLDR",
+        "WDAY",
+        "EBAY",
+        "INCY",
+        "0102.HK",
+        "JBL",
+        "CARR",
+        "2232.HK",
+        "FTNT",
+        "ISRG",
+        "ROK",
+        "A",
+        "ADM",
+        "CHD",
+        "MRK",
+        "0906.HK",
+        "NUE",
+        "PPG",
+        "HD",
+        "LOW"
+      ]
+    },
+    {
+      "date": "2023-11-29",
+      "n_stocks": 60,
+      "n_universe": 300,
+      "tickers": [
+        "CSCO",
+        "XOM",
+        "BDX",
+        "DVN",
+        "1381.HK",
+        "COP",
+        "BIIB",
+        "ABBV",
+        "HAL",
+        "SLB",
+        "0011.HK",
+        "CTVA",
+        "GPC",
+        "CF",
+        "JNJ",
+        "NVDA",
+        "DXCM",
+        "APD",
+        "INCY",
+        "MRK",
+        "IT",
+        "HSY",
+        "ON",
+        "1838.HK",
+        "PG",
+        "CTRA",
+        "TRMB",
+        "WSM",
+        "CPT",
+        "STE",
+        "BKR",
+        "FTNT",
+        "BLDR",
+        "EOG",
+        "GILD",
+        "CHRW",
+        "LLY",
+        "ECL",
+        "GNRC",
+        "AKAM",
+        "0010.HK",
+        "EMR",
+        "JBL",
+        "OTIS",
+        "ROK",
+        "PEP",
+        "VRTX",
+        "ODFL",
+        "WST",
+        "1821.HK",
+        "CTAS",
+        "1913.HK",
+        "PWR",
+        "CTSH",
+        "EW",
+        "0087.HK",
+        "EFX",
+        "01821.HK",
+        "AVGO",
+        "REGN"
+      ]
+    },
+    {
+      "date": "2023-12-28",
+      "n_stocks": 60,
+      "n_universe": 298,
+      "tickers": [
+        "1665.HK",
+        "XOM",
+        "PG",
+        "HAL",
+        "NVDA",
+        "4588.KLSE",
+        "ORLY",
+        "3613.HK",
+        "LLY",
+        "NKE",
+        "AZO",
+        "ITW",
+        "ADM",
+        "CTRA",
+        "ADBE",
+        "EOG",
+        "0512.HK",
+        "SLB",
+        "ORCL",
+        "0906.HK",
+        "TTD",
+        "CSCO",
+        "JNJ",
+        "WST",
+        "DD",
+        "PODD",
+        "CAH",
+        "DVN",
+        "VRSN",
+        "HD",
+        "0011.HK",
+        "GPC",
+        "EL",
+        "ANET",
+        "BLDR",
+        "COP",
+        "AVGO",
+        "HSY",
+        "FAST",
+        "MCK",
+        "HOLX",
+        "DASH",
+        "BDX",
+        "0010.HK",
+        "DECK",
+        "UPS",
+        "ALLE",
+        "ALGN",
+        "MDLZ",
+        "TJX",
+        "0087.HK",
+        "SNPS",
+        "ON",
+        "TECH",
+        "IT",
+        "GILD",
+        "MKC",
+        "0551.HK",
+        "EMR",
+        "IDXX"
+      ]
+    },
+    {
+      "date": "2024-02-27",
+      "n_stocks": 59,
+      "n_universe": 292,
+      "tickers": [
+        "AVGO",
+        "BKR",
+        "NEM",
+        "PG",
+        "JNJ",
+        "NKE",
+        "XOM",
+        "CSCO",
+        "EOG",
+        "0668.HK",
+        "APD",
+        "MCHP",
+        "DHI",
+        "AKAM",
+        "COP",
+        "AVB",
+        "MMM",
+        "CPT",
+        "RSG",
+        "DD",
+        "DVN",
+        "KMB",
+        "MRK",
+        "PPG",
+        "TSLA",
+        "MNST",
+        "A",
+        "ROP",
+        "PWR",
+        "1523.HK",
+        "GILD",
+        "ROST",
+        "TER",
+        "BIIB",
+        "MDLZ",
+        "HAL",
+        "TJX",
+        "MAA",
+        "FCX",
+        "WAB",
+        "MSFT",
+        "CHD",
+        "EQIX",
+        "LIN",
+        "HD",
+        "GOOGL",
+        "IDXX",
+        "GEHC",
+        "WM",
+        "LH",
+        "NXPI",
+        "LOW",
+        "LULU",
+        "EXPE",
+        "WSM",
+        "JBL",
+        "OTIS",
+        "WELL",
+        "CPRT"
+      ]
+    },
+    {
+      "date": "2024-03-27",
+      "n_stocks": 60,
+      "n_universe": 299,
+      "tickers": [
+        "AAPL",
+        "NKE",
+        "ADM",
+        "GILD",
+        "WDAY",
+        "ADBE",
+        "ACN",
+        "PANW",
+        "AVGO",
+        "VRSN",
+        "0668.HK",
+        "INCY",
+        "JNJ",
+        "BIIB",
+        "EPAM",
+        "ABT",
+        "JBHT",
+        "LULU",
+        "TEL",
+        "IDXX",
+        "MDT",
+        "GOOGL",
+        "EQIX",
+        "MDLZ",
+        "MNST",
+        "PG",
+        "LLY",
+        "0144.HK",
+        "ADI",
+        "PLD",
+        "MSFT",
+        "VRTX",
+        "PPG",
+        "1645.HK",
+        "RVTY",
+        "AKAM",
+        "XOM",
+        "CTSH",
+        "TSLA",
+        "EXPE",
+        "CSCO",
+        "0021.KLSE",
+        "TYL",
+        "CRM",
+        "ON",
+        "0010.HK",
+        "COP",
+        "CHRW",
+        "MMM",
+        "MCHP",
+        "UNP",
+        "CDW",
+        "NUE",
+        "WELL",
+        "0906.HK",
+        "LIN",
+        "NOW",
+        "UPS",
+        "AVB",
+        "ROP"
+      ]
+    },
+    {
+      "date": "2024-04-25",
+      "n_stocks": 61,
+      "n_universe": 301,
+      "tickers": [
+        "ADBE",
+        "LULU",
+        "ACN",
+        "HD",
+        "PANW",
+        "UBER",
+        "ITW",
+        "ROP",
+        "CSX",
+        "0489.HK",
+        "JNJ",
+        "PLD",
+        "ADSK",
+        "EFX",
+        "EPAM",
+        "TJX",
+        "AVGO",
+        "INCY",
+        "IDXX",
+        "GOOGL",
+        "ROST",
+        "WDAY",
+        "PG",
+        "CRM",
+        "CDNS",
+        "TEL",
+        "0906.HK",
+        "LLY",
+        "COO",
+        "TECH",
+        "MDLZ",
+        "CAH",
+        "MSFT",
+        "CTSH",
+        "MDT",
+        "EQIX",
+        "GILD",
+        "TPR",
+        "WAT",
+        "REGN",
+        "PPG",
+        "BIIB",
+        "ON",
+        "LH",
+        "AMD",
+        "UNP",
+        "0590.HK",
+        "AAPL",
+        "NUE",
+        "HAL",
+        "CARR",
+        "JBHT",
+        "ANET",
+        "SNPS",
+        "CRL",
+        "MNST",
+        "SHW",
+        "JBL",
+        "STE",
+        "XOM",
+        "ORCL"
+      ]
+    },
+    {
+      "date": "2024-06-24",
+      "n_stocks": 61,
+      "n_universe": 305,
+      "tickers": [
+        "MSFT",
+        "ODFL",
+        "ROP",
+        "ITW",
+        "WST",
+        "MNST",
+        "LIN",
+        "NUE",
+        "ABBV",
+        "LOW",
+        "LLY",
+        "IEX",
+        "SLB",
+        "HD",
+        "AAPL",
+        "WY",
+        "ACN",
+        "CAH",
+        "PG",
+        "CRWD",
+        "CSCO",
+        "AKAM",
+        "BBY",
+        "COP",
+        "NDSN",
+        "UNP",
+        "PLD",
+        "DASH",
+        "0906.HK",
+        "JBL",
+        "FAST",
+        "DXCM",
+        "AZO",
+        "COR",
+        "ROST",
+        "TT",
+        "ADSK",
+        "EXPE",
+        "HAL",
+        "ABT",
+        "NSC",
+        "UBER",
+        "FFIV",
+        "EL",
+        "PPG",
+        "CRL",
+        "POOL",
+        "UPS",
+        "GEHC",
+        "TGT",
+        "ORLY",
+        "TEL",
+        "ANET",
+        "CLX",
+        "MAS",
+        "DECK",
+        "LULU",
+        "AMD",
+        "ROK",
+        "CSX",
+        "GOOGL"
+      ]
+    },
+    {
+      "date": "2024-07-23",
+      "n_stocks": 60,
+      "n_universe": 300,
+      "tickers": [
+        "EPAM",
+        "AVGO",
+        "LLY",
+        "WSM",
+        "LIN",
+        "QCOM",
+        "CSCO",
+        "EMR",
+        "CHD",
+        "WM",
+        "DXCM",
+        "WST",
+        "KLAC",
+        "ALGN",
+        "DHI",
+        "GLW",
+        "ODFL",
+        "TT",
+        "JBL",
+        "COP",
+        "ANET",
+        "AKAM",
+        "HOLX",
+        "STX",
+        "IEX",
+        "HAL",
+        "PHM",
+        "BLDR",
+        "XOM",
+        "WDAY",
+        "CF",
+        "FTNT",
+        "0570.HK",
+        "PG",
+        "GEHC",
+        "NUE",
+        "JBHT",
+        "RSG",
+        "DASH",
+        "0982.HK",
+        "PNR",
+        "ULTA",
+        "PKG",
+        "SHW",
+        "IR",
+        "UBER",
+        "UNP",
+        "POOL",
+        "CAH",
+        "ROP",
+        "HUBB",
+        "FCX",
+        "MU",
+        "IT",
+        "NVDA",
+        "GNRC",
+        "DECK",
+        "GPC",
+        "OTIS",
+        "WY"
+      ]
+    },
+    {
+      "date": "2024-08-21",
+      "n_stocks": 60,
+      "n_universe": 299,
+      "tickers": [
+        "LLY",
+        "CHD",
+        "BSX",
+        "GOOGL",
+        "GDDY",
+        "TT",
+        "MDT",
+        "ANET",
+        "HAL",
+        "NTAP",
+        "NUE",
+        "EW",
+        "0906.HK",
+        "PG",
+        "MNST",
+        "UPS",
+        "QCOM",
+        "CTRA",
+        "AAPL",
+        "0982.HK",
+        "0087.HK",
+        "1199.HK",
+        "COP",
+        "TTD",
+        "0004.HK",
+        "FTNT",
+        "SLB",
+        "0207.HK",
+        "207.HK",
+        "IEX",
+        "STLD",
+        "MCHP",
+        "PPG",
+        "RMD",
+        "LULU",
+        "ROL",
+        "FCX",
+        "MRK",
+        "BIIB",
+        "ADI",
+        "POOL",
+        "2273.HK",
+        "CDNS",
+        "HUBB",
+        "2343.HK",
+        "DVN",
+        "XOM",
+        "ECL",
+        "JBL",
+        "GRMN",
+        "CARR",
+        "MAA",
+        "CPT",
+        "2148.HK",
+        "STX",
+        "WDAY",
+        "CLX",
+        "CPRT",
+        "EMR",
+        "AVY"
+      ]
+    },
+    {
+      "date": "2024-10-18",
+      "n_stocks": 61,
+      "n_universe": 301,
+      "tickers": [
+        "GOOGL",
+        "TT",
+        "MRK",
+        "WSM",
+        "GDDY",
+        "BIIB",
+        "MSFT",
+        "DECK",
+        "ANET",
+        "CTRA",
+        "DVN",
+        "NTAP",
+        "CDNS",
+        "AACT.US",
+        "MCK",
+        "MMM",
+        "SNPS",
+        "PHM",
+        "ADBE",
+        "PG",
+        "LLY",
+        "0004.HK",
+        "PEP",
+        "5237.KLSE",
+        "UPS",
+        "2148.HK",
+        "AAPL",
+        "SLB",
+        "RMD",
+        "CEG",
+        "KLAC",
+        "COP",
+        "PPG",
+        "EW",
+        "ADI",
+        "FICO",
+        "CPRT",
+        "XYL",
+        "IDXX",
+        "CDW",
+        "MLM",
+        "AVY",
+        "DHI",
+        "BSX",
+        "HAL",
+        "IR",
+        "ROP",
+        "UBER",
+        "AOS",
+        "AVGO",
+        "CRL",
+        "EMR",
+        "TEL",
+        "ROST",
+        "MCHP",
+        "MTD",
+        "CHD",
+        "ISRG",
+        "GPC",
+        "BBY",
+        "VMC"
+      ]
+    },
+    {
+      "date": "2024-11-18",
+      "n_stocks": 61,
+      "n_universe": 301,
+      "tickers": [
+        "NVDA",
+        "FIX",
+        "VRT",
+        "AVGO",
+        "MRK",
+        "ANET",
+        "PG",
+        "TMO",
+        "ZBRA",
+        "DHR",
+        "KMB",
+        "GDDY",
+        "ECL",
+        "FICO",
+        "TT",
+        "PWR",
+        "PEP",
+        "LIN",
+        "RL",
+        "MKC",
+        "MMM",
+        "JNJ",
+        "DVN",
+        "HSY",
+        "AMAT",
+        "MDLZ",
+        "EXPD",
+        "ROP",
+        "EFX",
+        "ROST",
+        "CL",
+        "2148.HK",
+        "RSG",
+        "AOS",
+        "AMD",
+        "NTAP",
+        "BDX",
+        "1381.HK",
+        "AKAM",
+        "HAL",
+        "ADM",
+        "MCK",
+        "CEG",
+        "GRMN",
+        "MDT",
+        "CDW",
+        "MTD",
+        "TTD",
+        "SMCI",
+        "FCX",
+        "PLD",
+        "LLY",
+        "NXPI",
+        "ADI",
+        "PHM",
+        "ABBV",
+        "ADBE",
+        "XYL",
+        "UNP",
+        "EW",
+        "MSFT"
+      ]
+    },
+    {
+      "date": "2024-12-17",
+      "n_stocks": 60,
+      "n_universe": 299,
+      "tickers": [
+        "EL",
+        "NVDA",
+        "PEP",
+        "FIX",
+        "MPWR",
+        "ECL",
+        "LIN",
+        "COP",
+        "CLX",
+        "FICO",
+        "JNJ",
+        "MDLZ",
+        "FTNT",
+        "MRK",
+        "ORCL",
+        "GPC",
+        "2148.HK",
+        "DASH",
+        "0551.HK",
+        "UBER",
+        "CEG",
+        "TMO",
+        "DHR",
+        "CL",
+        "XOM",
+        "MDT",
+        "PG",
+        "2225.HK",
+        "GDDY",
+        "MTD",
+        "BDX",
+        "PLD",
+        "ADM",
+        "ALLE",
+        "SLB",
+        "KMB",
+        "FCX",
+        "GEHC",
+        "IDXX",
+        "ABBV",
+        "NXPI",
+        "STE",
+        "LLY",
+        "AOS",
+        "SWKS",
+        "CDW",
+        "TT",
+        "HOLX",
+        "ADBE",
+        "ROP",
+        "AVY",
+        "COR",
+        "CSX",
+        "TXN",
+        "AMAT",
+        "6110.HK",
+        "JCI",
+        "UNP",
+        "5014.KLSE",
+        "TPR"
+      ]
+    },
+    {
+      "date": "2025-02-14",
+      "n_stocks": 59,
+      "n_universe": 294,
+      "tickers": [
+        "FIX",
+        "VRT",
+        "WSM",
+        "TPR",
+        "NVDA",
+        "CEG",
+        "2115.HK",
+        "ADBE",
+        "AVGO",
+        "TTD",
+        "ANET",
+        "COHR",
+        "CL",
+        "GDDY",
+        "BLDR",
+        "CRM",
+        "DHI",
+        "CARR",
+        "DECK",
+        "SHW",
+        "TMO",
+        "HSY",
+        "PEP",
+        "DHR",
+        "FCX",
+        "AMAT",
+        "MU",
+        "TT",
+        "GRMN",
+        "PHM",
+        "NTAP",
+        "LOW",
+        "WST",
+        "DASH",
+        "MMM",
+        "ADI",
+        "WAT",
+        "0570.HK",
+        "GLW",
+        "HOLX",
+        "ORCL",
+        "RL",
+        "MNST",
+        "IR",
+        "CSX",
+        "VRTX",
+        "EFX",
+        "0906.HK",
+        "SNPS",
+        "COO",
+        "HUBB",
+        "0668.HK",
+        "COP",
+        "NDSN",
+        "IT",
+        "BKR",
+        "DVN",
+        "MTD",
+        "EXPD"
+      ]
+    },
+    {
+      "date": "2025-03-17",
+      "n_stocks": 61,
+      "n_universe": 303,
+      "tickers": [
+        "TTD",
+        "AVGO",
+        "COHR",
+        "CIEN",
+        "FIX",
+        "TPR",
+        "MSFT",
+        "WST",
+        "EBAY",
+        "VRT",
+        "DASH",
+        "GDDY",
+        "GLW",
+        "FTNT",
+        "ROST",
+        "MMM",
+        "STX",
+        "GRMN",
+        "ANET",
+        "DHI",
+        "BKR",
+        "CDNS",
+        "SNPS",
+        "HUBB",
+        "WSM",
+        "CF",
+        "LOW",
+        "ADBE",
+        "FFIV",
+        "ADSK",
+        "HOLX",
+        "EQIX",
+        "JCI",
+        "TT",
+        "ROK",
+        "EFX",
+        "CTAS",
+        "ODFL",
+        "RL",
+        "PHM",
+        "PANW",
+        "JBHT",
+        "ISRG",
+        "AKAM",
+        "1396.HK",
+        "GWW",
+        "TJX",
+        "RMD",
+        "GNRC",
+        "COO",
+        "GOOGL",
+        "ACN",
+        "INCY",
+        "LII",
+        "FICO",
+        "IR",
+        "MLM",
+        "AAPL",
+        "NTAP",
+        "1313.HK",
+        "PODD"
+      ]
+    },
+    {
+      "date": "2025-04-15",
+      "n_stocks": 61,
+      "n_universe": 302,
+      "tickers": [
+        "GEV",
+        "MU",
+        "TPR",
+        "MCHP",
+        "SWKS",
+        "DD",
+        "ANET",
+        "MMM",
+        "MSFT",
+        "NOW",
+        "NVDA",
+        "CRL",
+        "DASH",
+        "DECK",
+        "FIX",
+        "0220.HK",
+        "1523.HK",
+        "AKAM",
+        "GDDY",
+        "TMO",
+        "ADBE",
+        "JBHT",
+        "GILD",
+        "MRK",
+        "DHR",
+        "TER",
+        "GLW",
+        "PODD",
+        "ACN",
+        "JCI",
+        "FTNT",
+        "RVTY",
+        "FSLR",
+        "A",
+        "GEHC",
+        "EQIX",
+        "LII",
+        "BKR",
+        "MTD",
+        "APD",
+        "ROK",
+        "GRMN",
+        "CARR",
+        "BLDR",
+        "NKE",
+        "PANW",
+        "IR",
+        "STX",
+        "CMI",
+        "FFIV",
+        "ORCL",
+        "AVGO",
+        "0982.HK",
+        "ODFL",
+        "ISRG",
+        "TXN",
+        "TRMB",
+        "CRM",
+        "FICO",
+        "WAT",
+        "NEM"
+      ]
+    },
+    {
+      "date": "2025-06-12",
+      "n_stocks": 61,
+      "n_universe": 304,
+      "tickers": [
+        "GEV",
+        "DASH",
+        "AVGO",
+        "RL",
+        "LLY",
+        "0982.HK",
+        "NUE",
+        "VRTX",
+        "UNP",
+        "PODD",
+        "DECK",
+        "TMO",
+        "FTNT",
+        "CRWD",
+        "FFIV",
+        "LOW",
+        "AAPL",
+        "BKR",
+        "TPR",
+        "AKAM",
+        "CEG",
+        "MDT",
+        "MMM",
+        "COP",
+        "2115.HK",
+        "LULU",
+        "AAUCD.US",
+        "ACN",
+        "EOG",
+        "GRMN",
+        "PEP",
+        "ORLY",
+        "EXPE",
+        "PLD",
+        "JBL",
+        "ISRG",
+        "GEHC",
+        "ODFL",
+        "CRM",
+        "GILD",
+        "PG",
+        "SLB",
+        "INCY",
+        "WAT",
+        "NTAP",
+        "POOL",
+        "DOV",
+        "TRMB",
+        "1735.HK",
+        "CMI",
+        "LII",
+        "COO",
+        "NKE",
+        "JBHT",
+        "TER",
+        "GLW",
+        "GDDY",
+        "1951.HK",
+        "APD",
+        "IR",
+        "CSX"
+      ]
+    },
+    {
+      "date": "2025-07-11",
+      "n_stocks": 61,
+      "n_universe": 302,
+      "tickers": [
+        "FAST",
+        "NVDA",
+        "0512.HK",
+        "0087.HK",
+        "2315.HK",
+        "CEG",
+        "CRWD",
+        "PG",
+        "JNJ",
+        "SHW",
+        "HD",
+        "CL",
+        "WM",
+        "MDT",
+        "TJX",
+        "LIN",
+        "MDLZ",
+        "UNP",
+        "1548.HK",
+        "0867.HK",
+        "PEP",
+        "LOW",
+        "ACN",
+        "POOL",
+        "EQIX",
+        "COO",
+        "0178.HK",
+        "XOM",
+        "CPRT",
+        "EXPE",
+        "CRM",
+        "ORCL",
+        "PODD",
+        "APD",
+        "TRMB",
+        "WDAY",
+        "DECK",
+        "AKAM",
+        "3788.HK",
+        "NKE",
+        "NXPI",
+        "EL",
+        "STLD",
+        "AAPL",
+        "MU",
+        "1501.HK",
+        "0506.HK",
+        "AAUCD.US",
+        "ABT",
+        "FICO",
+        "DHR",
+        "AZO",
+        "LRCX",
+        "TXN",
+        "WELL",
+        "LLY",
+        "MCK",
+        "ABBV",
+        "TMO",
+        "AACT.US",
+        "1313.HK"
+      ]
+    },
+    {
+      "date": "2025-08-11",
+      "n_stocks": 60,
+      "n_universe": 298,
+      "tickers": [
+        "ORLY",
+        "FAST",
+        "DECK",
+        "0087.HK",
+        "IT",
+        "WM",
+        "LIN",
+        "XOM",
+        "UNP",
+        "SYK",
+        "MDLZ",
+        "SHW",
+        "RSG",
+        "1523.HK",
+        "1789.HK",
+        "PG",
+        "BSX",
+        "COHR",
+        "VRT",
+        "MCK",
+        "RVTY",
+        "3306.HK",
+        "CRM",
+        "0512.HK",
+        "ANET",
+        "GEV",
+        "WDAY",
+        "GWW",
+        "SLB",
+        "FICO",
+        "IR",
+        "FIX",
+        "FTNT",
+        "OTIS",
+        "PTC",
+        "ORCL",
+        "EL",
+        "AMD",
+        "NKE",
+        "PANW",
+        "IDXX",
+        "ISRG",
+        "MPWR",
+        "TXN",
+        "NVDA",
+        "0178.HK",
+        "1665.HK",
+        "CHRW",
+        "HAL",
+        "BBY",
+        "CDNS",
+        "INCY",
+        "FCX",
+        "CL",
+        "JBHT",
+        "WSM",
+        "NXPI",
+        "DXCM",
+        "PODD",
+        "0982.HK"
+      ]
+    },
+    {
+      "date": "2025-10-08",
+      "n_stocks": 60,
+      "n_universe": 298,
+      "tickers": [
+        "NVDA",
+        "GEV",
+        "FIX",
+        "EBAY",
+        "GNRC",
+        "IDXX",
+        "ANET",
+        "IT",
+        "0512.HK",
+        "1548.HK",
+        "2076.HK",
+        "2232.HK",
+        "PANW",
+        "1523.HK",
+        "INCY",
+        "EL",
+        "MPWR",
+        "TER",
+        "MU",
+        "AMD",
+        "JBL",
+        "GDDY",
+        "CRM",
+        "UBER",
+        "CRWD",
+        "EXPE",
+        "MCK",
+        "CSX",
+        "CEG",
+        "DASH",
+        "SMCI",
+        "DXCM",
+        "TPR",
+        "RL",
+        "ISRG",
+        "TXN",
+        "WDAY",
+        "CHRW",
+        "AMAT",
+        "DHI",
+        "TSLA",
+        "1179.HK",
+        "AVGO",
+        "KLAC",
+        "HSY",
+        "NTAP",
+        "SYK",
+        "SHW",
+        "PG",
+        "TTD",
+        "LRCX",
+        "GILD",
+        "VRSN",
+        "ULTA",
+        "1789.HK",
+        "STLD",
+        "MCHP",
+        "QCOM",
+        "A",
+        "0081.HK"
+      ]
+    },
+    {
+      "date": "2025-11-06",
+      "n_stocks": 59,
+      "n_universe": 293,
+      "tickers": [
+        "NVDA",
+        "TSLA",
+        "AVGO",
+        "DECK",
+        "2302.HK",
+        "CRWD",
+        "EXPE",
+        "RL",
+        "AMAT",
+        "KLAC",
+        "PWR",
+        "GLW",
+        "2232.HK",
+        "0867.HK",
+        "0506.HK",
+        "STLD",
+        "HAL",
+        "JBL",
+        "WST",
+        "2343.HK",
+        "1548.HK",
+        "EL",
+        "LRCX",
+        "HUBB",
+        "ULTA",
+        "MTD",
+        "CMI",
+        "JBHT",
+        "TMO",
+        "CHRW",
+        "TER",
+        "1440.HK",
+        "2522.HK",
+        "CAH",
+        "0512.HK",
+        "INCY",
+        "1179.HK",
+        "LLY",
+        "0081.HK",
+        "IDXX",
+        "GEV",
+        "BIIB",
+        "2495.HK",
+        "3306.HK",
+        "EXPD",
+        "3868.HK",
+        "ROP",
+        "IT",
+        "CIEN",
+        "EBAY",
+        "0038.HK",
+        "ODFL",
+        "EPAM",
+        "ADBE",
+        "ALGN",
+        "TPR",
+        "2076.HK",
+        "0565.HK",
+        "DXCM"
+      ]
+    },
+    {
+      "date": "2025-12-05",
+      "n_stocks": 60,
+      "n_universe": 296,
+      "tickers": [
+        "SMCI",
+        "TSLA",
+        "GOOGL",
+        "1645.HK",
+        "NVDA",
+        "2232.HK",
+        "0590.HK",
+        "RL",
+        "KLAC",
+        "PWR",
+        "STLD",
+        "MTD",
+        "CMI",
+        "CHRW",
+        "INCY",
+        "IDXX",
+        "BIIB",
+        "REGN",
+        "NEM",
+        "BKR",
+        "A",
+        "NUE",
+        "GLW",
+        "MRK",
+        "TPR",
+        "TMO",
+        "WAT",
+        "EL",
+        "JBHT",
+        "TEL",
+        "ADI",
+        "AMAT",
+        "0867.HK",
+        "0506.HK",
+        "2469.HK",
+        "EXPE",
+        "1179.HK",
+        "HAL",
+        "WST",
+        "CRL",
+        "MPWR",
+        "EPAM",
+        "1910.HK",
+        "EXPD",
+        "2522.HK",
+        "JBL",
+        "0975.HK",
+        "IT",
+        "ALGN",
+        "TGT",
+        "3669.HK",
+        "2273.HK",
+        "0565.HK",
+        "FSLR",
+        "GEHC",
+        "0038.HK",
+        "TECH",
+        "ANET",
+        "1882.HK",
+        "1710.HK"
+      ]
+    },
+    {
+      "date": "2026-02-05",
+      "n_stocks": 60,
+      "n_universe": 297,
+      "tickers": [
+        "NVDA",
+        "0010.HK",
+        "TPR",
+        "INCY",
+        "MPWR",
+        "ULTA",
+        "PWR",
+        "STLD",
+        "ON",
+        "CMI",
+        "0506.HK",
+        "RL",
+        "IT",
+        "LLY",
+        "NUE",
+        "3868.HK",
+        "MCHP",
+        "JBHT",
+        "AMAT",
+        "0867.HK",
+        "HAL",
+        "GOOGL",
+        "CHRW",
+        "BIIB",
+        "SMCI",
+        "1851.HK",
+        "MRK",
+        "HUBB",
+        "IDXX",
+        "TSLA",
+        "GEV",
+        "2232.HK",
+        "CRM",
+        "REGN",
+        "SNPS",
+        "ROK",
+        "TEL",
+        "0590.HK",
+        "ODFL",
+        "FIX",
+        "1523.HK",
+        "NKE",
+        "PODD",
+        "CRWD",
+        "ROL",
+        "EMR",
+        "0004.HK",
+        "ADM",
+        "1789.HK",
+        "TT",
+        "DHI",
+        "CRL",
+        "1783.HK",
+        "ADI",
+        "NEM",
+        "JCI",
+        "BKR",
+        "TXN",
+        "0512.HK",
+        "6110.HK"
+      ]
+    },
+    {
+      "date": "2026-03-06",
+      "n_stocks": 60,
+      "n_universe": 298,
+      "tickers": [
+        "GEV",
+        "MSFT",
+        "NEM",
+        "AMAT",
+        "AVGO",
+        "KLAC",
+        "NVDA",
+        "CRM",
+        "PWR",
+        "LLY",
+        "ULTA",
+        "2570.HK",
+        "TSLA",
+        "HAL",
+        "SMCI",
+        "1645.HK",
+        "CAH",
+        "IT",
+        "FIX",
+        "0506.HK",
+        "COR",
+        "XOM",
+        "TPR",
+        "SLB",
+        "ACN",
+        "CEG",
+        "DVN",
+        "TER",
+        "BKR",
+        "GNRC",
+        "0990.HK",
+        "1440.HK",
+        "0590.HK",
+        "JBL",
+        "CDNS",
+        "SNPS",
+        "BIIB",
+        "1523.HK",
+        "GILD",
+        "STLD",
+        "CIEN",
+        "MCK",
+        "PHM",
+        "NSC",
+        "1396.HK",
+        "TYL",
+        "JCI",
+        "CTRA",
+        "MLM",
+        "REGN",
+        "TT",
+        "BSX",
+        "3868.HK",
+        "JBHT",
+        "EFX",
+        "NUE",
+        "2232.HK",
+        "MPWR",
+        "MCHP",
+        "ODFL"
+      ]
+    },
+    {
+      "date": "2026-04-07",
+      "n_stocks": 43,
+      "n_universe": 212,
+      "tickers": [
+        "MSFT",
+        "NVDA",
+        "CRM",
+        "CHRW",
+        "EXPD",
+        "TER",
+        "PWR",
+        "TPR",
+        "FSLR",
+        "NOW",
+        "ODFL",
+        "LLY",
+        "AVGO",
+        "INCY",
+        "FIX",
+        "EL",
+        "MPWR",
+        "EBAY",
+        "MCK",
+        "CAH",
+        "JCI",
+        "BIIB",
+        "REGN",
+        "CSCO",
+        "ROK",
+        "HAL",
+        "GOOGL",
+        "ADI",
+        "AKAM",
+        "XOM",
+        "CDNS",
+        "CMI",
+        "SWKS",
+        "STLD",
+        "ACN",
+        "RL",
+        "BSX",
+        "EPAM",
+        "ORCL",
+        "MLM",
+        "HSY",
+        "WAT",
+        "TEL"
+      ]
+    }
+  ],
+  "region_breakdown": {
+    "US": 43
+  },
+  "selected_features": [
+    "ret_1d",
+    "ret_5d",
+    "ret_21d",
+    "ret_63d",
+    "mom_12_1",
+    "reversal_5d",
+    "reversal_21d",
+    "vol_21d",
+    "vol_63d",
+    "idio_vol_63d",
+    "dd_depth_252d",
+    "close_vs_sma50",
+    "close_vs_sma200",
+    "rsi_14",
+    "bb_width",
+    "bb_position",
+    "atr_pct",
+    "vol_ratio",
+    "vol_shock",
+    "amihud_21d"
+  ],
+  "all_features": [
+    "ret_1d",
+    "ret_5d",
+    "ret_21d",
+    "ret_63d",
+    "mom_12_1",
+    "reversal_5d",
+    "reversal_21d",
+    "vol_21d",
+    "vol_63d",
+    "idio_vol_63d",
+    "dd_depth_252d",
+    "close_vs_sma50",
+    "close_vs_sma200",
+    "rsi_14",
+    "bb_width",
+    "bb_position",
+    "atr_pct",
+    "vol_ratio",
+    "vol_shock",
+    "amihud_21d"
+  ],
+  "terminal": [
+    "ML matrix: 520,818 rows \u00d7 20 features",
+    "Unique trading dates: 1647",
+    "CV folds: 8",
+    "",
+    "Fold  0 | IC=+0.1767  AUC=0.6162  train=17,991 (756d)  test=17,991  [2023-10-31 -> 2024-01-26]",
+    "Fold  1 | IC=-0.0235  AUC=0.4862  train=18,199 (756d)  test=18,199  [2024-02-27 -> 2024-05-23]",
+    "Fold  2 | IC=-0.0170  AUC=0.5201  train=18,236 (756d)  test=18,236  [2024-06-24 -> 2024-09-18]",
+    "Fold  3 | IC=+0.0481  AUC=0.5258  train=18,048 (756d)  test=18,048  [2024-10-18 -> 2025-01-15]",
+    "Fold  4 | IC=+0.0527  AUC=0.5003  train=18,054 (756d)  test=18,054  [2025-02-14 -> 2025-05-13]",
+    "Fold  5 | IC=-0.0202  AUC=0.5007  train=18,282 (756d)  test=18,282  [2025-06-12 -> 2025-09-08]",
+    "Fold  6 | IC=+0.0386  AUC=0.5035  train=18,194 (756d)  test=18,194  [2025-10-08 -> 2026-01-06]",
+    "Fold  7 | IC=+0.1132  AUC=0.5516  train=18,076 (756d)  test=18,076  [2026-02-05 -> 2026-05-05]",
+    "",
+    "Mean per-date IC: 0.0461  (ICIR=0.65)",
+    "OOF IC pooled : -0.0044",
+    "OOF IC perdate: +0.0458",
+    "",
+    "-- Backtest --",
+    "Mode               : Long-Short",
+    "Annual Sharpe (net): 0.69  (gross: 0.74)",
+    "Annual return (net): 31.1%  (gross: 33.5%)",
+    "Max drawdown       : -11.3%",
+    "Realised vol       : 53.0%  avg lev: 0.78",
+    "Holding periods    : 24",
+    "CB trips           : 0",
+    "",
+    "-- SHAP top features --",
+    "  atr_pct              0.012617",
+    "  mom_12_1             0.007751",
+    "  idio_vol_63d         0.006694",
+    "  ret_63d              0.006429",
+    "  amihud_21d           0.006066",
+    "  vol_63d              0.005895",
+    "  close_vs_sma200      0.004520",
+    "  dd_depth_252d        0.003407",
+    "  vol_21d              0.002898",
+    "  bb_width             0.002218",
+    "  ret_21d              0.002210",
+    "  close_vs_sma50       0.001735",
+    "  ret_1d               0.001602",
+    "  reversal_21d         0.001328",
+    "  rsi_14               0.001283",
+    "  vol_ratio            0.001244",
+    "  reversal_5d          0.001199",
+    "  bb_position          0.001028",
+    "  vol_shock            0.000407",
+    "  ret_5d               0.000301",
+    "",
+    "Pipeline v4.1 complete"
+  ],
+  "quantile_returns": [
+    {
+      "label": "D1",
+      "mean_return": 0.018841
+    },
+    {
+      "label": "D2",
+      "mean_return": 0.011578
+    },
+    {
+      "label": "D3",
+      "mean_return": 0.023722
+    },
+    {
+      "label": "D4",
+      "mean_return": 0.168527
+    },
+    {
+      "label": "D5",
+      "mean_return": 0.019025
+    },
+    {
+      "label": "D6",
+      "mean_return": 0.014519
+    },
+    {
+      "label": "D7",
+      "mean_return": 0.042332
+    },
+    {
+      "label": "D8",
+      "mean_return": 0.015014
+    },
+    {
+      "label": "D9",
+      "mean_return": 0.023617
+    },
+    {
+      "label": "D10",
+      "mean_return": 0.01709
+    }
+  ],
+  "long_short": {
+    "dates": [
+      "2023-10-31",
+      "2023-11-29",
+      "2023-12-28",
+      "2024-02-27",
+      "2024-03-27",
+      "2024-04-25",
+      "2024-06-24",
+      "2024-07-23",
+      "2024-08-21",
+      "2024-10-18",
+      "2024-11-18",
+      "2024-12-17",
+      "2025-02-14",
+      "2025-03-17",
+      "2025-04-15",
+      "2025-06-12",
+      "2025-07-11",
+      "2025-08-11",
+      "2025-10-08",
+      "2025-11-06",
+      "2025-12-05",
+      "2026-02-05",
+      "2026-03-06",
+      "2026-04-07"
+    ],
+    "cum_top": [
+      1.1038,
+      1.1819,
+      1.1823,
+      1.2352,
+      1.1949,
+      1.2275,
+      1.2085,
+      1.2244,
+      1.2315,
+      1.2044,
+      1.1983,
+      1.2619,
+      1.1706,
+      1.1432,
+      1.3208,
+      1.3448,
+      1.3482,
+      1.3878,
+      1.3639,
+      1.4198,
+      1.4619,
+      1.4476,
+      1.4275,
+      1.5822
+    ],
+    "cum_bottom": [
+      1.0862,
+      1.0961,
+      0.9492,
+      0.9372,
+      0.9585,
+      1.0574,
+      1.031,
+      1.0079,
+      1.0272,
+      1.0281,
+      1.0865,
+      1.097,
+      1.2252,
+      1.0948,
+      1.194,
+      1.2475,
+      1.2855,
+      1.3413,
+      1.3281,
+      1.3491,
+      1.344,
+      1.3963,
+      1.3123,
+      1.3805
+    ],
+    "cum_spread": [
+      0.0176,
+      0.0859,
+      0.2332,
+      0.2979,
+      0.2365,
+      0.1701,
+      0.1775,
+      0.2165,
+      0.2043,
+      0.1762,
+      0.1118,
+      0.1649,
+      -0.0546,
+      0.0484,
+      0.1268,
+      0.0973,
+      0.0628,
+      0.0465,
+      0.0359,
+      0.0707,
+      0.1178,
+      0.0513,
+      0.1151,
+      0.2017
+    ]
+  },
+  "rolling_ic": {
+    "dates": [
+      "2023-10-31",
+      "2023-11-29",
+      "2023-12-28",
+      "2024-02-27",
+      "2024-03-27",
+      "2024-04-25",
+      "2024-06-24",
+      "2024-07-23",
+      "2024-08-21",
+      "2024-10-18",
+      "2024-11-18",
+      "2024-12-17",
+      "2025-02-14",
+      "2025-03-17",
+      "2025-04-15",
+      "2025-06-12",
+      "2025-07-11",
+      "2025-08-11",
+      "2025-10-08",
+      "2025-11-06",
+      "2025-12-05",
+      "2026-02-05",
+      "2026-03-06",
+      "2026-04-07"
+    ],
+    "values": [
+      0.1612,
+      0.22,
+      0.3054,
+      0.2007,
+      -0.2331,
+      -0.1448,
+      0.0708,
+      0.1322,
+      -0.0799,
+      -0.0194,
+      -0.0972,
+      0.1892,
+      -0.2722,
+      0.1245,
+      0.2548,
+      0.0098,
+      -0.0618,
+      0.0103,
+      0.0047,
+      0.0938,
+      0.1581,
+      0.0153,
+      0.1276,
+      0.1267
+    ],
+    "cumulative_mean": [
+      0.1612,
+      0.1906,
+      0.2289,
+      0.2218,
+      0.1308,
+      0.0849,
+      0.0829,
+      0.089,
+      0.0703,
+      0.0613,
+      0.0469,
+      0.0588,
+      0.0333,
+      0.0398,
+      0.0541,
+      0.0514,
+      0.0447,
+      0.0428,
+      0.0408,
+      0.0435,
+      0.0489,
+      0.0474,
+      0.0509,
+      0.054
+    ]
+  },
+  "turnover": {
+    "dates": [
+      "2023-11-29",
+      "2023-12-28",
+      "2024-02-27",
+      "2024-03-27",
+      "2024-04-25",
+      "2024-06-24",
+      "2024-07-23",
+      "2024-08-21",
+      "2024-10-18",
+      "2024-11-18",
+      "2024-12-17",
+      "2025-02-14",
+      "2025-03-17",
+      "2025-04-15",
+      "2025-06-12",
+      "2025-07-11",
+      "2025-08-11",
+      "2025-10-08",
+      "2025-11-06",
+      "2025-12-05",
+      "2026-02-05",
+      "2026-03-06",
+      "2026-04-07"
+    ],
+    "values": [
+      0.8252,
+      0.7368,
+      0.8447,
+      0.7065,
+      0.625,
+      0.7158,
+      0.7526,
+      0.8,
+      0.6848,
+      0.7158,
+      0.625,
+      0.81,
+      0.6957,
+      0.7021,
+      0.6593,
+      0.78,
+      0.7526,
+      0.75,
+      0.6923,
+      0.6163,
+      0.6667,
+      0.6517,
+      0.7125
+    ]
+  },
+  "factor_autocorrelation": {
+    "dates": [
+      "2023-11-29",
+      "2023-12-28",
+      "2024-02-27",
+      "2024-03-27",
+      "2024-04-25",
+      "2024-06-24",
+      "2024-07-23",
+      "2024-08-21",
+      "2024-10-18",
+      "2024-11-18",
+      "2024-12-17",
+      "2025-02-14",
+      "2025-03-17",
+      "2025-04-15",
+      "2025-06-12",
+      "2025-07-11",
+      "2025-08-11",
+      "2025-10-08",
+      "2025-11-06",
+      "2025-12-05",
+      "2026-02-05",
+      "2026-03-06",
+      "2026-04-07"
+    ],
+    "values": [
+      0.5784,
+      0.6038,
+      0.5398,
+      0.5788,
+      0.6151,
+      0.6544,
+      0.7081,
+      0.4966,
+      0.5549,
+      0.6647,
+      0.683,
+      0.55,
+      0.6337,
+      0.5877,
+      0.5465,
+      0.5134,
+      0.5319,
+      0.532,
+      0.4496,
+      0.5337,
+      0.5391,
+      0.5546,
+      0.4194
+    ]
+  },
+  "monthly_returns": [
+    {
+      "year": 2023,
+      "month": 10,
+      "ret": 0.0073
+    },
+    {
+      "year": 2023,
+      "month": 11,
+      "ret": 0.0293
+    },
+    {
+      "year": 2023,
+      "month": 12,
+      "ret": 0.0657
+    },
+    {
+      "year": 2024,
+      "month": 2,
+      "ret": 0.0271
+    },
+    {
+      "year": 2024,
+      "month": 3,
+      "ret": -0.032
+    },
+    {
+      "year": 2024,
+      "month": 4,
+      "ret": -0.0391
+    },
+    {
+      "year": 2024,
+      "month": 6,
+      "ret": 0.0032
+    },
+    {
+      "year": 2024,
+      "month": 7,
+      "ret": 0.017
+    },
+    {
+      "year": 2024,
+      "month": 8,
+      "ret": -0.004
+    },
+    {
+      "year": 2024,
+      "month": 10,
+      "ret": -0.0037
+    },
+    {
+      "year": 2024,
+      "month": 11,
+      "ret": 0.0299
+    },
+    {
+      "year": 2024,
+      "month": 12,
+      "ret": -0.0106
+    },
+    {
+      "year": 2025,
+      "month": 2,
+      "ret": -0.0598
+    },
+    {
+      "year": 2025,
+      "month": 3,
+      "ret": 0.0033
+    },
+    {
+      "year": 2025,
+      "month": 4,
+      "ret": -0.0206
+    },
+    {
+      "year": 2025,
+      "month": 6,
+      "ret": 0.7393
+    },
+    {
+      "year": 2025,
+      "month": 7,
+      "ret": -0.0008
+    },
+    {
+      "year": 2025,
+      "month": 8,
+      "ret": 0.0002
+    },
+    {
+      "year": 2025,
+      "month": 10,
+      "ret": -0.0032
+    },
+    {
+      "year": 2025,
+      "month": 11,
+      "ret": -0.0015
+    },
+    {
+      "year": 2025,
+      "month": 12,
+      "ret": 0.002
+    },
+    {
+      "year": 2026,
+      "month": 2,
+      "ret": -0.0044
+    },
+    {
+      "year": 2026,
+      "month": 3,
+      "ret": -0.0148
+    },
+    {
+      "year": 2026,
+      "month": 4,
+      "ret": 0.0052
+    }
+  ],
+  "decile_calibration": {
+    "dates": [
+      "2023-10-31",
+      "2023-11-29",
+      "2023-12-28",
+      "2024-02-27",
+      "2024-03-27",
+      "2024-04-25",
+      "2024-06-24",
+      "2024-07-23",
+      "2024-08-21",
+      "2024-10-18",
+      "2024-11-18",
+      "2024-12-17",
+      "2025-02-14",
+      "2025-03-17",
+      "2025-04-15",
+      "2025-06-12",
+      "2025-07-11",
+      "2025-08-11",
+      "2025-10-08",
+      "2025-11-06",
+      "2025-12-05",
+      "2026-02-05",
+      "2026-03-06",
+      "2026-04-07"
+    ],
+    "long": [
+      [
+        9,
+        10
+      ],
+      [
+        9,
+        10
+      ],
+      [
+        9,
+        10
+      ],
+      [
+        9,
+        10
+      ],
+      [
+        6,
+        5
+      ],
+      [
+        6,
+        4
+      ],
+      [
+        4,
+        3
+      ],
+      [
+        3,
+        8
+      ],
+      [
+        3,
+        8
+      ],
+      [
+        3,
+        4
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        4,
+        7
+      ],
+      [
+        4,
+        7
+      ],
+      [
+        4,
+        7
+      ],
+      [
+        4,
+        7
+      ],
+      [
+        4,
+        7
+      ],
+      [
+        4,
+        7
+      ],
+      [
+        4,
+        1
+      ],
+      [
+        4,
+        2
+      ],
+      [
+        4,
+        2
+      ],
+      [
+        4,
+        2
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        7,
+        1
+      ]
+    ],
+    "short": [
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        10,
+        5
+      ],
+      [
+        10,
+        9
+      ],
+      [
+        10,
+        6
+      ],
+      [
+        1,
+        10
+      ],
+      [
+        10,
+        6
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        5,
+        6
+      ],
+      [
+        1,
+        5
+      ],
+      [
+        5,
+        1
+      ],
+      [
+        8,
+        5
+      ],
+      [
+        8,
+        5
+      ],
+      [
+        5,
+        2
+      ]
+    ],
+    "final_expected_returns": {
+      "1": 0.01022,
+      "2": 0.00064,
+      "3": 0.01665,
+      "4": 0.00938,
+      "5": 0.00411,
+      "6": 0.01516,
+      "7": 0.03608,
+      "8": 0.0045,
+      "9": 0.02149,
+      "10": 0.02452
+    }
+  }
+}
