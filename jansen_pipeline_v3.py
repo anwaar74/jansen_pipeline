@@ -1,6 +1,6 @@
 """
 ========================================================================
-Shariah ML Pipeline v4.7 — Jansen MFAT 2nd Ed. Aligned (Sharpe-fix release)
+Shariah ML Pipeline v4.9 (reverted from v4.11) — Jansen MFAT 2nd Ed. Aligned
 ========================================================================
 Markets:        US (NYSE/NASDAQ) · Malaysia (KLSE) · Hong Kong (HKEX)
 Alpha engine:   LightGBM ensemble (21d target × 3 seeds)
@@ -97,11 +97,37 @@ v4.5 → v4.6 (drop the short book — pure drag on monotonic + positive IC):
 
 v4.6 → v4.7 (concentrate basket on D10 via signal-weighting):
   Cell 13: SIGNAL_WEIGHTED = True.
-           D10 returns +14.7% per rebal vs D9 = +1.0%. EW top-quintile
-           dilutes the D10 alpha. Rank-weighted shifts ~70% of book
-           toward D10-ranked names while MAX_POSITION_SIZE=5% keeps
-           single-name risk contained.
-  Expected: Sharpe 0.93 → 1.05-1.20.
+  Result: Sharpe 0.93 → 0.85 (down) BUT return 57.9% → 96.2%,
+          Sortino 5.5 → 9.42, Calmar 3.86 → 6.66, DD -15% → -14.4%.
+          Vol blew from 64% to 125% — all upside. Sharpe-as-defined
+          penalised the upside vol; risk-adjusted on Sortino/Calmar
+          v4.7 is dramatically better than v4.6.
+
+v4.7 → v4.8 (let vol-target overlay deflate harder):
+  Cell 13: MIN_LEVERAGE 0.10 → 0.03.
+  Result: NULL — Sharpe/vol/everything unchanged. The overlay's 6-period
+          rolling lookback never asked for lev below 0.10 anyway; the 125%
+          headline vol comes from per-period spikes the overlay can't see
+          in advance, not from clamped deflation. Lever exhausted.
+
+v4.8 → v4.9 (try per-market geographic diversification):
+  Cell 13: PER_MARKET_BACKTEST = True.
+  Result: Sharpe 0.85 → 0.90, return 95.7% → 70.8%, DD -14.4% → -8.2%
+          (best DD ever), Calmar 6.66 → 8.66 (best ever), Win 63% → 67%.
+          Real diversification reduced vol 125% → 82.8%. Sharpe modest
+          lift because MY/HK signal weaker than US, equal-weight average
+          dilutes the strong US alpha.
+
+v4.9 → v4.10 (Kelly criterion sizing on the top-decile basket):
+  Cell 13: KELLY_CRITERION = True (replaces vol-target as leverage decision).
+           Tracks unlevered basket return history. Leverage =
+           KELLY_FRACTION × (rolling mu / rolling sigma^2). Quarter-Kelly
+           (0.25) used for safety; full Kelly is famously aggressive and
+           blows up on over-estimated mu. Caps: [0.03, 1.5] leverage band.
+           Kelly should lever UP when the basket has high Sharpe-equivalent
+           (mu high, vol low) and DOWN when it doesn't — adaptive position
+           sizing on the actual asset characteristics, not realised P&L.
+           Falls back to vol-target during 8-rebal warm-up.
 
 Run end-to-end:    python jansen_pipeline_v3.py
 """
@@ -784,12 +810,13 @@ print(f'OOF IC (per-date avg): {ic_oof:+.4f}  ICIR={ic_oof_ir:.2f}')
 # ═══════════════════════════════════════════════════════════════════════
 import matplotlib.pyplot as plt
 
-LONG_ONLY          = True        # v4.6 — v4.5's long-short Sharpe 0.61 was UNDER
-                                  # its own long-only EW baseline 0.88, because
-                                  # D1 = +0.29% (still rises, just less). Shorting
-                                  # it loses 0.29%/rebal + costs. Monotonic positive-
-                                  # IC signal + up-trending universe = short book
-                                  # is pure drag. Also matches Shariah constraint.
+LONG_ONLY          = True        # v4.6+ — short book hurts on monotonic + positive IC
+PER_MARKET_BACKTEST = True       # v4.9 — long top-quintile WITHIN each market
+                                  # (US, MY, HK), then equal-weight average across
+                                  # markets. Targets the 100% US concentration that
+                                  # has held every run. Real geographic diversification.
+                                  # Only effective when LONG_ONLY=True (per-market shorts
+                                  # not implemented).
 REBAL_DAYS         = TARGET_HORIZON
 COMMISSION_BPS     = 5.0
 SLIPPAGE_BPS       = 2.5
@@ -823,13 +850,39 @@ SIGNAL_WEIGHTED    = True         # was False — rank-weighted within long book
 MAX_POSITION_SIZE  = 0.05
 MAX_MARKET_CONC    = 0.40
 
-# Volatility target — v4.3 calibration had 53% realised vol; tighten so the
-# overlay can actually deflate the book in stressful regimes.
+# Volatility target — kept as fallback during Kelly warm-up
 VOL_TARGET         = True
-VOL_TARGET_ANN     = 0.12       # was 0.10 — slightly higher target
+VOL_TARGET_ANN     = 0.12
 VOL_LOOKBACK       = 6
 MAX_LEVERAGE       = 1.0
-MIN_LEVERAGE       = 0.10       # was 0.30 — allow heavy deflation
+MIN_LEVERAGE       = 0.03
+
+# v4.10 — Kelly sizing on the top-decile basket return
+# Replaces vol-target as the leverage decision once warm-up history exists.
+# Kelly fraction f* = mu / sigma^2, scaled by KELLY_FRACTION (quarter-Kelly is
+# the standard conservative choice — full Kelly is famously aggressive and
+# blows up if mu is over-estimated). Uses UNLEVERED basket return history so
+# the leverage decision is on the asset's own characteristics, not our
+# already-levered PnL.
+KELLY_CRITERION    = False      # REVERTED to v4.9 — Kelly book sizing OFF (vol-target rules)
+KELLY_FRACTION     = 0.15       # v4.11 — 1/6.6-Kelly, dialed down from 0.25
+                                 # quarter-Kelly drove v4.10 vol to 177% / Sharpe 0.76;
+                                 # lighter fraction should land Sharpe ~0.85, vol ~110%
+KELLY_LOOKBACK     = 12         # 12 rebals ≈ 1 year of monthly periods
+KELLY_WARMUP       = 8          # need 8 rebals before Kelly engages
+KELLY_MAX_LEV      = 1.5        # cap above VOL_TARGET's 1.0 (Kelly can lever up)
+KELLY_MIN_LEV      = 0.03       # same floor as vol-target
+
+# v4.12 — per-NAME Kelly allocation within the top decile
+# (different from KELLY_CRITERION which sizes overall book leverage).
+# When True: each stock's weight = clip(mu_i / sigma_i^2, 0, MAX_POS), normalised.
+# mu_i is derived from signal rank scaled by recent strategy mean.
+# sigma_i^2 is the rolling 6-rebal variance of that stock's actual returns.
+# Overrides SIGNAL_WEIGHTED inside the per-market basket when both are on.
+KELLY_ALLOC        = False      # REVERTED to v4.9 — per-stock Kelly OFF (SIGNAL_WEIGHTED rules)
+KELLY_ALLOC_LOOKBACK = 6        # rebals of stock-level returns for variance est
+KELLY_ALLOC_MIN_HISTORY = 3     # min rebals before Kelly weights used
+KELLY_ALLOC_MU_SCALE = 2.0      # signal -> expected return calibration factor
 
 DD_CIRCUIT_BREAKER = -0.25
 
@@ -854,6 +907,54 @@ sig_long = sig_panel_rank.stack().rename('signal').reset_index()
 bt = bt.drop(columns=['signal_raw']).merge(sig_long, on=['date','ticker'], how='left')
 bt = bt.dropna(subset=['signal'])
 print(f'Signal EMA-smoothed (α={EMA_ALPHA}); panel: {sig_panel.shape}')
+
+
+def _kelly_alloc_weights(grp_side, rd_local, recent_mu):
+    """
+    v4.12 — per-stock Kelly allocation within the long basket.
+    w_i = clip(mu_i / sigma_i^2, 0, MAX_POSITION_SIZE), normalised to sum to 1.
+    mu_i derived from signal rank × recent strategy mean (scaled).
+    sigma_i^2 estimated from rolling stock-level actual return history.
+    """
+    sig_vals = grp_side['signal'].values.astype(float)
+    tickers  = grp_side['ticker'].values
+    n = len(sig_vals)
+
+    # Expected return per stock — anchor signal rank to recent strategy mu
+    sig_norm = sig_vals - sig_vals.min() + 1e-3
+    mu_anchor = max(abs(recent_mu), 0.01)
+    mu_i = sig_norm * mu_anchor * KELLY_ALLOC_MU_SCALE
+
+    # Per-stock variance from bt history (strict no-lookahead: dates < rd_local)
+    sigma2_i = np.zeros(n)
+    for j, tk in enumerate(tickers):
+        hist = bt[(bt['ticker'] == tk) & (bt['date'] < rd_local)]['actual'].tail(KELLY_ALLOC_LOOKBACK)
+        if len(hist) >= KELLY_ALLOC_MIN_HISTORY:
+            sigma2_i[j] = float(hist.var())
+        else:
+            sigma2_i[j] = 0.01            # default 10% per-rebal sigma when no history
+    sigma2_i = np.maximum(sigma2_i, 1e-4)  # numerical floor
+
+    # Kelly weights
+    w = mu_i / sigma2_i
+    w = np.maximum(w, 0)
+    if w.sum() <= 0:
+        return np.ones(n) / n            # fallback to equal weight
+
+    w = w / w.sum()
+
+    # Position-size cap (iterative redistribute)
+    for _ in range(50):
+        over = w > MAX_POSITION_SIZE
+        if not over.any(): break
+        excess = (w[over] - MAX_POSITION_SIZE).sum()
+        w[over] = MAX_POSITION_SIZE
+        under = ~over
+        if under.sum() == 0: break
+        room = (MAX_POSITION_SIZE - w[under]).sum()
+        if room <= 0: break
+        w[under] += excess * (MAX_POSITION_SIZE - w[under]) / room
+    return w / w.sum() if w.sum() > 0 else w
 
 
 def _signal_weights(grp_side, side='long'):
@@ -885,6 +986,12 @@ recent_rets = []
 # Decile-return history: rows = rebal dates, cols = decile (1..N_DECILES)
 decile_returns_history = pd.DataFrame(columns=list(range(1, N_DECILES + 1)))
 decile_log = []   # diagnostic — record which deciles were chosen each rebal
+
+# v4.10 — unlevered basket return history for Kelly sizing
+top_decile_rets_history = []
+
+# v4.12 — track per-rebal Kelly allocations (last entry = latest portfolio)
+allocation_log = []
 
 for rd in rebal_dates:
     grp = bt[bt['date'] == rd]
@@ -929,23 +1036,82 @@ for rd in rebal_dates:
         decile_returns_history.loc[rd] = [dec_ret.get(d, np.nan) for d in range(1, N_DECILES + 1)]
     decile_log.append({'date': rd, 'long': long_dec, 'short': short_dec})
 
-    if SIGNAL_WEIGHTED:
-        wL = _signal_weights(longs,  side='long')
-        wS = _signal_weights(shorts, side='short') if not shorts.empty else np.array([])
-    else:
-        wL = np.ones(len(longs))  / len(longs)
-        wS = np.ones(len(shorts)) / len(shorts) if not shorts.empty else np.array([])
+    if PER_MARKET_BACKTEST and LONG_ONLY:
+        # v4.9 — true per-market diversification: long top-quintile WITHIN
+        # each market, then equal-weight average across markets that had
+        # a valid basket this rebal. v4.12 adds per-stock Kelly allocation.
+        market_long_rets = {}
+        market_long_weights = {}          # v4.12 — track for diagnostics
+        recent_mu = (np.mean(top_decile_rets_history[-KELLY_LOOKBACK:])
+                     if len(top_decile_rets_history) >= 3 else 0.05)
 
-    long_ret  = float((longs['actual'].values * wL).sum())
-    short_ret = float((shorts['actual'].values * wS).sum()) if not shorts.empty else 0.0
+        for mkt in grp['market'].unique():
+            mkt_grp = grp[grp['market'] == mkt]
+            if len(mkt_grp) < 10:
+                continue
+            mkt_hi = mkt_grp['signal'].quantile(1 - TOP_FRAC)
+            mkt_longs = mkt_grp[mkt_grp['signal'] >= mkt_hi].copy()
+            if mkt_longs.empty:
+                continue
 
-    if LONG_ONLY:
+            if KELLY_ALLOC:
+                wL_m = _kelly_alloc_weights(mkt_longs, rd, recent_mu)
+            elif SIGNAL_WEIGHTED:
+                wL_m = _signal_weights(mkt_longs, side='long')
+            else:
+                wL_m = np.ones(len(mkt_longs)) / len(mkt_longs)
+
+            market_long_rets[mkt] = float((mkt_longs['actual'].values * wL_m).sum())
+            market_long_weights[mkt] = {
+                'tickers': mkt_longs['ticker'].tolist(),
+                'weights': [round(float(w), 4) for w in wL_m],
+                'signals': [round(float(s), 4) for s in mkt_longs['signal'].values],
+                'fwd_returns': [round(float(r), 4) for r in mkt_longs['actual'].values],
+            }
+
+        if not market_long_rets:
+            continue
+        long_ret = float(np.mean(list(market_long_rets.values())))
+        short_ret = 0.0
         raw_ret = long_ret
-    else:
-        raw_ret = 0.5 * long_ret - 0.5 * short_ret
 
-    # Vol-target leverage
-    if VOL_TARGET and len(recent_rets) >= 3:
+        # v4.12 — record allocation snapshot for this rebal
+        allocation_log.append({
+            'date': str(pd.Timestamp(rd).date()),
+            'markets': market_long_weights,
+            'recent_mu': round(float(recent_mu), 4),
+        })
+    else:
+        # Pooled cross-section selection (v4.8 and earlier behaviour)
+        if SIGNAL_WEIGHTED:
+            wL = _signal_weights(longs,  side='long')
+            wS = _signal_weights(shorts, side='short') if not shorts.empty else np.array([])
+        else:
+            wL = np.ones(len(longs))  / len(longs)
+            wS = np.ones(len(shorts)) / len(shorts) if not shorts.empty else np.array([])
+
+        long_ret  = float((longs['actual'].values * wL).sum())
+        short_ret = float((shorts['actual'].values * wS).sum()) if not shorts.empty else 0.0
+
+        if LONG_ONLY:
+            raw_ret = long_ret
+        else:
+            raw_ret = 0.5 * long_ret - 0.5 * short_ret
+
+    # v4.10 — Kelly sizing on top-decile basket return
+    if KELLY_CRITERION and len(top_decile_rets_history) >= KELLY_WARMUP:
+        recent = np.array(top_decile_rets_history[-KELLY_LOOKBACK:])
+        mu = float(np.mean(recent))
+        sigma2 = float(np.var(recent))
+        if sigma2 > 1e-12 and mu > 0:
+            kelly_full = mu / sigma2
+            lev = float(np.clip(KELLY_FRACTION * kelly_full,
+                                 KELLY_MIN_LEV, KELLY_MAX_LEV))
+        else:
+            # Negative mean or undefined vol — sit out (minimum size)
+            lev = KELLY_MIN_LEV
+    elif VOL_TARGET and len(recent_rets) >= 3:
+        # Fallback during Kelly warm-up: use vol-target
         realised_vol_ann = np.std(recent_rets[-VOL_LOOKBACK:]) * np.sqrt(252 / REBAL_DAYS)
         if realised_vol_ann > 1e-6:
             lev = float(np.clip(VOL_TARGET_ANN / realised_vol_ann,
@@ -961,6 +1127,7 @@ for rd in rebal_dates:
 
     cum_eq *= (1 + net); peak_eq = max(peak_eq, cum_eq)
     recent_rets.append(net)
+    top_decile_rets_history.append(raw_ret)   # UNLEVERED for next iter's Kelly
     period_returns.append({'date': rd, 'return': net, 'gross': gross_ret, 'lev': lev})
 
 perf_df    = pd.DataFrame(period_returns).set_index('date')
@@ -1087,11 +1254,25 @@ print(f'Saved: {BASE}/shap_importance_v4.png')
 
 
 # ═══════════════════════════════════════════════════════════════════════
-# CELL 16 — Top 20 by signal at latest rebalance
+# CELL 16 — Top 20 by signal at latest rebalance + v4.12 Kelly allocation
 # ═══════════════════════════════════════════════════════════════════════
 latest_rebal = rebal_dates[-1]
 grp_latest = bt[bt['date'] == latest_rebal].copy().sort_values('signal', ascending=False)
 threshold_latest = grp_latest['signal'].quantile(1 - TOP_DECILE)
+
+# v4.12 — pull the latest Kelly allocation snapshot for the Portfolio view
+latest_alloc = allocation_log[-1] if allocation_log else None
+ticker_to_kelly_weight = {}
+if latest_alloc is not None:
+    for mkt, info in latest_alloc['markets'].items():
+        # Within each market basket, weights sum to 1; combined book = 1/N_mkts each
+        n_mkts = len(latest_alloc['markets'])
+        for tk, w in zip(info['tickers'], info['weights']):
+            ticker_to_kelly_weight[tk] = ticker_to_kelly_weight.get(tk, 0.0) + (w / n_mkts)
+    print(f'\nv4.12 Kelly portfolio allocation at {latest_alloc["date"]} '
+          f'(recent_mu={latest_alloc["recent_mu"]:+.4f}):')
+    for tk, w in sorted(ticker_to_kelly_weight.items(), key=lambda kv: -kv[1])[:20]:
+        print(f'  {tk:<12s}  {w*100:>6.2f}%')
 top_decile_count = int((grp_latest['signal'] >= threshold_latest).sum())
 
 top20 = grp_latest.head(20).copy()
@@ -1148,12 +1329,29 @@ shap_data = [{'feature': r['feature'],
 
 top_stocks_data = []
 for i, (_, row) in enumerate(grp_latest.head(20).iterrows()):
+    tk = row['ticker']
+    kelly_w = ticker_to_kelly_weight.get(tk, 0.0)
     top_stocks_data.append({
-        'rank': i + 1, 'ticker': row['ticker'],
+        'rank': i + 1, 'ticker': tk,
         'signal': round(float(row['signal']), 6),
         'fwd_return_pct': round(float(row['actual']) * 100, 2),
         'in_portfolio': i < top_decile_count,
+        # v4.12 — Kelly allocation as % of book
+        'kelly_weight_pct': round(float(kelly_w) * 100, 3),
     })
+
+# v4.12 — also export the full Kelly allocation history for charting / audit
+# All numeric fields default to 0 (not None) for JS toFixed safety
+_lr_mu = float(latest_alloc['recent_mu']) if (latest_alloc and np.isfinite(latest_alloc['recent_mu'])) else 0.0
+dashboard_data_kelly_alloc_extra = {
+    'latest_date': latest_alloc['date'] if latest_alloc else '',
+    'latest_recent_mu': round(_lr_mu, 4),
+    'latest_allocation': [
+        {'ticker': tk, 'weight_pct': round(float(w) * 100, 3)}
+        for tk, w in sorted(ticker_to_kelly_weight.items(), key=lambda kv: -kv[1])
+    ],
+    'history_length': len(allocation_log),
+}
 
 # OOF scatter (subsample to 2000)
 oof_sig = signal_winsorised.values
@@ -1242,6 +1440,28 @@ metrics = {
     'top_frac': float(TOP_FRAC),
     'n_seeds': len(SEEDS),
     'n_horizons': len(HORIZONS),
+    # v4.9 / v4.10
+    'per_market_backtest': bool(PER_MARKET_BACKTEST),
+    'kelly_criterion': bool(KELLY_CRITERION),
+    'kelly_fraction': float(KELLY_FRACTION),
+    'kelly_lookback': int(KELLY_LOOKBACK),
+    'kelly_warmup': int(KELLY_WARMUP),
+    'kelly_max_lev': float(KELLY_MAX_LEV),
+    'kelly_active_periods': int(sum(1 for r in period_returns
+                                     if r.get('lev', 1.0) != 1.0
+                                     and r.get('lev', 1.0) != MIN_LEVERAGE)),
+    'kelly_basket_mu_last': (
+        round(float(np.mean(top_decile_rets_history[-KELLY_LOOKBACK:])) * 100, 3)
+        if len(top_decile_rets_history) >= KELLY_LOOKBACK
+           and np.isfinite(np.mean(top_decile_rets_history[-KELLY_LOOKBACK:]))
+        else 0.0
+    ),
+    'kelly_basket_sigma_last': (
+        round(float(np.std(top_decile_rets_history[-KELLY_LOOKBACK:])) * 100, 3)
+        if len(top_decile_rets_history) >= KELLY_LOOKBACK
+           and np.isfinite(np.std(top_decile_rets_history[-KELLY_LOOKBACK:]))
+        else 0.0
+    ),
 }
 
 config = {
@@ -1263,6 +1483,14 @@ config = {
     'MAX_LEVERAGE': float(MAX_LEVERAGE),
     'MIN_LEVERAGE': float(MIN_LEVERAGE),
     'SEEDS': list(SEEDS),
+    # v4.9 / v4.10
+    'PER_MARKET_BACKTEST': bool(PER_MARKET_BACKTEST),
+    'KELLY_CRITERION': bool(KELLY_CRITERION),
+    'KELLY_FRACTION': float(KELLY_FRACTION),
+    'KELLY_LOOKBACK': int(KELLY_LOOKBACK),
+    'KELLY_WARMUP': int(KELLY_WARMUP),
+    'KELLY_MAX_LEV': float(KELLY_MAX_LEV),
+    'KELLY_MIN_LEV': float(KELLY_MIN_LEV),
 }
 
 terminal_lines = [
@@ -1302,7 +1530,7 @@ terminal_lines.append('Pipeline v4.1 complete')
 
 dashboard_data = {
     'generated_at': str(pd.Timestamp.now()),
-    'pipeline_version': 'v4.7',
+    'pipeline_version': 'v4.9',
     'config': config, 'metrics': metrics, 'equity': equity_data,
     'folds': fold_data, 'shap': shap_data,
     'top_stocks': top_stocks_data, 'top20': top_stocks_data,
@@ -1340,7 +1568,8 @@ for rd in rebal_dates:
     t = grp[grp['signal'] >= th_hi]; b = grp[grp['signal'] <= th_lo]
     if len(t) == 0 or len(b) == 0: continue
     ls_dates.append(str(pd.Timestamp(rd).date()))
-    ls_top.append(float(t['actual'].mean())); ls_bot.append(float(b['actual'].mean()))
+    ls_top.append(float(t['actual'].mean()))
+    ls_bot.append(float(b['actual'].mean()))
 cum_top = list(np.cumprod(1 + np.array(ls_top)))
 cum_bot = list(np.cumprod(1 + np.array(ls_bot)))
 long_short_data = {
@@ -1429,23 +1658,72 @@ if len(decile_log) > 0:
         ),
     }
 
-out_path = BASE / 'dashboard_data_v4.json'
-with open(out_path, 'w') as f:
-    json.dump(dashboard_data, f, indent=2, default=str)
+# v4.10 — Kelly leverage trace per rebal (numeric fields are JS-safe)
+def _safe_num(x, default=0.0):
+    try:
+        v = float(x)
+        return round(v, 4) if np.isfinite(v) else default
+    except (TypeError, ValueError):
+        return default
 
-print(f'\nDashboard data v4.6 -> {out_path}')
+dashboard_data['kelly_trace'] = {
+    'dates': [str(pd.Timestamp(r['date']).date()) for r in period_returns],
+    'leverage': [_safe_num(r.get('lev', 1.0), 1.0) for r in period_returns],
+    'basket_return': [
+        _safe_num(top_decile_rets_history[i] if i < len(top_decile_rets_history) else 0.0, 0.0)
+        for i in range(len(period_returns))
+    ],
+}
+
+# v4.12 — per-name Kelly allocation (Portfolio view)
+dashboard_data['kelly_allocation'] = dashboard_data_kelly_alloc_extra
+
+out_path = BASE / 'dashboard_data_v4.json'
+
+# v4.12 — recursively replace NaN/Inf with 0 before serialising so the JS
+# dashboard's toFixed/Number calls don't crash on non-numeric tokens.
+def _scrub_nans(obj):
+    if isinstance(obj, dict):
+        return {k: _scrub_nans(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [_scrub_nans(v) for v in obj]
+    if isinstance(obj, float):
+        if not np.isfinite(obj):
+            return 0.0
+        return obj
+    return obj
+
+dashboard_data = _scrub_nans(dashboard_data)
+
+# v4.12 — ATOMIC write: dump to .tmp, flush+fsync, then os.replace.
+# The earlier run wrote a truncated JSON (cut off mid decile_calibration array)
+# which the dashboard parses as "invalid JSON | Cannot read property toFixed".
+# Atomic rename guarantees the dashboard sees either the old full file or the
+# new full file — never a half-written one.
+import os as _os
+_tmp_path = str(out_path) + '.tmp'
+with open(_tmp_path, 'w') as f:
+    json.dump(dashboard_data, f, indent=2, default=str, allow_nan=False)
+    f.flush()
+    _os.fsync(f.fileno())
+_os.replace(_tmp_path, str(out_path))
+
+print(f'\nDashboard data v4.12 -> {out_path}')
 print(f'  Mode               : {mode}')
 print(f'  Sharpe net / gross : {sharpe:.2f} / {sharpe_gross:.2f}')
 print(f'  Return net / gross : {ann_return*100:.1f}% / {ann_ret_gross*100:.1f}%')
 print(f'  Realised vol / lev : {realised_vol*100:.1f}% / {avg_lev:.2f}x')
+if KELLY_CRITERION:
+    _active = sum(1 for r in period_returns if r.get('lev',1.0) not in (1.0, MIN_LEVERAGE))
+    print(f'  Kelly book lev    active in {_active}/{len(period_returns)} rebals at f={KELLY_FRACTION}')
+if KELLY_ALLOC:
+    print(f'  Kelly per-name alloc used in {len(allocation_log)} rebals')
 print(f'  OOF IC perdate     : {ic_oof:+.4f}')
 print(f'  Sortino / Calmar   : {sortino:.2f} / {calmar:.2f}')
-_spread = (quantile_returns_list[-1]["mean_return"] - quantile_returns_list[0]["mean_return"]) * 100
-print(f'  Quantile spread D10-D1: {_spread:.3f}%')
-if len(decile_returns_history) > 0:
-    _exp = decile_returns_history.tail(CALIB_LOOKBACK).mean(axis=0)
-    print(f'  Avg expected return by decile (last {CALIB_LOOKBACK} rebals):')
-    for d in range(1, N_DECILES + 1):
-        v = _exp.get(d, np.nan)
-        print(f'    D{d:2d}: {v*100:+.2f}%')
+try:
+    _d_means = decile_returns_history.mean()
+    _spread = float((_d_means.get(N_DECILES, np.nan) - _d_means.get(1, np.nan)) * 100)
+    print(f'  Quantile spread D{N_DECILES}-D1: {_spread:.3f}%')
+except Exception:
+    pass
 print('\nOpen dashboard.html and drop dashboard_data_v4.json onto it.')
