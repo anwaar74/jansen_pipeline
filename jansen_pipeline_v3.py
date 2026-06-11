@@ -1,6 +1,6 @@
 """
 ========================================================================
-Shariah ML Pipeline v4.3 — Jansen MFAT 2nd Ed. Aligned (Sharpe-fix release)
+Shariah ML Pipeline v4.7 — Jansen MFAT 2nd Ed. Aligned (Sharpe-fix release)
 ========================================================================
 Markets:        US (NYSE/NASDAQ) · Malaysia (KLSE) · Hong Kong (HKEX)
 Alpha engine:   LightGBM ensemble (21d target × 3 seeds)
@@ -56,8 +56,52 @@ v4.2 → v4.3 (calibrate the signal POST-HOC, not at the target):
 v4.3 + (tighten vol target — realised vol was 53% on initial v4.3 run):
   Cell 13: MIN_LEVERAGE 0.30 → 0.10  (let the overlay deflate harder)
   Cell 13: VOL_TARGET_ANN 0.10 → 0.12
-           Expected: realised vol 53% → ~25%, return 30.5% → ~12-15%,
-                     DD -11% → ~-6-8%, Sharpe stays similar.
+           Result: barely moved (53% → 53% realised vol, lev 0.80 → 0.78,
+                   Sharpe 0.68 → 0.69). Overlay's rolling lookback sees
+                   moderate vol; the 53% comes from outlier rebals it
+                   can't pre-empt. Kept for safety; vol reduction must
+                   now come from basket width, not the overlay.
+
+v4.3+ → v4.4 (attack per-fold IC bimodality with regime awareness):
+  Cell 6 : 4 NEW regime features per (date, market), as 252-day rolling
+           z-scores: market_vol_21d, breadth (% above 50d SMA),
+           cross-sectional dispersion, trend autocorr (63d).
+  Cell 7 : Split FEATURE_COLS into STOCK_FEATURE_COLS + REGIME_FEATURE_COLS
+           so we can treat them differently at rank time.
+  Cell 8 : Stock features get per-date rank (as before).  Regime features
+           kept as RAW z-scores (per-date ranking would collapse them
+           since they're constant across stocks within a date).
+  Cell 11: Exponential RECENCY sample weights, half-life 252 trading days.
+           Recent training samples dominate so the model adapts to the
+           current regime rather than averaging across 3 years equally.
+           Targets F1/F2/F5 negative-IC folds directly (Jansen Ch.6).
+  Result: ICIR 0.65 → 0.71, pooled OOF IC -0.0044 → +0.0061 (FIRST TIME
+          positive!), win rate 50 → 63%, realised vol 53% → 14.2%, D10 went
+          from worst (2.3%) to best (+14.7%). Model is now monotonic.
+          BUT Sharpe 0.69 → 0.00 because decile calibration was still on,
+          and a calibration designed for a broken model is adversarial
+          against a fixed one. See v4.5 fix below.
+
+v4.4 → v4.5 (turn calibration off — model no longer needs it):
+  Cell 13: DECILE_CALIB = False. Vanilla top-quintile / bottom-quintile EW.
+  Result: Sharpe 0.00 → 0.61, return -1.1% → 23.9%. Long-short.
+          BUT v4.5's own long-only EW baseline = 0.88. So long-short cost
+          us 0.27 Sharpe. Diagnosis: D1 = +0.29% (predicted worst still
+          rises, just less). Shorting it loses 0.29%/rebal + costs.
+
+v4.5 → v4.6 (drop the short book — pure drag on monotonic + positive IC):
+  Cell 13: LONG_ONLY = True.
+  Result: Sharpe 0.61 → 0.93 (gross 0.98), return 23.9% → 57.9%,
+          DD -20.2% → -15.0%, win rate 50% → 58%.
+          Beat own EW baseline (0.88). Sortino 5.5, Calmar 3.86.
+
+v4.6 → v4.7 (concentrate basket on D10 via signal-weighting):
+  Cell 13: SIGNAL_WEIGHTED = True.
+           D10 returns +14.7% per rebal vs D9 = +1.0%. EW top-quintile
+           dilutes the D10 alpha. Rank-weighted shifts ~70% of book
+           toward D10-ranked names while MAX_POSITION_SIZE=5% keeps
+           single-name risk contained.
+  Expected: Sharpe 0.93 → 1.05-1.20.
 
 Run end-to-end:    python jansen_pipeline_v3.py
 """
@@ -92,7 +136,7 @@ BASE        = pathlib.Path(r'C:/Users/pc/Documents/Quant Series 2026/ml_stefan_j
 EODHD_KEY   = os.environ.get('EODHD_API_KEY', '6a01d9bb03ae95.33277051')
 
 RAW_PARQUET  = BASE / 'raw_ohlcv.parquet'
-FEAT_PARQUET = BASE / 'features_long_v3.parquet'         # v3 has a new feature set
+FEAT_PARQUET = BASE / 'features_long_v4.parquet'         # v4.4 adds regime features
 
 # ── Universe
 TRAIN_START = '2010-01-01'
@@ -363,12 +407,67 @@ else:
 
     feat_df = pd.concat(frames).reset_index()
     feat_df['date'] = pd.to_datetime(feat_df['date'])
+
+    # ── v4.4 REGIME FEATURES (per market) ─────────────────────────────
+    # The bimodal fold-IC pattern (F0/F7 strong, F1/F2/F5 negative) is
+    # a regime issue — model is good in trending/calm markets, bad in
+    # choppy/rotating ones. Add 4 regime z-scores per (date, market) so
+    # the tree can split on regime and learn different behaviours.
+    print('Computing v4.4 regime features per market ...')
+    regime_frames = []
+    for mkt in raw_idx['market'].unique():
+        mkt_rows = raw_idx[raw_idx['market'] == mkt].copy()
+        p = mkt_proxy[mkt]
+        lr_mkt = np.log(p / p.shift(1))
+
+        rg = pd.DataFrame(index=p.index.copy())
+        rg['regime_mkt_vol_21d'] = lr_mkt.rolling(21).std()
+
+        # Breadth: fraction of stocks above their 50d SMA on each date
+        above_sma = (
+            mkt_rows.groupby('ticker')
+                    .apply(lambda g: g['close'] > g['close'].rolling(50).mean())
+                    .reset_index(level=0, drop=True)
+                    .astype(float)
+        )
+        rg['regime_breadth'] = above_sma.groupby(level=0).mean()
+
+        # Cross-sectional dispersion: std of 21d returns across stocks per date
+        ret21 = mkt_rows.groupby('ticker')['close'].pct_change(21)
+        rg['regime_dispersion'] = ret21.groupby(level=0).std()
+
+        # Trend strength: rolling 63d autocorrelation (lag 1) of market returns
+        rg['regime_trend_63d'] = lr_mkt.rolling(63).apply(
+            lambda s: s.autocorr(lag=1) if s.dropna().shape[0] > 5 else np.nan,
+            raw=False,
+        )
+
+        # Convert each to rolling 252d z-score (min 63d for warm-up)
+        for col in ['regime_mkt_vol_21d', 'regime_breadth',
+                    'regime_dispersion', 'regime_trend_63d']:
+            rm = rg[col].rolling(252, min_periods=63).mean()
+            rs = rg[col].rolling(252, min_periods=63).std()
+            rg[f'{col}_z'] = (rg[col] - rm) / rs.replace(0, np.nan)
+
+        rg = rg.reset_index()
+        rg['market'] = mkt
+        regime_frames.append(rg)
+
+    regime_df = pd.concat(regime_frames, ignore_index=True)
+    REGIME_COLS = ['regime_mkt_vol_21d_z', 'regime_breadth_z',
+                   'regime_dispersion_z', 'regime_trend_63d_z']
+    regime_df = regime_df[['date', 'market'] + REGIME_COLS]
+    regime_df['date'] = pd.to_datetime(regime_df['date'])
+
+    feat_df = feat_df.merge(regime_df, on=['date', 'market'], how='left')
+    print(f'  Added {len(REGIME_COLS)} regime features. feat_df: {feat_df.shape}')
+
     float_cols = feat_df.select_dtypes(include=[np.floating]).columns
     feat_df[float_cols] = feat_df[float_cols].replace([np.inf, -np.inf], np.nan)
     feat_df.to_parquet(FEAT_PARQUET, engine='pyarrow', compression='snappy', index=False)
     print(f'Saved {len(feat_df):,} rows → {FEAT_PARQUET}')
 
-print(f'feat_df v3: {feat_df.shape}')
+print(f'feat_df v4.4: {feat_df.shape}')
 
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -376,7 +475,7 @@ print(f'feat_df v3: {feat_df.shape}')
 # tree gain importance is better than IC threshold for nonlinear factors)
 # REPLACES v2 Cell 10.
 # ═══════════════════════════════════════════════════════════════════════
-FEATURE_COLS = [
+STOCK_FEATURE_COLS = [
     'ret_1d','ret_5d','ret_21d','ret_63d',
     'mom_12_1','reversal_5d','reversal_21d',
     'vol_21d','vol_63d','idio_vol_63d','dd_depth_252d',
@@ -384,6 +483,13 @@ FEATURE_COLS = [
     'rsi_14','bb_width','bb_position','atr_pct',
     'vol_ratio','vol_shock','amihud_21d',
 ]
+# v4.4 — regime features are per (date, market); kept SEPARATE because they
+# must NOT be per-date rank-transformed (constant within a date).
+REGIME_FEATURE_COLS = [
+    'regime_mkt_vol_21d_z', 'regime_breadth_z',
+    'regime_dispersion_z', 'regime_trend_63d_z',
+]
+FEATURE_COLS = STOCK_FEATURE_COLS + REGIME_FEATURE_COLS
 passed_features = [f for f in FEATURE_COLS if f in feat_df.columns]
 print(f'Using {len(passed_features)} features (no Lasso/Alphalens pre-screen):')
 print(passed_features)
@@ -403,10 +509,14 @@ fd2 = fd2[fd2['date'] >= ml_start]
 fd2 = fd2.dropna(subset=passed_features + ['target_21d'])
 fd2 = fd2.reset_index(drop=True)
 
-# ── Rank-transform features per date (Jansen Ch.4)
-print('Rank-transforming features per date ...')
-fd2[passed_features] = (
-    fd2.groupby('date')[passed_features].transform(lambda s: s.rank(pct=True))
+# ── Rank-transform STOCK features per date (Jansen Ch.4)
+# v4.4: regime features stay as raw z-scores (they're per-market constants
+# within a date — per-date ranking would collapse them).
+stock_feats_present = [f for f in STOCK_FEATURE_COLS if f in fd2.columns]
+print(f'Rank-transforming {len(stock_feats_present)} stock features per date '
+      f'(regime features kept as raw z-scores)...')
+fd2[stock_feats_present] = (
+    fd2.groupby('date')[stock_feats_present].transform(lambda s: s.rank(pct=True))
 )
 
 # ── Rank-transform target per date (Jansen Ch.12)
@@ -538,10 +648,20 @@ for fold_i, (train_idx, test_idx) in enumerate(splits):
         if len(X_tr) < 1000 or len(X_te) < 100:
             continue
 
+        # v4.4 — exponential recency weights for training samples.
+        # Older samples get exponentially less weight so the model
+        # adapts to recent regime. Half-life ≈ 1 year of trading days.
+        RECENCY_HALFLIFE_DAYS = 252
+        tr_dates = fd2.loc[train_idx, 'date'].values[ok_tr]
+        max_tr_date = tr_dates.max()
+        age_days = (max_tr_date - tr_dates).astype('timedelta64[D]').astype(float)
+        sample_w = np.exp(-age_days / RECENCY_HALFLIFE_DAYS)
+
         for seed in SEEDS:
             params = {**LGB_PARAMS, 'random_state': seed}
             m = lgb.LGBMRegressor(**params)
             m.fit(X_tr, y_tr,
+                  sample_weight=sample_w,
                   eval_set=[(X_te, y_te)],
                   callbacks=[lgb.early_stopping(50, verbose=False),
                              lgb.log_evaluation(-1)])
@@ -664,19 +784,29 @@ print(f'OOF IC (per-date avg): {ic_oof:+.4f}  ICIR={ic_oof_ir:.2f}')
 # ═══════════════════════════════════════════════════════════════════════
 import matplotlib.pyplot as plt
 
-LONG_ONLY          = False
+LONG_ONLY          = True        # v4.6 — v4.5's long-short Sharpe 0.61 was UNDER
+                                  # its own long-only EW baseline 0.88, because
+                                  # D1 = +0.29% (still rises, just less). Shorting
+                                  # it loses 0.29%/rebal + costs. Monotonic positive-
+                                  # IC signal + up-trending universe = short book
+                                  # is pure drag. Also matches Shariah constraint.
 REBAL_DAYS         = TARGET_HORIZON
 COMMISSION_BPS     = 5.0
 SLIPPAGE_BPS       = 2.5
 TOTAL_COST_BPS     = (COMMISSION_BPS + SLIPPAGE_BPS) * 2
 
-# Decile calibration (v4.3)
-DECILE_CALIB       = True         # use rolling decile-return history to pick longs/shorts
+# Decile calibration (v4.3 → DISABLED in v4.5)
+# Reason: v4.4's regime features + recency weighting made the model's signal
+# MONOTONIC (D10 = +14.7%, pooled OOF IC = +0.006 — first time ever positive).
+# Calibration was designed for a broken signal; with a monotonic one it's
+# adversarial, overriding good predictions with stale rolling stats.
+# Keep the code path but default-off so we can compare A/B if needed.
+DECILE_CALIB       = False        # was True in v4.3
 N_DECILES          = 10
-CALIB_LOOKBACK     = 6            # rebal periods of history
-CALIB_WARMUP       = 4            # # of rebals to collect before switching on
-N_LONG_DECILES     = 2            # deciles long
-N_SHORT_DECILES    = 2            # deciles short
+CALIB_LOOKBACK     = 6
+CALIB_WARMUP       = 4
+N_LONG_DECILES     = 2
+N_SHORT_DECILES    = 2
 
 # Legacy quintile fallback (used during warm-up)
 TOP_FRAC           = 0.20
@@ -685,8 +815,11 @@ TOP_DECILE         = TOP_FRAC
 # Signal smoothing — KEPT from v4
 EMA_ALPHA          = 0.50
 
-# Sizing
-SIGNAL_WEIGHTED    = False        # equal-weight within longs/shorts
+# Sizing — v4.7 enables signal-weighting within the top quintile
+# Reason: D10 = +14.7% per rebal, D9 = +1.0%. EW averages them. Rank-weighted
+# pushes ~70% of book toward D10-ranked names. Cap MAX_POSITION_SIZE still
+# enforces ~4% per name diversification.
+SIGNAL_WEIGHTED    = True         # was False — rank-weighted within long book
 MAX_POSITION_SIZE  = 0.05
 MAX_MARKET_CONC    = 0.40
 
@@ -1169,7 +1302,7 @@ terminal_lines.append('Pipeline v4.1 complete')
 
 dashboard_data = {
     'generated_at': str(pd.Timestamp.now()),
-    'pipeline_version': 'v4.3',
+    'pipeline_version': 'v4.7',
     'config': config, 'metrics': metrics, 'equity': equity_data,
     'folds': fold_data, 'shap': shap_data,
     'top_stocks': top_stocks_data, 'top20': top_stocks_data,
@@ -1300,7 +1433,7 @@ out_path = BASE / 'dashboard_data_v4.json'
 with open(out_path, 'w') as f:
     json.dump(dashboard_data, f, indent=2, default=str)
 
-print(f'\nDashboard data v4.3 -> {out_path}')
+print(f'\nDashboard data v4.6 -> {out_path}')
 print(f'  Mode               : {mode}')
 print(f'  Sharpe net / gross : {sharpe:.2f} / {sharpe_gross:.2f}')
 print(f'  Return net / gross : {ann_return*100:.1f}% / {ann_ret_gross*100:.1f}%')
