@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ATLAS — Algorithmic Capital Allocator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+  :root {
+    --bg: #07070a;
+    --bg-2: #0d0d12;
+    --ink: #f4f4f6;
+    --ink-2: #9a9aa6;
+    --ink-3: #555560;
+    --accent: #b6ff5b;
+    --accent-2: #6dd6ff;
+    --warn: #ff7a59;
+    --line: rgba(255,255,255,0.07);
+    --card: rgba(255,255,255,0.025);
+    --card-bd: rgba(255,255,255,0.08);
+    --shadow: 0 30px 60px -20px rgba(0,0,0,0.7);
+    --r: 18px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); color: var(--ink); font-family: 'Inter', system-ui, sans-serif; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+  body { min-height: 100vh; position: relative; }
+  ::selection { background: var(--accent); color: var(--bg); }
+
+  /* Three.js canvas */
+  #bg-canvas {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    opacity: 0.7;
+  }
+  .grain {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2' seed='5'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.35 0'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>");
+    mix-blend-mode: overlay; opacity: 0.18;
+  }
+
+  /* Layout */
+  .wrap { position: relative; z-index: 2; max-width: 1340px; margin: 0 auto; padding: 0 36px; }
+  @media (max-width: 720px) { .wrap { padding: 0 20px; } }
+
+  /* Nav */
+  nav.top {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 28px 0; position: relative; z-index: 5;
+  }
+  .logo {
+    font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px;
+    letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px;
+  }
+  .logo-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 14px var(--accent); }
+  nav .links { display: flex; gap: 28px; font-size: 13px; color: var(--ink-2); }
+  nav .links a { color: inherit; text-decoration: none; transition: color 0.2s; }
+  nav .links a:hover { color: var(--accent); }
+  nav .cta {
+    border: 1px solid var(--card-bd); padding: 9px 16px; border-radius: 999px;
+    font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase;
+    background: var(--card); cursor: pointer; color: var(--ink);
+    transition: all 0.25s;
+  }
+  nav .cta:hover { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+  @media (max-width: 720px) { nav .links { display: none; } }
+
+  /* Hero */
+  .hero { padding: 80px 0 100px; position: relative; }
+  .hero .eyebrow {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-2);
+    letter-spacing: 0.18em; text-transform: uppercase;
+    border: 1px solid var(--card-bd); padding: 8px 14px; border-radius: 999px;
+    background: var(--card); margin-bottom: 32px;
+  }
+  .eyebrow .live { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 1.8s infinite; }
+  @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(182,255,91,0.5); } 50% { box-shadow: 0 0 0 8px rgba(182,255,91,0); } }
+  .hero h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(48px, 9vw, 140px); font-weight: 500; line-height: 0.92;
+    letter-spacing: -0.04em; max-width: 1100px;
+  }
+  .hero h1 .italic { font-style: italic; font-weight: 300; color: var(--accent); }
+  .hero h1 .stroke {
+    -webkit-text-stroke: 1.2px var(--ink); color: transparent;
+  }
+  .hero .sub {
+    margin-top: 36px; max-width: 540px; color: var(--ink-2);
+    font-size: clamp(15px, 1.6vw, 18px); line-height: 1.6;
+  }
+  .hero-stats {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;
+    margin-top: 80px; padding-top: 36px; border-top: 1px solid var(--line);
+  }
+  @media (max-width: 720px) { .hero-stats { grid-template-columns: repeat(2, 1fr); gap: 24px; } }
+  .stat .k { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-2); letter-spacing: 0.14em; text-transform: uppercase; }
+  .stat .v {
+    font-family: 'Space Grotesk', sans-serif; font-weight: 500;
+    font-size: clamp(28px, 3.4vw, 44px); letter-spacing: -0.02em; margin-top: 8px;
+  }
+  .stat .v small { color: var(--ink-3); font-size: 0.45em; margin-left: 4px; }
+  .stat.accent .v { color: var(--accent); }
+
+  /* Section header */
+  .section { padding: 110px 0 30px; position: relative; }
+  .section-head {
+    display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 20px;
+    margin-bottom: 48px; padding-bottom: 24px; border-bottom: 1px solid var(--line);
+  }
+  .section-head h2 {
+    font-family: 'Space Grotesk', sans-serif; font-weight: 500;
+    font-size: clamp(32px, 5vw, 60px); letter-spacing: -0.03em; line-height: 1;
+  }
+  .section-head .tag {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-2);
+    letter-spacing: 0.14em; text-transform: uppercase;
+  }
+
+  /* Allocator card */
+  .allocator {
+    display: grid; grid-template-columns: 420px 1fr; gap: 32px;
+    align-items: stretch;
+  }
+  @media (max-width: 980px) { .allocator { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--card); border: 1px solid var(--card-bd);
+    border-radius: var(--r); padding: 32px; backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+  .card h3 {
+    font-family: 'Space Grotesk', sans-serif; font-weight: 500;
+    font-size: 22px; letter-spacing: -0.02em; margin-bottom: 6px;
+  }
+  .card .sub-h { font-size: 13px; color: var(--ink-2); margin-bottom: 28px; line-height: 1.55; }
+
+  /* Budget input */
+  .field { margin-bottom: 22px; }
+  .field label {
+    display: block; font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-2); margin-bottom: 10px;
+  }
+  .budget-row { display: flex; align-items: center; gap: 12px; }
+  .budget-row .prefix {
+    font-family: 'Space Grotesk', sans-serif; font-size: 28px; color: var(--ink-2); font-weight: 400;
+  }
+  .budget-row input[type="number"] {
+    flex: 1; background: transparent; border: none; outline: none; color: var(--ink);
+    font-family: 'Space Grotesk', sans-serif; font-size: 38px; font-weight: 500;
+    letter-spacing: -0.02em; padding: 4px 0; border-bottom: 1px solid var(--card-bd);
+    transition: border-color 0.2s;
+  }
+  .budget-row input[type="number"]:focus { border-color: var(--accent); }
+  .budget-row input::-webkit-outer-spin-button,
+  .budget-row input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+  .slider-row { margin-top: 14px; display: flex; align-items: center; gap: 14px; }
+  .slider-row input[type="range"] {
+    flex: 1; -webkit-appearance: none; appearance: none; height: 4px; background: var(--card-bd);
+    border-radius: 4px; outline: none;
+  }
+  .slider-row input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none; width: 18px; height: 18px;
+    border-radius: 50%; background: var(--accent); cursor: grab; border: 3px solid var(--bg);
+    box-shadow: 0 0 0 1px var(--accent);
+  }
+
+  .control-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .control-row .pill {
+    border: 1px solid var(--card-bd); background: transparent; color: var(--ink-2);
+    padding: 8px 14px; border-radius: 999px; cursor: pointer; font-size: 12px;
+    font-family: 'JetBrains Mono', monospace; transition: all 0.2s;
+  }
+  .control-row .pill:hover { color: var(--ink); border-color: var(--ink-2); }
+  .control-row .pill.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+
+  .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 28px; }
+  .actions .btn {
+    border: 1px solid var(--card-bd); background: transparent; color: var(--ink);
+    padding: 14px 18px; border-radius: 12px; cursor: pointer; font-size: 13px;
+    font-family: 'Inter', sans-serif; font-weight: 500; transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .actions .btn:hover { background: var(--card); border-color: var(--accent); color: var(--accent); }
+  .actions .btn.primary { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+  .actions .btn.primary:hover { background: transparent; color: var(--accent); }
+  .actions .btn svg { width: 14px; height: 14px; }
+
+  /* Allocation summary */
+  .alloc-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 26px; padding-top: 26px; border-top: 1px solid var(--line); }
+  .alloc-summary .micro { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-2); }
+  .alloc-summary .val { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 500; margin-top: 4px; letter-spacing: -0.01em; }
+
+  /* Table card */
+  .table-card { padding: 0; overflow: hidden; }
+  .table-head {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 28px 32px; border-bottom: 1px solid var(--line);
+  }
+  .table-head h3 { font-family: 'Space Grotesk', sans-serif; font-weight: 500; font-size: 18px; }
+  .table-head .meta { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-2); letter-spacing: 0.1em; text-transform: uppercase; }
+  .table-wrap { max-height: 620px; overflow-y: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    position: sticky; top: 0; background: rgba(7,7,10,0.92); backdrop-filter: blur(8px);
+    text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    color: var(--ink-2); letter-spacing: 0.14em; text-transform: uppercase;
+    padding: 14px 32px; border-bottom: 1px solid var(--line); font-weight: 500;
+  }
+  thead th.num { text-align: right; }
+  tbody td {
+    padding: 14px 32px; border-bottom: 1px solid var(--line);
+    font-size: 14px; vertical-align: middle;
+  }
+  tbody tr:hover { background: rgba(255,255,255,0.015); }
+  tbody td.num { text-align: right; font-family: 'JetBrains Mono', monospace; }
+  td .ticker { font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 16px; letter-spacing: -0.01em; }
+  td .market {
+    display: inline-block; margin-left: 8px; padding: 2px 8px; font-size: 9.5px;
+    font-family: 'JetBrains Mono', monospace; letter-spacing: 0.12em;
+    border: 1px solid var(--card-bd); border-radius: 999px; color: var(--ink-2);
+    vertical-align: middle;
+  }
+  td .market.US { color: var(--accent-2); border-color: rgba(109,214,255,0.3); }
+  td .market.MY { color: #ffd166; border-color: rgba(255,209,102,0.3); }
+  td .market.HK { color: #ff8fab; border-color: rgba(255,143,171,0.3); }
+  .bar {
+    height: 6px; background: var(--card-bd); border-radius: 4px; overflow: hidden; min-width: 80px;
+  }
+  .bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); border-radius: 4px; transform-origin: left; transform: scaleX(0); transition: transform 0.6s cubic-bezier(.2,.8,.3,1); }
+
+  /* Toolbar (data ops) */
+  .toolbar {
+    display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end;
+    padding: 20px 32px; border-top: 1px solid var(--line);
+  }
+  .toolbar .tbtn {
+    border: 1px solid var(--card-bd); background: transparent; color: var(--ink-2);
+    padding: 9px 14px; border-radius: 999px; cursor: pointer; font-size: 12px;
+    font-family: 'JetBrains Mono', monospace; letter-spacing: 0.06em;
+    display: inline-flex; align-items: center; gap: 7px; transition: all 0.2s;
+  }
+  .toolbar .tbtn:hover { color: var(--ink); border-color: var(--accent); }
+  .toolbar .tbtn svg { width: 12px; height: 12px; }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--bg-2); border: 1px solid var(--card-bd); color: var(--ink);
+    padding: 12px 20px; border-radius: 999px; font-size: 13px;
+    z-index: 100; opacity: 0; pointer-events: none; transition: all 0.3s;
+    font-family: 'JetBrains Mono', monospace; letter-spacing: 0.04em;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.error { border-color: var(--warn); color: var(--warn); }
+
+  /* Footer */
+  footer {
+    margin-top: 140px; padding: 60px 0 40px; border-top: 1px solid var(--line);
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 24px;
+    color: var(--ink-2); font-size: 12px; font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.08em;
+  }
+  footer .signature {
+    font-family: 'Space Grotesk', sans-serif; font-size: 14px;
+    letter-spacing: -0.01em; color: var(--ink);
+  }
+
+  /* Reveal helper */
+  .reveal { opacity: 0; transform: translateY(40px); }
+
+  /* Empty state */
+  .empty {
+    padding: 80px 32px; text-align: center; color: var(--ink-2);
+    font-family: 'JetBrains Mono', monospace; font-size: 13px;
+  }
+
+  /* Hidden file input */
+  input[type="file"].hidden { display: none; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--card-bd); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--ink-3); }
+
+  /* Marquee strip */
+  .marquee {
+    margin-top: 80px; padding: 24px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+    overflow: hidden; white-space: nowrap; position: relative;
+  }
+  .marquee-track { display: inline-block; animation: scroll 40s linear infinite; }
+  .marquee-track span {
+    font-family: 'Space Grotesk', sans-serif; font-size: 28px; font-weight: 300;
+    margin: 0 36px; color: var(--ink-2); font-style: italic;
+  }
+  .marquee-track span .dot { color: var(--accent); margin: 0 4px; }
+  @keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+</style>
+</head>
+<body>
+  <canvas id="bg-canvas"></canvas>
+  <div class="grain"></div>
+
+  <div class="wrap">
+    <nav class="top">
+      <div class="logo"><span class="logo-dot"></span> ATLAS<span style="color:var(--ink-3);font-weight:400;margin-left:6px;">/</span><span style="font-weight:400;color:var(--ink-2);">capital</span></div>
+      <div class="links">
+        <a href="#allocator">Allocator</a>
+        <a href="#ranking">Ranking</a>
+        <a href="#method">Method</a>
+        <a href="dashboard.html">Dashboard</a>
+      </div>
+      <button class="cta" onclick="document.getElementById('allocator').scrollIntoView({behavior:'smooth'})">Start →</button>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="eyebrow" data-anim="eyebrow"><span class="live"></span> v4.9 · Sharpe 0.90 · Live signal as of <span id="hero-date">—</span></div>
+      <h1 data-anim="title">
+        <span class="line">Capital,</span><br>
+        <span class="line italic">allocated</span><br>
+        <span class="line stroke">by intent.</span>
+      </h1>
+      <p class="sub" data-anim="sub">
+        A Shariah-screened, machine-learned signal across US, MY, and HK equities.
+        Per-market top-quintile, signal-weighted, vol-targeted. Built on the Jansen
+        MFAT framework — and tuned the long way.
+      </p>
+
+      <div class="hero-stats">
+        <div class="stat accent" data-anim="stat"><div class="k">Net Sharpe</div><div class="v" data-count="0.90">0.00</div></div>
+        <div class="stat" data-anim="stat"><div class="k">Annual return</div><div class="v" data-count="70.8" data-suffix="%">0%</div></div>
+        <div class="stat" data-anim="stat"><div class="k">Max drawdown</div><div class="v" data-count="-8.2" data-suffix="%">0%</div></div>
+        <div class="stat" data-anim="stat"><div class="k">Calmar</div><div class="v" data-count="8.66">0.00</div></div>
+      </div>
+    </section>
+
+    <!-- MARQUEE -->
+    <div class="marquee">
+      <div class="marquee-track">
+        <span>per-market diversification<span class="dot">●</span></span>
+        <span>kelly allocation<span class="dot">●</span></span>
+        <span>recency-weighted lightGBM<span class="dot">●</span></span>
+        <span>vol-targeted overlay<span class="dot">●</span></span>
+        <span>ema-smoothed signal<span class="dot">●</span></span>
+        <span>shariah-screened universe<span class="dot">●</span></span>
+        <span>per-market diversification<span class="dot">●</span></span>
+        <span>kelly allocation<span class="dot">●</span></span>
+        <span>recency-weighted lightGBM<span class="dot">●</span></span>
+        <span>vol-targeted overlay<span class="dot">●</span></span>
+        <span>ema-smoothed signal<span class="dot">●</span></span>
+        <span>shariah-screened universe<span class="dot">●</span></span>
+      </div>
+    </div>
+
+    <!-- ALLOCATOR -->
+    <section class="section" id="allocator">
+      <div class="section-head reveal">
+        <h2>The Allocator.</h2>
+        <div class="tag">[ 01 — Kelly sizing on top decile ]</div>
+      </div>
+
+      <div class="allocator">
+        <!-- Input card -->
+        <div class="card reveal">
+          <h3>Budget</h3>
+          <p class="sub-h">Enter the capital you'd deploy across the current top decile. We'll apply a fractional Kelly weight to each name — sized by signal strength and per-stock variance, capped per position.</p>
+
+          <div class="field">
+            <label>Capital</label>
+            <div class="budget-row">
+              <span class="prefix">$</span>
+              <input type="number" id="budget" value="100000" min="100" step="1000" />
+            </div>
+            <div class="slider-row">
+              <input type="range" id="budget-slider" min="1000" max="1000000" step="1000" value="100000" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Kelly fraction</label>
+            <div class="control-row" id="frac-row">
+              <button class="pill" data-frac="0.10">⅒</button>
+              <button class="pill active" data-frac="0.15">v4.11</button>
+              <button class="pill" data-frac="0.25">¼</button>
+              <button class="pill" data-frac="0.5">½</button>
+              <button class="pill" data-frac="1.0">Full</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Position cap</label>
+            <div class="control-row" id="cap-row">
+              <button class="pill" data-cap="0.10">10%</button>
+              <button class="pill active" data-cap="0.15">15%</button>
+              <button class="pill" data-cap="0.20">20%</button>
+              <button class="pill" data-cap="0.25">25%</button>
+            </div>
+          </div>
+
+          <div class="alloc-summary">
+            <div><div class="micro">Names</div><div class="val" id="sum-n">—</div></div>
+            <div><div class="micro">Max wt</div><div class="val" id="sum-maxw">—</div></div>
+            <div><div class="micro">Deployed</div><div class="val" id="sum-deploy">—</div></div>
+          </div>
+
+          <div class="actions">
+            <button class="btn" onclick="downloadAllocation()">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3"/></svg>
+              Export plan
+            </button>
+            <button class="btn primary" onclick="recompute(true)">
+              Allocate →
+            </button>
+          </div>
+        </div>
+
+        <!-- Table card -->
+        <div class="card table-card reveal" id="ranking">
+          <div class="table-head">
+            <h3>Top decile · Kelly weights</h3>
+            <div class="meta"><span id="signal-date">—</span> · <span id="signal-count">0</span> names</div>
+          </div>
+          <div class="table-wrap">
+            <table id="alloc-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Ticker</th>
+                  <th class="num">Signal</th>
+                  <th class="num">μ / σ²</th>
+                  <th>Weight</th>
+                  <th class="num">Weight %</th>
+                  <th class="num">Allocation</th>
+                </tr>
+              </thead>
+              <tbody id="alloc-body">
+                <tr><td colspan="7" class="empty">Loading signal data...</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="toolbar">
+            <button class="tbtn" onclick="loadCSV()">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              Use existing data
+            </button>
+            <button class="tbtn" onclick="document.getElementById('append-input').click()">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+              Append new data
+            </button>
+            <input type="file" id="append-input" class="hidden" accept=".csv" onchange="appendCSV(event)" />
+            <button class="tbtn" onclick="downloadFullCSV()">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3"/></svg>
+              Download data
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- METHOD -->
+    <section class="section" id="method">
+      <div class="section-head reveal">
+        <h2>How it's built.</h2>
+        <div class="tag">[ 02 — Method ]</div>
+      </div>
+      <div style="display:grid; grid-template-columns: repeat(3,1fr); gap:24px;" class="method-grid">
+        <div class="card reveal"><h3 style="margin-bottom:14px;">Signal</h3><p style="font-size:14px; color:var(--ink-2); line-height:1.7;">LightGBM ensemble (3 seeds × 21d cross-sectional rank target). 24 features — 20 stock-level alphas plus 4 regime z-scores — exponentially recency-weighted, half-life 252 trading days.</p></div>
+        <div class="card reveal"><h3 style="margin-bottom:14px;">Backtest</h3><p style="font-size:14px; color:var(--ink-2); line-height:1.7;">Per-market top-quintile, signal-weighted within each market, equal-weight across US/MY/HK. EMA-smoothed signal, vol-targeted 10%, leverage band [0.03, 1.0]. Long-only.</p></div>
+        <div class="card reveal"><h3 style="margin-bottom:14px;">Sizing</h3><p style="font-size:14px; color:var(--ink-2); line-height:1.7;">Per-name Kelly: <code style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:12px;">w<sub>i</sub> ∝ μ<sub>i</sub> / σ<sub>i</sub>²</code>, fractional, capped per position, redistributed to fill the budget. Adapts to the asset's own characteristics — not realised P&L.</p></div>
+      </div>
+    </section>
+
+    <style>
+      @media (max-width: 980px) { .method-grid { grid-template-columns: 1fr !important; } }
+    </style>
+
+    <footer>
+      <div class="signature">— ATLAS / Quant UX studio</div>
+      <div>© 2026 · v4.9 baseline · Built on Jansen MFAT 2e</div>
+    </footer>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+/* ─────────────────────────────────────────────────────────────
+   THREE.JS — flowing gradient mesh background
+─────────────────────────────────────────────────────────────── */
+(function(){
+  const canvas = document.getElementById('bg-canvas');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 100);
+  camera.position.z = 6;
+
+  const geo = new THREE.PlaneGeometry(20, 12, 80, 50);
+  const mat = new THREE.ShaderMaterial({
+    transparent: true,
+    uniforms: {
+      uTime: { value: 0 },
+      uMouse: { value: new THREE.Vector2(0,0) },
+      uColorA: { value: new THREE.Color(0x0a0a14) },
+      uColorB: { value: new THREE.Color(0x1a2840) },
+      uAccent: { value: new THREE.Color(0xb6ff5b) },
+    },
+    vertexShader: `
+      uniform float uTime;
+      uniform vec2 uMouse;
+      varying vec2 vUv;
+      varying float vElev;
+      void main(){
+        vUv = uv;
+        vec3 p = position;
+        float wave = sin(p.x*0.6 + uTime*0.4) * cos(p.y*0.5 + uTime*0.3);
+        float wave2 = sin(p.x*0.3 - uTime*0.2) * 1.4;
+        float m = length(uv - 0.5 - uMouse*0.3) * 2.0;
+        p.z = wave * 0.6 + wave2 * 0.3 - m*0.4;
+        vElev = p.z;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(p,1.0);
+      }
+    `,
+    fragmentShader: `
+      uniform vec3 uColorA;
+      uniform vec3 uColorB;
+      uniform vec3 uAccent;
+      uniform float uTime;
+      varying vec2 vUv;
+      varying float vElev;
+      void main(){
+        vec3 base = mix(uColorA, uColorB, vUv.y);
+        float glow = smoothstep(0.4, 1.2, vElev + 0.5);
+        vec3 col = mix(base, uAccent, glow*0.18);
+        float vignette = smoothstep(1.0, 0.3, length(vUv-0.5));
+        col *= vignette;
+        gl_FragColor = vec4(col, 0.85);
+      }
+    `,
+  });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.rotation.x = -0.6;
+  mesh.position.y = -1;
+  scene.add(mesh);
+
+  // particles
+  const pgeo = new THREE.BufferGeometry();
+  const N = 260;
+  const pos = new Float32Array(N*3);
+  for (let i=0;i<N;i++){
+    pos[i*3] = (Math.random()-0.5)*14;
+    pos[i*3+1] = (Math.random()-0.5)*8;
+    pos[i*3+2] = (Math.random()-0.5)*5 + 2;
+  }
+  pgeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  const pmat = new THREE.PointsMaterial({ color: 0xb6ff5b, size: 0.018, transparent: true, opacity: 0.7 });
+  const points = new THREE.Points(pgeo, pmat);
+  scene.add(points);
+
+  let mouse = { x:0, y:0 };
+  window.addEventListener('mousemove', e => {
+    mouse.x = (e.clientX/window.innerWidth - 0.5);
+    mouse.y = -(e.clientY/window.innerHeight - 0.5);
+  });
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  const clock = new THREE.Clock();
+  function tick(){
+    const t = clock.getElapsedTime();
+    mat.uniforms.uTime.value = t;
+    mat.uniforms.uMouse.value.set(mouse.x, mouse.y);
+    points.rotation.y = t * 0.02;
+    points.rotation.x = mouse.y * 0.2;
+    mesh.rotation.z = mouse.x * 0.05;
+    renderer.render(scene, camera);
+    requestAnimationFrame(tick);
+  }
+  tick();
+})();
+
+/* ─────────────────────────────────────────────────────────────
+   GSAP — reveal animations
+─────────────────────────────────────────────────────────────── */
+gsap.registerPlugin(ScrollTrigger);
+
+// Hero
+gsap.from('[data-anim="eyebrow"]', { y: 20, opacity: 0, duration: 0.8, ease: 'power3.out', delay: 0.2 });
+gsap.from('[data-anim="title"] .line', { y: 80, opacity: 0, duration: 1.0, ease: 'power4.out', stagger: 0.12, delay: 0.35 });
+gsap.from('[data-anim="sub"]', { y: 30, opacity: 0, duration: 0.9, ease: 'power3.out', delay: 0.9 });
+gsap.from('[data-anim="stat"]', { y: 40, opacity: 0, duration: 0.9, ease: 'power3.out', stagger: 0.08, delay: 1.0 });
+
+// Stat counters
+document.querySelectorAll('[data-count]').forEach(el => {
+  const target = parseFloat(el.dataset.count);
+  const suffix = el.dataset.suffix || '';
+  const obj = { v: 0 };
+  gsap.to(obj, {
+    v: target, duration: 1.6, delay: 1.1, ease: 'power3.out',
+    onUpdate: () => {
+      const decimals = Math.abs(target) < 10 ? 2 : 1;
+      el.innerHTML = obj.v.toFixed(decimals) + (suffix ? `<small>${suffix}</small>` : '');
+    }
+  });
+});
+
+// Reveal
+gsap.utils.toArray('.reveal').forEach(el => {
+  gsap.to(el, {
+    scrollTrigger: { trigger: el, start: 'top 85%' },
+    y: 0, opacity: 1, duration: 0.9, ease: 'power3.out',
+  });
+});
+
+/* ─────────────────────────────────────────────────────────────
+   DATA + KELLY ALLOCATION
+─────────────────────────────────────────────────────────────── */
+let DATA = [];          // full ranking [{date,ticker,market,actual,signal}]
+let TOP_DECILE = [];    // filtered top 10% by signal
+let KELLY_FRAC = 0.15;
+let MAX_POS = 0.15;
+
+function toast(msg, isErr=false){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.toggle('error', !!isErr);
+  t.classList.add('show');
+  clearTimeout(t._h);
+  t._h = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+function parseCSV(text){
+  const lines = text.trim().split(/\r?\n/);
+  const header = lines[0].split(',').map(s => s.trim());
+  return lines.slice(1).map(line => {
+    const parts = line.split(',');
+    const row = {};
+    header.forEach((h, i) => row[h] = parts[i]);
+    row.actual = parseFloat(row.actual);
+    row.signal = parseFloat(row.signal);
+    return row;
+  }).filter(r => Number.isFinite(r.signal));
+}
+
+function csvFromRows(rows, cols){
+  const head = cols.join(',');
+  const body = rows.map(r => cols.map(c => r[c]).join(',')).join('\n');
+  return head + '\n' + body;
+}
+
+function refreshTopDecile(){
+  if (!DATA.length){ TOP_DECILE = []; return; }
+  // Top decile per latest date
+  const latestDate = DATA.reduce((a,b) => a.date > b.date ? a : b).date;
+  const today = DATA.filter(r => r.date === latestDate);
+  today.sort((a,b) => b.signal - a.signal);
+  const n10 = Math.max(1, Math.ceil(today.length * 0.10));
+  TOP_DECILE = today.slice(0, n10);
+
+  document.getElementById('hero-date').textContent = latestDate;
+  document.getElementById('signal-date').textContent = latestDate;
+  document.getElementById('signal-count').textContent = today.length;
+}
+
+/* Kelly allocation:
+   μ_i = max(signal_i - 0.5, 0) * 2     (centered, expected-return proxy in [0,1])
+   σ²_i = max(|actual_i|², 0.0025)      (per-stock variance proxy; floor 5% σ)
+   raw_w_i = (μ_i / σ²_i) * KELLY_FRAC
+   normalize, cap at MAX_POS, redistribute residual, normalize again.
+*/
+function kellyAllocate(rows, budget, frac, cap){
+  if (!rows.length) return [];
+  const items = rows.map(r => {
+    const mu = Math.max(r.signal - 0.5, 0) * 2;
+    const sig2 = Math.max(Math.pow(Math.abs(r.actual || 0), 2), 0.0025);
+    const raw = (mu / sig2) * frac;
+    return { ...r, mu, sig2, raw, w: 0 };
+  });
+  let sumRaw = items.reduce((s, x) => s + x.raw, 0);
+  if (sumRaw <= 0) {
+    // fallback equal weight
+    items.forEach(x => x.w = 1 / items.length);
+  } else {
+    items.forEach(x => x.w = x.raw / sumRaw);
+    // cap & redistribute
+    for (let iter=0; iter<50; iter++){
+      const over = items.filter(x => x.w > cap);
+      if (!over.length) break;
+      const excess = over.reduce((s,x) => s + (x.w - cap), 0);
+      over.forEach(x => x.w = cap);
+      const under = items.filter(x => x.w < cap);
+      const room = under.reduce((s,x) => s + (cap - x.w), 0);
+      if (room <= 0) break;
+      under.forEach(x => x.w += excess * (cap - x.w) / room);
+    }
+    const s = items.reduce((s,x) => s + x.w, 0);
+    items.forEach(x => x.w = x.w / s);
+  }
+  items.forEach(x => x.alloc = x.w * budget);
+  return items;
+}
+
+function fmtMoney(x){
+  if (Math.abs(x) >= 1e6) return '$' + (x/1e6).toFixed(2) + 'M';
+  if (Math.abs(x) >= 1e3) return '$' + (x/1e3).toFixed(1) + 'k';
+  return '$' + x.toFixed(0);
+}
+function fmtPct(x){ return (x*100).toFixed(1) + '%'; }
+
+function render(items){
+  const tbody = document.getElementById('alloc-body');
+  if (!items.length){
+    tbody.innerHTML = '<tr><td colspan="7" class="empty">No data. Click "Use existing data" or append a CSV.</td></tr>';
+    return;
+  }
+  const maxW = Math.max(...items.map(x => x.w));
+  tbody.innerHTML = items.map((x, i) => `
+    <tr>
+      <td class="num" style="color:var(--ink-3);">${String(i+1).padStart(2,'0')}</td>
+      <td><span class="ticker">${x.ticker}</span><span class="market ${x.market}">${x.market}</span></td>
+      <td class="num">${x.signal.toFixed(3)}</td>
+      <td class="num" style="color:var(--ink-2);">${(x.mu/x.sig2).toFixed(2)}</td>
+      <td><div class="bar"><div class="bar-fill" style="transform:scaleX(${(x.w/maxW).toFixed(3)})"></div></div></td>
+      <td class="num"><strong>${fmtPct(x.w)}</strong></td>
+      <td class="num" style="color:var(--accent);">${fmtMoney(x.alloc)}</td>
+    </tr>
+  `).join('');
+
+  // summary
+  document.getElementById('sum-n').textContent = items.length;
+  document.getElementById('sum-maxw').textContent = fmtPct(maxW);
+  const totalAlloc = items.reduce((s,x) => s + x.alloc, 0);
+  document.getElementById('sum-deploy').textContent = fmtMoney(totalAlloc);
+
+  // animate bars
+  requestAnimationFrame(() => {
+    document.querySelectorAll('.bar-fill').forEach((el, i) => {
+      el.style.transitionDelay = (i * 0.03) + 's';
+    });
+  });
+}
+
+function recompute(announce=false){
+  refreshTopDecile();
+  const budget = Math.max(0, parseFloat(document.getElementById('budget').value) || 0);
+  const items = kellyAllocate(TOP_DECILE, budget, KELLY_FRAC, MAX_POS);
+  render(items);
+  if (announce) toast(`Allocated ${fmtMoney(budget)} across ${items.length} names`);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   DATA OPERATIONS
+─────────────────────────────────────────────────────────────── */
+async function loadCSV(){
+  try {
+    const res = await fetch('stock_ranking_latest_v4.csv?_=' + Date.now());
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const text = await res.text();
+    DATA = parseCSV(text);
+    toast(`Loaded ${DATA.length} rows from stock_ranking_latest_v4.csv`);
+    recompute();
+  } catch (e) {
+    toast('Could not load CSV — drag-drop or click "Append" to upload', true);
+    console.error(e);
+  }
+}
+
+function appendCSV(ev){
+  const file = ev.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const incoming = parseCSV(e.target.result);
+      // de-dupe on (date, ticker); incoming wins
+      const key = r => r.date + '|' + r.ticker;
+      const existing = new Set(incoming.map(key));
+      const merged = DATA.filter(r => !existing.has(key(r))).concat(incoming);
+      const added = merged.length - DATA.length;
+      DATA = merged;
+      recompute();
+      toast(`Appended ${incoming.length} rows (${added} new)`);
+    } catch (err){
+      toast('Failed to parse CSV', true);
+    }
+  };
+  reader.readAsText(file);
+  ev.target.value = '';
+}
+
+function downloadFullCSV(){
+  if (!DATA.length) return toast('No data to download', true);
+  const cols = ['date','ticker','market','actual','signal'];
+  const csv = csvFromRows(DATA, cols);
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'stock_ranking_merged.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast(`Downloaded ${DATA.length} rows`);
+}
+
+function downloadAllocation(){
+  if (!TOP_DECILE.length) return toast('Run an allocation first', true);
+  const budget = parseFloat(document.getElementById('budget').value) || 0;
+  const items = kellyAllocate(TOP_DECILE, budget, KELLY_FRAC, MAX_POS);
+  const cols = ['ticker','market','signal','weight_pct','allocation_usd'];
+  const rows = items.map(x => ({
+    ticker: x.ticker, market: x.market,
+    signal: x.signal.toFixed(4),
+    weight_pct: (x.w*100).toFixed(3),
+    allocation_usd: x.alloc.toFixed(2),
+  }));
+  const csv = csvFromRows(rows, cols);
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `kelly_allocation_${budget}.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast(`Exported plan for ${fmtMoney(budget)}`);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   WIRING
+─────────────────────────────────────────────────────────────── */
+const budgetInput = document.getElementById('budget');
+const budgetSlider = document.getElementById('budget-slider');
+budgetInput.addEventListener('input', () => {
+  budgetSlider.value = Math.min(parseFloat(budgetInput.value) || 0, budgetSlider.max);
+  recompute();
+});
+budgetSlider.addEventListener('input', () => {
+  budgetInput.value = budgetSlider.value;
+  recompute();
+});
+
+document.querySelectorAll('#frac-row .pill').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('#frac-row .pill').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    KELLY_FRAC = parseFloat(b.dataset.frac);
+    recompute();
+  });
+});
+document.querySelectorAll('#cap-row .pill').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('#cap-row .pill').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    MAX_POS = parseFloat(b.dataset.cap);
+    recompute();
+  });
+});
+
+// boot
+loadCSV();
+</script>
+</body>
+</html>

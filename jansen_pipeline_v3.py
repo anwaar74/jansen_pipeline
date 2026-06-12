@@ -1,6 +1,29 @@
 """
 ========================================================================
-Shariah ML Pipeline v4.9 (reverted from v4.11) — Jansen MFAT 2nd Ed. Aligned
+Shariah ML Pipeline v4.15 — Paper-trading hardening release.
+  v4.15 deltas vs v4.14:
+    - EXEC_LAG_DAYS = 1: signals shifted forward 1d to model T+1 fill (matches
+      realistic Friday-close-signal → Monday-open-fill flow).
+    - Ex-ante (forward-looking) basket vol estimator. Old method used trailing
+      strategy P&L which had a leverage feedback loop and missed 8× on target.
+      New method uses constituent rolling vols × basket weights × assumed
+      correlation. Should bring realised vol much closer to VOL_TARGET_ANN.
+    - FX wash-out: +8 bps round-trip on MY/HK positions for USD-base account
+      (IBKR-style FX conversion). Effective basket cost ~25-35 bps when
+      non-US share is meaningful.
+    - period_returns now records ex-ante vol forecast per rebal so the
+      forecast-vs-realised gap is auditable directly.
+  v4.14 deltas vs v4.13:
+    - MIN_TRAIN_DAYS 500 → 252 so 2020 H1 folds enter backtest (~mid-2020 start)
+    - 'market_code' added as LightGBM categorical feature (US=0, MY=1, HK=2)
+      so the tree learns market-specific rules without per-market model splits
+    - Per-market bt coverage diagnostic prints before backtest loop
+  v4.13 deltas vs v4.9:
+    - History extended TRAIN_START 2010-01-01 → 2007-01-01 (covers GFC, 2011, 2015, 2020)
+    - Incremental backfill in Cell 5: re-uses cached parquet, only fetches missing range
+    - Per-market cost model: US 15 / MY 60 / HK 70 bps round-trip (was flat 15 bps)
+    - Features cache bumped v4 → v5 so old cache is rebuilt on the new range
+    - Kelly book-sizing + per-name Kelly still OFF (v4.9 baseline preserved)
 ========================================================================
 Markets:        US (NYSE/NASDAQ) · Malaysia (KLSE) · Hong Kong (HKEX)
 Alpha engine:   LightGBM ensemble (21d target × 3 seeds)
@@ -162,16 +185,23 @@ BASE        = pathlib.Path(r'C:/Users/pc/Documents/Quant Series 2026/ml_stefan_j
 EODHD_KEY   = os.environ.get('EODHD_API_KEY', '6a01d9bb03ae95.33277051')
 
 RAW_PARQUET  = BASE / 'raw_ohlcv.parquet'
-FEAT_PARQUET = BASE / 'features_long_v4.parquet'         # v4.4 adds regime features
+FEAT_PARQUET = BASE / 'features_long_v5.parquet'         # v4.13 — bumped to invalidate v4.4 cache after history extension
 
 # ── Universe
-TRAIN_START = '2010-01-01'
+# v4.13 — Backtest window extended pre-2010 to cover GFC, eurozone crisis,
+# 2015 China slump. Old default was 2010-01-01 which sat entirely inside a bull.
+TRAIN_START = '2007-01-01'
 TRAIN_END   = '2024-12-31'
 
 # ── Walk-forward CV  (Jansen Ch.7)
+# v4.13 — N_SPLITS bumped 8 → 48 to spread the test window across 2010-2026
+# instead of only the last 2 years. Each fold still 63d test (~3 months),
+# 756d train (~3 years) → 48 folds cover ~12 years of out-of-sample backtest.
+# This is what actually exercises 2011 eurozone, 2015 China, 2018 Q4,
+# 2020 March, 2022 bear market — the regimes v4.9 never saw.
 TARGET_HORIZON = 21
 EMBARGO        = 21
-N_SPLITS       = 8
+N_SPLITS       = 48          # was 8 (v4.9). 48 × 84d stride ≈ 12 yrs of test coverage
 TRAIN_PERIOD   = 756
 TEST_PERIOD    = 63
 
@@ -292,9 +322,57 @@ def get_delisted(market: str, max_stocks: int = 300) -> list[str]:
 # ═══════════════════════════════════════════════════════════════════════
 FORCE_DOWNLOAD = False
 
+def _download_range(tickers, delisted_set, start, end):
+    """Fetch a single date range for a list of tickers. Returns concatenated df."""
+    frames = []
+    for i, ticker in enumerate(tickers):
+        df = fetch_eod(ticker, start, end)
+        if df.empty: continue
+        df['ticker']   = ticker
+        df['delisted'] = ticker in delisted_set
+        df['market']   = MARKET_MAP.get(ticker, 'US')
+        frames.append(df)
+        if (i + 1) % 50 == 0: print(f'  {i+1}/{len(tickers)} done ...')
+        time.sleep(0.05)
+    if not frames:
+        return pd.DataFrame()
+    return pd.concat(frames).reset_index()
+
 if RAW_PARQUET.exists() and not FORCE_DOWNLOAD:
-    print(f'RAW_PARQUET already exists ({RAW_PARQUET.stat().st_size/1e6:.1f} MB). Skipping download.')
     raw = pd.read_parquet(RAW_PARQUET)
+    _cur_min = pd.to_datetime(raw['date']).min()
+    _want_min = pd.to_datetime(TRAIN_START)
+    print(f'RAW_PARQUET exists ({RAW_PARQUET.stat().st_size/1e6:.1f} MB), '
+          f'spans {_cur_min.date()} → {pd.to_datetime(raw["date"]).max().date()}.')
+    # v4.13 — incremental backfill: if TRAIN_START is earlier than cache,
+    # fetch ONLY the missing [TRAIN_START, _cur_min - 1d] range and append.
+    if _want_min < _cur_min:
+        backfill_end = (_cur_min - pd.Timedelta(days=1)).strftime('%Y-%m-%d')
+        print(f'  Backfilling {TRAIN_START} → {backfill_end} for {len(ALL_TICKERS)} tickers ...')
+        live_tickers = list(ALL_TICKERS)
+        delisted_tickers = []
+        if INCLUDE_DELISTED:
+            for mkt in ['US','MY','HK']:
+                delisted_tickers.extend(get_delisted(mkt, MAX_DELISTED))
+        all_download = live_tickers + [t for t in delisted_tickers if t not in live_tickers]
+        delisted_set = set(delisted_tickers)
+        bf = _download_range(all_download, delisted_set, TRAIN_START, backfill_end)
+        if not bf.empty:
+            raw = pd.concat([bf, raw], ignore_index=True).drop_duplicates(
+                  subset=['ticker','date'], keep='first').sort_values(['ticker','date'])
+            raw.to_parquet(RAW_PARQUET, engine='pyarrow', compression='snappy', index=False)
+            print(f'  Backfill added {len(bf):,} rows. New span: '
+                  f'{pd.to_datetime(raw["date"]).min().date()} → '
+                  f'{pd.to_datetime(raw["date"]).max().date()}.')
+            # Cache invalidation: features parquet built on the old range is stale
+            if FEAT_PARQUET.exists():
+                _stale = FEAT_PARQUET.with_suffix('.stale.parquet')
+                FEAT_PARQUET.rename(_stale)
+                print(f'  Renamed stale features → {_stale.name} (will rebuild next run).')
+        else:
+            print(f'  No backfill rows fetched (EODHD returned empty for {TRAIN_START}-era).')
+    else:
+        print(f'  Cache already covers TRAIN_START={TRAIN_START}; no backfill needed.')
 else:
     print(f'Downloading {TRAIN_START} → {TRAIN_END} ...')
     live_tickers = list(ALL_TICKERS)
@@ -303,17 +381,7 @@ else:
         for mkt in ['US','MY','HK']:
             delisted_tickers.extend(get_delisted(mkt, MAX_DELISTED))
     all_download = live_tickers + [t for t in delisted_tickers if t not in live_tickers]
-    frames = []
-    for i, ticker in enumerate(all_download):
-        df = fetch_eod(ticker, TRAIN_START, TRAIN_END)
-        if df.empty: continue
-        df['ticker'] = ticker
-        df['delisted'] = ticker in delisted_tickers
-        df['market']   = MARKET_MAP.get(ticker, 'US')
-        frames.append(df)
-        if (i + 1) % 50 == 0: print(f'  {i+1}/{len(all_download)} done ...')
-        time.sleep(0.05)
-    raw = pd.concat(frames).reset_index()
+    raw = _download_range(all_download, set(delisted_tickers), TRAIN_START, TRAIN_END)
     raw.to_parquet(RAW_PARQUET, engine='pyarrow', compression='snappy', index=False)
     print(f'Saved {len(raw):,} rows → {RAW_PARQUET}')
 
@@ -560,7 +628,15 @@ fd2['target_demeaned_rank'] = (
     fd2.groupby('date')['target_demeaned'].rank(pct=True)
 )
 
-X_all = fd2[passed_features].copy()
+# v4.14 — add 'market' as integer-coded categorical so LightGBM can split on it.
+# This lets the tree learn market-specific rules without slicing training data 3x.
+# Cheaper than full per-market models; addresses HK signals never reaching top-quintile.
+_market_codes = {'US': 0, 'MY': 1, 'HK': 2}
+fd2['market_code'] = fd2['market'].map(_market_codes).fillna(0).astype('int32')
+MODEL_FEATURES = passed_features + ['market_code']
+CATEGORICAL_FEATURES = ['market_code']
+
+X_all = fd2[MODEL_FEATURES].copy()
 y_all = fd2['target_rank'].copy()   # v4.1 baseline — raw rank (was market-neutral in v4.2 but flattened the spread)
 y_raw = fd2['target_21d'].copy()    # keep raw for IC computation + backtest
 
@@ -615,7 +691,7 @@ for i, (tr, te) in enumerate(splits):
 # CELL 10 — Skip LassoCV.  Jansen Ch.6: with a regularised tree,
 # Lasso pre-screen on raw returns destroys signal (v2 kept 1/17 features).
 # ═══════════════════════════════════════════════════════════════════════
-selected_features = passed_features
+selected_features = MODEL_FEATURES   # v4.14 — includes market_code categorical
 print(f'Selected features (no Lasso): {len(selected_features)}')
 
 
@@ -686,13 +762,24 @@ for fold_i, (train_idx, test_idx) in enumerate(splits):
         for seed in SEEDS:
             params = {**LGB_PARAMS, 'random_state': seed}
             m = lgb.LGBMRegressor(**params)
-            m.fit(X_tr, y_tr,
+            # v4.14 — pass DataFrames (not arrays) so categorical_feature works.
+            # Re-wrap once per fit so dtypes/column-order are explicit.
+            _cat_idx = [MODEL_FEATURES.index(c) for c in CATEGORICAL_FEATURES
+                        if c in MODEL_FEATURES]
+            X_tr_df = pd.DataFrame(X_tr, columns=MODEL_FEATURES)
+            X_te_df = pd.DataFrame(X_te, columns=MODEL_FEATURES)
+            for _c in CATEGORICAL_FEATURES:
+                if _c in X_tr_df.columns:
+                    X_tr_df[_c] = X_tr_df[_c].astype('int32')
+                    X_te_df[_c] = X_te_df[_c].astype('int32')
+            m.fit(X_tr_df, y_tr,
                   sample_weight=sample_w,
-                  eval_set=[(X_te, y_te)],
+                  eval_set=[(X_te_df, y_te)],
+                  categorical_feature=CATEGORICAL_FEATURES,
                   callbacks=[lgb.early_stopping(50, verbose=False),
                              lgb.log_evaluation(-1)])
             best_iters.append(m.best_iteration_)
-            preds_te = m.predict(X_te)
+            preds_te = m.predict(X_te_df)
 
             # Per-date rank of preds (so 5d/21d are on the same scale)
             te_dates_ok = fd2.loc[test_idx, 'date'].values[ok_te]
@@ -751,7 +838,9 @@ print(f'Positive IC folds: {(res_df.ic > 0).sum()}/{len(res_df)}')
 # (Jansen Ch.12)  No fold-filtering needed: all folds train on rank-target
 # of equal length.
 # ═══════════════════════════════════════════════════════════════════════
-MIN_TRAIN_DAYS = 500
+MIN_TRAIN_DAYS = 252   # v4.14 was 500 — let 2020 H1 folds contribute OOF preds
+                       # at the cost of admitting younger models. Backtest start
+                       # should move from 2022-02 back to ~mid-2020.
 kept_folds = res_df[res_df['train_days'] >= MIN_TRAIN_DAYS]['fold'].tolist()
 dropped_folds = res_df[res_df['train_days'] < MIN_TRAIN_DAYS]['fold'].tolist()
 print(f'Keeping {len(kept_folds)} folds; dropping {len(dropped_folds)}')
@@ -818,9 +907,46 @@ PER_MARKET_BACKTEST = True       # v4.9 — long top-quintile WITHIN each market
                                   # Only effective when LONG_ONLY=True (per-market shorts
                                   # not implemented).
 REBAL_DAYS         = TARGET_HORIZON
-COMMISSION_BPS     = 5.0
+# v4.13 — PER-MARKET cost model. Single-bps assumption hid 2-3x variance.
+# Round-trip = (commission + slippage) × 2 sides. Includes stamp/transfer taxes
+# where applicable (HK stamp 0.10% one-way; MY stamp 0.10% + clearing fee).
+COMMISSION_BPS     = 5.0    # legacy single-value (kept for back-compat in JSON)
 SLIPPAGE_BPS       = 2.5
-TOTAL_COST_BPS     = (COMMISSION_BPS + SLIPPAGE_BPS) * 2
+TOTAL_COST_BPS     = (COMMISSION_BPS + SLIPPAGE_BPS) * 2   # legacy = 15 bps r/t
+
+# Realistic round-trip basis points by market (entry + exit).
+#   US : 5 commission + 2.5 slippage  → 7.5 × 2 = 15 bps  (was the old default)
+#   MY : 8 commission + stamp 10 + slippage 12  → ~60 bps r/t
+#   HK : 5 commission + stamp 20 + slippage 10  → ~70 bps r/t
+# Conservative — actual broker rates may be lower at scale.
+MARKET_COST_BPS = {
+    'US': 15.0,
+    'MY': 60.0,
+    'HK': 70.0,
+}
+USE_PER_MARKET_COST = True   # set False to revert to TOTAL_COST_BPS flat 15 bps
+
+# v4.15 — FX wash-out for cross-currency holdings. IBKR fee ≈ 2 bps each conversion;
+# round-trip on FX = 2 × (entry + exit) ≈ 8 bps. Base currency = USD.
+FX_COST_BPS_PER_MARKET = {
+    'US': 0.0,
+    'MY': 8.0,
+    'HK': 8.0,
+}
+
+# v4.15 — EXECUTION LAG. Signal computed at T close → order goes in T+1 open.
+# Set to 1 to simulate next-day fill (realistic for retail/PB execution).
+# Set to 0 for the old "fill at signal close" assumption.
+EXEC_LAG_DAYS = 1
+
+# v4.15 — EX-ANTE basket vol (forward-looking) replaces backwards-looking
+# `std(recent_rets)` which had a leverage-feedback loop. The new estimator
+# uses per-ticker rolling realised vol from the cross-section panel, combined
+# via basket weights with an assumed average correlation.
+USE_EX_ANTE_VOL = True
+EX_ANTE_VOL_LOOKBACK = 12       # rebal periods (~1 year of monthly returns)
+EX_ANTE_VOL_MIN_HISTORY = 4     # need ≥4 observations to estimate σ_i
+EX_ANTE_BASKET_RHO = 0.35       # assumed avg correlation among basket names
 
 # Decile calibration (v4.3 → DISABLED in v4.5)
 # Reason: v4.4's regime features + recency weighting made the model's signal
@@ -894,10 +1020,42 @@ bt = pd.DataFrame({
     'signal_raw': oof_preds_filtered.values,
 }).dropna(subset=['signal_raw','actual'])
 
+# v4.15 — EXECUTION LAG. Simulates real-world: signal computed at T close,
+# order goes in T+1. We model this by shifting each ticker's signal_raw
+# forward by EXEC_LAG_DAYS days within its own time series, then dropping
+# the leading NaN rows. The basket on rebal date T then uses the signal
+# from T - EXEC_LAG_DAYS, matching the actual execution timing.
+if EXEC_LAG_DAYS > 0:
+    bt = bt.sort_values(['ticker', 'date']).reset_index(drop=True)
+    bt['signal_raw'] = bt.groupby('ticker')['signal_raw'].shift(EXEC_LAG_DAYS)
+    _before = len(bt)
+    bt = bt.dropna(subset=['signal_raw'])
+    print(f'[exec lag] Applied {EXEC_LAG_DAYS}-day signal lag: '
+          f'{_before - len(bt):,} leading rows dropped ({len(bt):,} remain)')
+
 all_dates   = np.sort(bt['date'].unique())
 rebal_dates = all_dates[::REBAL_DAYS]
 print(f'Backtest: {len(bt):,} rows, {bt["date"].nunique()} dates, '
       f'{bt["ticker"].nunique()} tickers, {len(rebal_dates)} rebalances')
+
+# v4.14 — per-market coverage diagnostic on `bt`
+# Tells us if HK/MY signals reach the backtest table at all, and how often
+# they have ≥ MIN_NAMES_PER_MARKET = 5 names on a rebal date.
+print('\n[bt market coverage]')
+_bt_rebal = bt[bt['date'].isin(rebal_dates)]
+for _mkt in sorted(_bt_rebal['market'].unique()):
+    _g = _bt_rebal[_bt_rebal['market'] == _mkt]
+    _per_date = _g.groupby('date').size()
+    _n_dates = len(_per_date)
+    _ge5 = int((_per_date >= 5).sum())
+    _ge10 = int((_per_date >= 10).sum())
+    _med = float(_per_date.median()) if _n_dates else 0
+    _mn  = int(_per_date.min())  if _n_dates else 0
+    _mx  = int(_per_date.max())  if _n_dates else 0
+    print(f'  {_mkt}: total rows {len(_g):>7,} | rebal dates with data {_n_dates:>3} '
+          f'| ≥5 names: {_ge5:>3} | ≥10 names: {_ge10:>3} '
+          f'| names/date  min={_mn} median={_med:.0f} max={_mx}')
+del _bt_rebal
 
 # ── EMA-smooth signal per ticker, then re-rank per date
 sig_panel = bt.pivot_table(index='date', columns='ticker', values='signal_raw')
@@ -906,6 +1064,17 @@ sig_panel_rank   = sig_panel_smooth.rank(axis=1, pct=True)
 sig_long = sig_panel_rank.stack().rename('signal').reset_index()
 bt = bt.drop(columns=['signal_raw']).merge(sig_long, on=['date','ticker'], how='left')
 bt = bt.dropna(subset=['signal'])
+
+# v4.15 — precompute per-ticker rolling vol panel for ex-ante basket vol estimation.
+# Used by the leverage overlay to size the book BEFORE the period, not after.
+# σ_i is std of past `actual` (21d forward returns) observed on rebal dates only,
+# rolling over EX_ANTE_VOL_LOOKBACK periods. min_periods enforces sample floor.
+print('[ex-ante vol] Building per-ticker rolling vol panel...')
+_actual_panel = bt.pivot_table(index='date', columns='ticker', values='actual')
+ticker_vol_panel = _actual_panel.rolling(EX_ANTE_VOL_LOOKBACK,
+                                          min_periods=EX_ANTE_VOL_MIN_HISTORY).std()
+print(f'[ex-ante vol] panel shape: {ticker_vol_panel.shape}  '
+      f'(non-null cells: {ticker_vol_panel.notna().sum().sum():,})')
 print(f'Signal EMA-smoothed (α={EMA_ALPHA}); panel: {sig_panel.shape}')
 
 
@@ -955,6 +1124,58 @@ def _kelly_alloc_weights(grp_side, rd_local, recent_mu):
         if room <= 0: break
         w[under] += excess * (MAX_POSITION_SIZE - w[under]) / room
     return w / w.sum() if w.sum() > 0 else w
+
+
+def _ex_ante_basket_vol_ann(ticker_weight_pairs, lookup_date, rho=EX_ANTE_BASKET_RHO):
+    """
+    v4.15 — forward-looking annualized basket vol estimate.
+    Uses each constituent's most recent rolling realised vol from `ticker_vol_panel`
+    (built outside this function), combined via basket weights and an assumed
+    average correlation rho.
+
+    σ_basket² = ρ × (Σ w_i σ_i)² + (1 − ρ) × Σ w_i² σ_i²
+    Annualized by √(252 / REBAL_DAYS).
+    Returns None if fewer than 3 names have valid vol history.
+    """
+    sigmas = []; weights = []
+    # Only look at vol observations strictly BEFORE lookup_date (no look-ahead)
+    valid_dates = ticker_vol_panel.index[ticker_vol_panel.index < lookup_date]
+    if len(valid_dates) == 0:
+        return None
+    last_valid_date = valid_dates[-1]
+    for tk, w in ticker_weight_pairs:
+        if tk in ticker_vol_panel.columns:
+            s = ticker_vol_panel.at[last_valid_date, tk]
+            if np.isfinite(s) and s > 0:
+                sigmas.append(s); weights.append(w)
+    if len(sigmas) < 3:
+        return None
+    s = np.asarray(sigmas); w = np.asarray(weights)
+    cross = rho * (np.sum(w * s)) ** 2
+    diag  = (1 - rho) * np.sum(w**2 * s**2)
+    sigma_basket = float(np.sqrt(max(cross + diag, 0.0)))
+    return sigma_basket * np.sqrt(252 / REBAL_DAYS)
+
+
+def _cost_bps_for_basket(markets_arr, weights_arr):
+    """v4.13 — weighted average cost across markets present in the long basket.
+    v4.15 — adds FX wash-out for non-USD positions.
+    markets_arr : array of market codes per name (e.g. ['US','HK','US',...])
+    weights_arr : array of position weights (sum to 1)
+    Returns round-trip bps as a float.
+    """
+    if not USE_PER_MARKET_COST:
+        return TOTAL_COST_BPS
+    if len(markets_arr) == 0:
+        return TOTAL_COST_BPS
+    bps_per_name = np.array([
+        MARKET_COST_BPS.get(m, TOTAL_COST_BPS) + FX_COST_BPS_PER_MARKET.get(m, 0.0)
+        for m in markets_arr
+    ])
+    w = np.asarray(weights_arr, dtype=float)
+    if w.sum() <= 0:
+        return float(bps_per_name.mean())
+    return float((bps_per_name * w).sum() / w.sum())
 
 
 def _signal_weights(grp_side, side='long'):
@@ -1040,14 +1261,18 @@ for rd in rebal_dates:
         # v4.9 — true per-market diversification: long top-quintile WITHIN
         # each market, then equal-weight average across markets that had
         # a valid basket this rebal. v4.12 adds per-stock Kelly allocation.
+        # v4.13 — min-names threshold lowered 10 → 5 so HK/MY (smaller
+        # surviving universes) actually participate. Was silently locking
+        # backtest into US-only on most rebals.
         market_long_rets = {}
         market_long_weights = {}          # v4.12 — track for diagnostics
         recent_mu = (np.mean(top_decile_rets_history[-KELLY_LOOKBACK:])
                      if len(top_decile_rets_history) >= 3 else 0.05)
 
+        MIN_NAMES_PER_MARKET = 5    # v4.13 — was 10
         for mkt in grp['market'].unique():
             mkt_grp = grp[grp['market'] == mkt]
-            if len(mkt_grp) < 10:
+            if len(mkt_grp) < MIN_NAMES_PER_MARKET:
                 continue
             mkt_hi = mkt_grp['signal'].quantile(1 - TOP_FRAC)
             mkt_longs = mkt_grp[mkt_grp['signal'] >= mkt_hi].copy()
@@ -1074,6 +1299,26 @@ for rd in rebal_dates:
         long_ret = float(np.mean(list(market_long_rets.values())))
         short_ret = 0.0
         raw_ret = long_ret
+        # v4.13 — per-market cost: equal-weight average of each market's bps
+        # (each market contributes equally to the final basket return).
+        # v4.15 — adds FX wash-out per market.
+        if USE_PER_MARKET_COST:
+            _basket_bps = float(np.mean([
+                MARKET_COST_BPS.get(m, TOTAL_COST_BPS) + FX_COST_BPS_PER_MARKET.get(m, 0.0)
+                for m in market_long_rets.keys()
+            ]))
+        else:
+            _basket_bps = TOTAL_COST_BPS
+
+        # v4.15 — assemble overall ticker→weight pairs for ex-ante vol.
+        # Each market contributes equally (1/N_markets) to the basket; within
+        # a market, the per-name weights from wL_m apply.
+        _n_mkts = len(market_long_weights)
+        _ticker_w_pairs = []
+        for _mkt, _mw in market_long_weights.items():
+            _share = 1.0 / _n_mkts
+            for _tk, _w in zip(_mw['tickers'], _mw['weights']):
+                _ticker_w_pairs.append((_tk, _w * _share))
 
         # v4.12 — record allocation snapshot for this rebal
         allocation_log.append({
@@ -1095,8 +1340,16 @@ for rd in rebal_dates:
 
         if LONG_ONLY:
             raw_ret = long_ret
+            # v4.13 — weighted cost by which markets the longs are in
+            _basket_bps = _cost_bps_for_basket(longs['market'].values, wL)
         else:
             raw_ret = 0.5 * long_ret - 0.5 * short_ret
+            _long_bps  = _cost_bps_for_basket(longs['market'].values, wL)
+            _short_bps = _cost_bps_for_basket(shorts['market'].values, wS) if not shorts.empty else TOTAL_COST_BPS
+            _basket_bps = 0.5 * _long_bps + 0.5 * _short_bps
+
+        # v4.15 — assemble ticker→weight pairs for ex-ante vol (pooled path)
+        _ticker_w_pairs = list(zip(longs['ticker'].values, wL))
 
     # v4.10 — Kelly sizing on top-decile basket return
     if KELLY_CRITERION and len(top_decile_rets_history) >= KELLY_WARMUP:
@@ -1110,11 +1363,20 @@ for rd in rebal_dates:
         else:
             # Negative mean or undefined vol — sit out (minimum size)
             lev = KELLY_MIN_LEV
-    elif VOL_TARGET and len(recent_rets) >= 3:
-        # Fallback during Kelly warm-up: use vol-target
-        realised_vol_ann = np.std(recent_rets[-VOL_LOOKBACK:]) * np.sqrt(252 / REBAL_DAYS)
-        if realised_vol_ann > 1e-6:
-            lev = float(np.clip(VOL_TARGET_ANN / realised_vol_ann,
+    elif VOL_TARGET:
+        # v4.15 — EX-ANTE vol overlay: size the book from forward-looking
+        # constituent vols instead of trailing strategy P&L. The old method
+        # ( np.std(recent_rets[-VOL_LOOKBACK:]) ) had a leverage feedback loop:
+        # high-leverage P&L spikes inflated the vol estimate AFTER the damage.
+        # The new method sees the basket's *intrinsic* vol BEFORE the period.
+        _fwd_vol = None
+        if USE_EX_ANTE_VOL and locals().get('_ticker_w_pairs'):
+            _fwd_vol = _ex_ante_basket_vol_ann(_ticker_w_pairs, rd)
+        if _fwd_vol is None and len(recent_rets) >= 3:
+            # Fallback to legacy trailing estimate when ex-ante unavailable
+            _fwd_vol = np.std(recent_rets[-VOL_LOOKBACK:]) * np.sqrt(252 / REBAL_DAYS)
+        if _fwd_vol is not None and _fwd_vol > 1e-6:
+            lev = float(np.clip(VOL_TARGET_ANN / _fwd_vol,
                                 MIN_LEVERAGE, MAX_LEVERAGE))
         else:
             lev = 1.0
@@ -1122,13 +1384,25 @@ for rd in rebal_dates:
         lev = 1.0
 
     gross_ret = raw_ret * lev
-    cost = (TOTAL_COST_BPS / 1e4) * lev
+    # v4.13 — _basket_bps was set above by either the per-market path
+    # or the pooled path; if neither set it (e.g. unusual control-flow), default flat.
+    _bps = locals().get('_basket_bps', TOTAL_COST_BPS)
+    cost = (_bps / 1e4) * lev
     net = gross_ret - cost
 
     cum_eq *= (1 + net); peak_eq = max(peak_eq, cum_eq)
     recent_rets.append(net)
     top_decile_rets_history.append(raw_ret)   # UNLEVERED for next iter's Kelly
-    period_returns.append({'date': rd, 'return': net, 'gross': gross_ret, 'lev': lev})
+    # v4.13 — record which markets participated and their cost
+    _mkts_now = list(market_long_rets.keys()) if 'market_long_rets' in locals() and isinstance(market_long_rets, dict) else []
+    # v4.15 — also record ex-ante vol forecast for audit
+    _fwd_vol_log = locals().get('_fwd_vol', None)
+    period_returns.append({
+        'date': rd, 'return': net, 'gross': gross_ret, 'lev': lev,
+        'markets': _mkts_now,
+        'cost_bps': float(_bps),
+        'fwd_vol_ann': float(_fwd_vol_log) if _fwd_vol_log is not None else 0.0,
+    })
 
 perf_df    = pd.DataFrame(period_returns).set_index('date')
 perf       = perf_df['return']
@@ -1148,7 +1422,12 @@ for rd in rebal_dates:
     hi = grp['signal'].quantile(1 - 0.20)
     longs = grp[grp['signal'] >= hi]
     if longs.empty: continue
-    net = longs['actual'].mean() - TOTAL_COST_BPS / 1e4
+    # v4.13 — per-market cost on EW baseline too (one cost per name, equal-weighted)
+    if USE_PER_MARKET_COST:
+        _bps_ew = float(np.mean([MARKET_COST_BPS.get(m, TOTAL_COST_BPS) for m in longs['market'].values]))
+    else:
+        _bps_ew = TOTAL_COST_BPS
+    net = longs['actual'].mean() - _bps_ew / 1e4
     cum_ew *= (1 + net); peak_ew = max(peak_ew, cum_ew)
     ew_returns.append({'date': rd, 'return': net})
 perf_ew = (pd.DataFrame(ew_returns).set_index('date')['return']
@@ -1232,21 +1511,29 @@ ok_te_s = np.isfinite(X_te_shap).all(axis=1) & np.isfinite(y_te_shap)
 X_tr_shap, y_tr_shap = X_tr_shap[ok_tr_s], y_tr_shap[ok_tr_s]
 X_te_shap, y_te_shap = X_te_shap[ok_te_s], y_te_shap[ok_te_s]
 
+# v4.14 — wrap with DataFrames so categorical_feature flows through to SHAP too
+X_tr_shap_df = pd.DataFrame(X_tr_shap, columns=MODEL_FEATURES)
+X_te_shap_df = pd.DataFrame(X_te_shap, columns=MODEL_FEATURES)
+for _c in CATEGORICAL_FEATURES:
+    if _c in X_tr_shap_df.columns:
+        X_tr_shap_df[_c] = X_tr_shap_df[_c].astype('int32')
+        X_te_shap_df[_c] = X_te_shap_df[_c].astype('int32')
 model_shap = lgb.LGBMRegressor(**{**LGB_PARAMS, 'random_state': 42})
-model_shap.fit(X_tr_shap, y_tr_shap, eval_set=[(X_te_shap, y_te_shap)],
+model_shap.fit(X_tr_shap_df, y_tr_shap, eval_set=[(X_te_shap_df, y_te_shap)],
+               categorical_feature=CATEGORICAL_FEATURES,
                callbacks=[lgb.early_stopping(30, verbose=False), lgb.log_evaluation(-1)])
 explainer = shap.TreeExplainer(model_shap)
-shap_values = explainer.shap_values(X_te_shap)
+shap_values = explainer.shap_values(X_te_shap_df)
 
 shap_importance = pd.DataFrame({
-    'feature':     selected_features,
+    'feature':     MODEL_FEATURES,
     'mean_|SHAP|': np.abs(shap_values).mean(axis=0),
 }).sort_values('mean_|SHAP|', ascending=False).reset_index(drop=True)
 print('SHAP importance (last fold):')
 print(shap_importance.to_string(index=False))
 
-fig_shap, _ = plt.subplots(figsize=(10, max(4, len(selected_features) * 0.4)))
-shap.summary_plot(shap_values, features=X_te_shap, feature_names=selected_features,
+fig_shap, _ = plt.subplots(figsize=(10, max(4, len(MODEL_FEATURES) * 0.4)))
+shap.summary_plot(shap_values, features=X_te_shap_df.values, feature_names=MODEL_FEATURES,
                   show=False, plot_size=None)
 plt.title('SHAP — last fold test set'); plt.tight_layout()
 plt.savefig(BASE / 'shap_importance_v4.png', dpi=150, bbox_inches='tight'); plt.show()
@@ -1472,6 +1759,13 @@ config = {
     'REBAL_DAYS': int(REBAL_DAYS),
     'COMMISSION_BPS': float(COMMISSION_BPS), 'SLIPPAGE_BPS': float(SLIPPAGE_BPS),
     'TOTAL_COST_BPS': float(TOTAL_COST_BPS),
+    'USE_PER_MARKET_COST': bool(USE_PER_MARKET_COST),
+    'MARKET_COST_BPS': {k: float(v) for k, v in MARKET_COST_BPS.items()},
+    'FX_COST_BPS_PER_MARKET': {k: float(v) for k, v in FX_COST_BPS_PER_MARKET.items()},
+    'EXEC_LAG_DAYS': int(EXEC_LAG_DAYS),
+    'USE_EX_ANTE_VOL': bool(USE_EX_ANTE_VOL),
+    'EX_ANTE_VOL_LOOKBACK': int(EX_ANTE_VOL_LOOKBACK),
+    'EX_ANTE_BASKET_RHO': float(EX_ANTE_BASKET_RHO),
     'SIGNAL_WEIGHTED': bool(SIGNAL_WEIGHTED), 'LONG_ONLY': bool(LONG_ONLY),
     'MAX_POSITION_SIZE': float(MAX_POSITION_SIZE),
     'MAX_MARKET_CONC': float(MAX_MARKET_CONC),
@@ -1530,7 +1824,7 @@ terminal_lines.append('Pipeline v4.1 complete')
 
 dashboard_data = {
     'generated_at': str(pd.Timestamp.now()),
-    'pipeline_version': 'v4.9',
+    'pipeline_version': 'v4.15',
     'config': config, 'metrics': metrics, 'equity': equity_data,
     'folds': fold_data, 'shap': shap_data,
     'top_stocks': top_stocks_data, 'top20': top_stocks_data,
@@ -1708,11 +2002,39 @@ with open(_tmp_path, 'w') as f:
     _os.fsync(f.fileno())
 _os.replace(_tmp_path, str(out_path))
 
-print(f'\nDashboard data v4.12 -> {out_path}')
+print(f'\nDashboard data v4.15 -> {out_path}')
 print(f'  Mode               : {mode}')
 print(f'  Sharpe net / gross : {sharpe:.2f} / {sharpe_gross:.2f}')
 print(f'  Return net / gross : {ann_return*100:.1f}% / {ann_ret_gross*100:.1f}%')
 print(f'  Realised vol / lev : {realised_vol*100:.1f}% / {avg_lev:.2f}x')
+# v4.13 — per-market participation diagnostics
+try:
+    from collections import Counter
+    _market_counter = Counter()
+    _cost_sum = 0.0; _cost_n = 0
+    for r in period_returns:
+        for m in r.get('markets', []) or []:
+            _market_counter[m] += 1
+        if 'cost_bps' in r:
+            _cost_sum += r['cost_bps']; _cost_n += 1
+    if _market_counter:
+        _total_rebal = len(period_returns)
+        _parts = ', '.join(f'{m}:{c}/{_total_rebal}' for m, c in sorted(_market_counter.items()))
+        print(f'  Market participation: {_parts}')
+    if _cost_n:
+        print(f'  Avg basket cost    : {_cost_sum/_cost_n:.1f} bps/rebal (per-market weighted)')
+    # v4.15 — ex-ante vs realised vol comparison (paper-trading diagnostic)
+    _fwd_vols = [r.get('fwd_vol_ann', 0) for r in period_returns if r.get('fwd_vol_ann', 0) > 0]
+    if _fwd_vols:
+        _mean_fwd = sum(_fwd_vols) / len(_fwd_vols)
+        _realised = float(perf.std() * np.sqrt(periods_per_year)) * 100
+        print(f'  Forecast vol (ann)  : {_mean_fwd*100:.1f}%  (mean ex-ante across rebals)')
+        print(f'  Realised vol (ann)  : {_realised:.1f}%')
+        _err = (_realised/100) / _mean_fwd if _mean_fwd > 0 else 0
+        print(f'  Vol forecast accuracy: realised/forecast = {_err:.2f}x  '
+              f'(close to 1.0 = honest; >1.5x = under-forecasting)')
+except Exception as _e:
+    print(f'  [participation diag failed: {_e}]')
 if KELLY_CRITERION:
     _active = sum(1 for r in period_returns if r.get('lev',1.0) not in (1.0, MIN_LEVERAGE))
     print(f'  Kelly book lev    active in {_active}/{len(period_returns)} rebals at f={KELLY_FRACTION}')
