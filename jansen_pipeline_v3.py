@@ -595,7 +595,33 @@ print(passed_features)
 # This is the single biggest Sharpe fix: target_rank neutralises beta /
 # regime noise; per-date feature ranks neutralise level shifts.
 # ═══════════════════════════════════════════════════════════════════════
-ml_start = '2020-01-01'
+# ── Universe coverage diagnostic (run BEFORE ml_start filter) ──────────
+# Shows tickers-per-year by market so you can choose ml_start confidently.
+_cov = feat_df.copy()
+_cov['year'] = pd.to_datetime(_cov['date']).dt.year
+_cov_tbl = (
+    _cov.groupby(['year', 'market'])['ticker']
+    .nunique()
+    .unstack(fill_value=0)
+    .assign(TOTAL=lambda d: d.sum(axis=1))
+)
+_cov_tbl['rows_k'] = (
+    _cov.dropna(subset=['target_21d'])
+    .groupby(_cov.dropna(subset=['target_21d'])['date'].dt.year)
+    .size() // 1000
+)
+print("\n── Ticker coverage by year (use to pick ml_start) ──────────────────")
+print(_cov_tbl.to_string())
+_peak = _cov_tbl['TOTAL'].max()
+_threshold = 0.5 * _peak
+_first_ok = _cov_tbl[_cov_tbl['TOTAL'] >= _threshold].index.min()
+print(f"\n  Peak universe : {int(_peak)} tickers")
+print(f"  ≥50% of peak  : {int(_threshold)} tickers → first year: {_first_ok}")
+print(f"  Current ml_start = '2018-01-01'  ← consider '{_first_ok}-01-01' if ≥ 2015")
+print("─" * 68)
+# ── End diagnostic ──────────────────────────────────────────────────────
+
+ml_start = '2018-01-01'
 fd2 = feat_df.copy()
 fd2['date'] = pd.to_datetime(fd2['date'])
 fd2 = fd2.sort_values('date').reset_index(drop=True)
@@ -835,12 +861,14 @@ print(f'Positive IC folds: {(res_df.ic > 0).sum()}/{len(res_df)}')
 
 # ═══════════════════════════════════════════════════════════════════════
 # CELL 12 — Winsorise OOF signal + cross-sectional z-score per date
-# (Jansen Ch.12)  No fold-filtering needed: all folds train on rank-target
-# of equal length.
+# (Jansen Ch.12)
 # ═══════════════════════════════════════════════════════════════════════
-MIN_TRAIN_DAYS = 252   # v4.14 was 500 — let 2020 H1 folds contribute OOF preds
-                       # at the cost of admitting younger models. Backtest start
-                       # should move from 2022-02 back to ~mid-2020.
+MIN_TRAIN_DAYS = 252   # v4.14 was 500
+# NOTE: IC-based fold exclusion (v4.15) was tried but hurt Sharpe 0.86→0.77.
+# Excluding F21 (April 2025 tariff shock, IC≈-0.12) created a signal gap
+# during a period the portfolio was still making money on defensive positioning.
+# Going to cash during a regime break is a timing bet — worse than keeping
+# the noisy signal. Keep only the train_days filter.
 kept_folds = res_df[res_df['train_days'] >= MIN_TRAIN_DAYS]['fold'].tolist()
 dropped_folds = res_df[res_df['train_days'] < MIN_TRAIN_DAYS]['fold'].tolist()
 print(f'Keeping {len(kept_folds)} folds; dropping {len(dropped_folds)}')
