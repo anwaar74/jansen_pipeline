@@ -185,7 +185,7 @@ BASE        = pathlib.Path(r'C:/Users/pc/Documents/Quant Series 2026/ml_stefan_j
 EODHD_KEY   = os.environ.get('EODHD_API_KEY', '6a01d9bb03ae95.33277051')
 
 RAW_PARQUET  = BASE / 'raw_ohlcv.parquet'
-FEAT_PARQUET = BASE / 'features_long_v5.parquet'         # v4.13 — bumped to invalidate v4.4 cache after history extension
+FEAT_PARQUET = BASE / 'features_long_v6.parquet'         # v4.15 — bumped to add 5 new IC features (ret_126d, sharpe_21/63d, vol_regime, trend_consistency_63d, max_dd_63d)
 
 # ── Universe
 # v4.13 — Backtest window extended pre-2010 to cover GFC, eurozone crisis,
@@ -459,6 +459,29 @@ def compute_features_v3(g: pd.DataFrame, market_close: pd.Series | None = None) 
     out['vol_shock']  = (v - vol_sma20) / vol_std20.replace(0, np.nan)
     out['amihud_21d'] = (lr.abs() / (c * v).replace(0, np.nan)).rolling(21).mean()
 
+    # — v4.15 IC-improvement features (5 new, orthogonal to existing set)
+    # 1. 6-month return — fills the gap between ret_63d and mom_12_1
+    out['ret_126d'] = c.pct_change(126)
+
+    # 2. Risk-adjusted momentum — ret/vol catches stocks with good returns
+    #    relative to their own noise (Barroso & Santa-Clara 2015 style)
+    out['sharpe_21d'] = (out['ret_21d'] / out['vol_21d'].replace(0, np.nan))
+    out['sharpe_63d'] = (out['ret_63d'] / out['vol_63d'].replace(0, np.nan))
+
+    # 3. Vol regime — vol_21d / vol_63d > 1 means vol is expanding (bearish)
+    #    orthogonal to idio_vol_63d (level) — this captures vol *change*
+    out['vol_regime'] = out['vol_21d'] / out['vol_63d'].replace(0, np.nan)
+
+    # 4. Trend consistency — fraction of last 63 days close was above sma21
+    #    captures smooth uptrend vs spike; orthogonal to close_vs_sma50 (level)
+    sma21 = c.rolling(21).mean()
+    out['trend_consistency_63d'] = (c > sma21).rolling(63).mean()
+
+    # 5. Max drawdown over 63 days — captures recent turbulence independently
+    #    of dd_depth_252d (which measures from 1-year high)
+    roll_max_63 = c.rolling(63).max()
+    out['max_dd_63d'] = c / roll_max_63.replace(0, np.nan) - 1
+
     # — targets (raw; rank computed cross-sectionally later)
     out['target_5d']  = c.shift(-5)  / c - 1
     out['target_21d'] = c.shift(-21) / c - 1
@@ -576,6 +599,12 @@ STOCK_FEATURE_COLS = [
     'close_vs_sma50','close_vs_sma200',
     'rsi_14','bb_width','bb_position','atr_pct',
     'vol_ratio','vol_shock','amihud_21d',
+    # v4.15 — 5 IC-improvement features
+    'ret_126d',               # 6-month momentum (gap filler)
+    'sharpe_21d','sharpe_63d',# risk-adjusted momentum
+    'vol_regime',             # vol expansion/contraction (change, not level)
+    'trend_consistency_63d',  # fraction of days in uptrend (quality of trend)
+    'max_dd_63d',             # short-term max drawdown (recent turbulence)
 ]
 # v4.4 — regime features are per (date, market); kept SEPARATE because they
 # must NOT be per-date rank-transformed (constant within a date).
