@@ -1033,6 +1033,13 @@ SIGNAL_WEIGHTED    = True         # was False — rank-weighted within long book
 MAX_POSITION_SIZE  = 0.05
 MAX_MARKET_CONC    = 0.40
 
+# v4.16 — hysteresis turnover filter
+# A stock already in the basket is kept unless its signal rank drops more than
+# TURNOVER_BUFFER percentile-points below the entry threshold. This avoids
+# swapping out names that dip briefly below top-20%, reducing round-trip costs
+# without lagging the signal on genuine rank changes.
+TURNOVER_BUFFER    = 0.10        # 10 pct-point buffer below entry threshold
+
 # Volatility target — kept as fallback during Kelly warm-up
 VOL_TARGET         = True
 VOL_TARGET_ANN     = 0.12
@@ -1260,6 +1267,7 @@ def _signal_weights(grp_side, side='long'):
 period_returns = []
 cum_eq, peak_eq, cb_trips = 1.0, 1.0, 0
 recent_rets = []
+prev_basket_per_market = {}   # v4.16 — hysteresis state: mkt → set of tickers
 
 # Decile-return history: rows = rebal dates, cols = decile (1..N_DECILES)
 decile_returns_history = pd.DataFrame(columns=list(range(1, N_DECILES + 1)))
@@ -1332,7 +1340,16 @@ for rd in rebal_dates:
             if len(mkt_grp) < MIN_NAMES_PER_MARKET:
                 continue
             mkt_hi = mkt_grp['signal'].quantile(1 - TOP_FRAC)
-            mkt_longs = mkt_grp[mkt_grp['signal'] >= mkt_hi].copy()
+            # v4.16 — hysteresis: carry-over stocks need only exceed exit threshold
+            exit_threshold = mkt_grp['signal'].quantile(
+                max(0.0, 1 - TOP_FRAC - TURNOVER_BUFFER))
+            prev_in_mkt  = prev_basket_per_market.get(mkt, set())
+            new_entries  = set(mkt_grp.loc[mkt_grp['signal'] >= mkt_hi, 'ticker'])
+            carry_overs  = set(mkt_grp.loc[
+                mkt_grp['ticker'].isin(prev_in_mkt) &
+                (mkt_grp['signal'] >= exit_threshold), 'ticker'])
+            mkt_longs = mkt_grp[mkt_grp['ticker'].isin(new_entries | carry_overs)].copy()
+            prev_basket_per_market[mkt] = set(mkt_longs['ticker'])
             if mkt_longs.empty:
                 continue
 
@@ -1811,7 +1828,7 @@ metrics = {
 config = {
     'TRAIN_PERIOD': int(TRAIN_PERIOD), 'TEST_PERIOD': int(TEST_PERIOD),
     'TARGET_HORIZON': int(TARGET_HORIZON), 'EMBARGO': int(EMBARGO),
-    'N_SPLITS': int(N_SPLITS),
+    'N_SPLITS': int(N_SPLITS), 'TURNOVER_BUFFER': float(TURNOVER_BUFFER),
     'TOP_DECILE': float(TOP_DECILE), 'TOP_FRAC': float(TOP_FRAC),
     'REBAL_DAYS': int(REBAL_DAYS),
     'COMMISSION_BPS': float(COMMISSION_BPS), 'SLIPPAGE_BPS': float(SLIPPAGE_BPS),
